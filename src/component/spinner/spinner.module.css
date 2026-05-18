@@ -1,0 +1,83 @@
+.spinner {
+  font-size: 28px;
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinnerBlade {
+  position: absolute;
+  left: 0.4629em;
+  bottom: 0;
+  width: 0.074em;
+  height: 0.2777em;
+  border-radius: 0.0555em;
+  background-color: transparent;
+  transform-origin: center -0.2222em;
+  animation: spinner-fade 1s infinite linear;
+}
+
+.spinnerBlade:nth-child(1) {
+  animation-delay: 0s;
+  transform: rotate(0deg);
+}
+.spinnerBlade:nth-child(2) {
+  animation-delay: 0.083s;
+  transform: rotate(30deg);
+}
+.spinnerBlade:nth-child(3) {
+  animation-delay: 0.166s;
+  transform: rotate(60deg);
+}
+.spinnerBlade:nth-child(4) {
+  animation-delay: 0.249s;
+  transform: rotate(90deg);
+}
+.spinnerBlade:nth-child(5) {
+  animation-delay: 0.332s;
+  transform: rotate(120deg);
+}
+.spinnerBlade:nth-child(6) {
+  animation-delay: 0.415s;
+  transform: rotate(150deg);
+}
+.spinnerBlade:nth-child(7) {
+  animation-delay: 0.498s;
+  transform: rotate(180deg);
+}
+.spinnerBlade:nth-child(8) {
+  animation-delay: 0.581s;
+  transform: rotate(210deg);
+}
+.spinnerBlade:nth-child(9) {
+  animation-delay: 0.664s;
+  transform: rotate(240deg);
+}
+.spinnerBlade:nth-child(10) {
+  animation-delay: 0.747s;
+  transform: rotate(270deg);
+}
+.spinnerBlade:nth-child(11) {
+  animation-delay: 0.83s;
+  transform: rotate(300deg);
+}
+.spinnerBlade:nth-child(12) {
+  animation-delay: 0.913s;
+  transform: rotate(330deg);
+}
+
+@keyframes spinner-fade {
+  0% {
+    background-color: #3b82f6;
+  } /* Tailwind blue-500 */
+  100% {
+    background-color: transparent;
+  }
+}
