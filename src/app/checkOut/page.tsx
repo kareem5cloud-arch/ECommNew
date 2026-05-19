@@ -53,6 +53,7 @@ export default function CheckOut() {
   const [Address, setAddress] = useState("");
   const [customerID, setCustomerID] = useState("");
   const [countryID, setCountryID] = useState("");
+  const [token, setToken] = useState("");
   const [Countries, setCountries] = useState<Countryget[]>([]);
   const [storePayload, setStorePayload] =
     useState<requestAddStoreToGetRate | null>(null);
@@ -71,9 +72,11 @@ export default function CheckOut() {
 
   const [promoCode, setPromoCode] = useState("PlaceOrder");
 
+  useEffect(() => {
+    const data = localStorage.getItem("token1");
+    setToken(data || "");
+  }, []);
   const onClear = async () => {};
-
-  const token = localStorage.getItem("token1");
 
   useEffect(() => {
     getCountry();

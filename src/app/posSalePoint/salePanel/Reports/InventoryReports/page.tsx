@@ -1,3 +1,4 @@
+"use client";
 import CustomerReport from "@/api/lib/PosIntegration/Report/CustomerReport/CustomerReport";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";

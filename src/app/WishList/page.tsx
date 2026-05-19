@@ -6,12 +6,14 @@ import Image from "next/image";
 import Footer from "@/component/Footer/page";
 import Navbar from "@/component/Navbar/page";
 import { useRouter } from "next/navigation";
+import { CartData } from "@/api/types/Cart/CartData";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [activePage, setActivePage] = useState("login");
   const router = useRouter();
+  const [cartData, setCartData] = useState<CartData[]>([]);
   const wishlist = [
     {
       id: 1,
@@ -32,7 +34,11 @@ export default function LoginPage() {
   ];
   return (
     <>
-      <Navbar onPageChange={setActivePage} />
+      <Navbar
+        onPageChange={setActivePage}
+        onClear={() => {}}
+        setCartList={setCartData}
+      />
 
       {/* MAIN CONTENT */}
       <div className="flex flex-col items-center w-full min-h-[calc(100vh-200px)] bg-gray-100 px-4 py-10">

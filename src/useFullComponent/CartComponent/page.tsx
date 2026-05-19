@@ -7,7 +7,6 @@ import {
   removeItemFromServerCart,
 } from "@/api/lib/Cart/AddCart";
 import { CartData, cartList } from "@/api/types/Cart/CartData";
-import CheckOut from "@/app/checkOut/page";
 import { CreditCard, Minus, Plus, ShoppingCart, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -24,7 +23,7 @@ export default function CartComponent({
   const [cartCheckOut, setCartCheckOut] = useState<CartData[]>([]);
   const [NumberofProduct, setNumberofProduct] = useState(1);
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
 
   const checkOut = () => {
@@ -38,8 +37,10 @@ export default function CartComponent({
     if (newQuantity < 1) return;
     setCartList((prev) =>
       prev.map((item, i) =>
-        item.productID === productID ? { ...item, quantity: newQuantity } : item
-      )
+        item.productID === productID
+          ? { ...item, quantity: newQuantity }
+          : item,
+      ),
     );
     await modifyCartServer(String(productID), Number(newQuantity));
     await ModifyFromCart(String(productID), Number(newQuantity), String(token));
@@ -62,7 +63,7 @@ export default function CartComponent({
   };
   const handleCheckboxChange = (productID: string) => {
     const selectedProduct = cartList.find(
-      (item) => item.productID === productID
+      (item) => item.productID === productID,
     );
     if (!selectedProduct) return;
 
@@ -72,7 +73,7 @@ export default function CartComponent({
       setCartCheckOut((prevCheckout) => {
         if (isChecked) {
           const exists = prevCheckout.some(
-            (item) => item.productID === productID
+            (item) => item.productID === productID,
           );
 
           if (exists) return prevCheckout;
@@ -198,7 +199,7 @@ export default function CartComponent({
                             onClick={() =>
                               updateQuantity(
                                 item.productID,
-                                (item.quantity || 1) - 1
+                                (item.quantity || 1) - 1,
                               )
                             }
                             disabled={(item.quantity || 1) === 1}
@@ -223,7 +224,7 @@ export default function CartComponent({
                           onClick={() =>
                             updateQuantity(
                               item.productID,
-                              (item.quantity || 1) + 1
+                              (item.quantity || 1) + 1,
                             )
                           }
                           className="p-1 bg-white hover:bg-gray-100 shadow-sm rounded"

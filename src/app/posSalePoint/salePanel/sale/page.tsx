@@ -1,3 +1,4 @@
+"use client";
 import GetSalesman from "@/api/lib/MainDashbaord/SalemanApi/GetSalesman";
 import GetTillForSalesMan from "@/api/lib/MainDashbaord/TillCreate/GetTillForSpecficSaleMan";
 import AddCustomer from "@/api/lib/PosIntegration/Customer/AddCustomer";

@@ -44,8 +44,8 @@ export default function Navbar({
 }: {
   onPageChange: (page: string) => void;
   onCategoriesLoaded?: (categories: Category[]) => void;
-  SubCategoryID: (SubCategoryID: string) => void;
-  cartList: CartData[];
+  SubCategoryID?: (SubCategoryID: string) => void;
+  cartList?: CartData[];
   setCartList: React.Dispatch<React.SetStateAction<CartData[]>>;
   onClear: () => void;
 }) {
@@ -57,7 +57,7 @@ export default function Navbar({
   const [menuOpen, setMenuOpen] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [LadningPAgeInfo, setLadningPAgeInfo] = useState<ladingPageDetail[]>(
-    []
+    [],
   );
   const [image, setImage] = useState("");
   const [subCategoryID, setsubCategoryID] = useState("");
@@ -256,7 +256,7 @@ export default function Navbar({
               >
                 <ShoppingCart className="w-5 h-5 group-hover:text-blue-500 transition" />
                 <span className="absolute -top-2 -right-2 bg-blue-500 text-white px-1.5 rounded-full text-[10px]">
-                  {cartList.length}
+                  {cartList?.length}
                 </span>
               </button>
             </div>
@@ -383,7 +383,7 @@ export default function Navbar({
             onClick={(e) => e.stopPropagation()}
           >
             <CartComponent
-              cartList={cartList}
+              cartList={cartList || []}
               setCartList={setCartList}
               onClear={onClear}
             />
