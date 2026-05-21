@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.BASE_URL || "http://localhost:8081",
+  baseURL: "https://sonuspk.premiermegamall.com/",
   headers: {
     "Content-Type": "application/json",
   },
@@ -12,7 +12,7 @@ import { ApiResponse } from "../types/apiResponse";
 async function getRequest<T>(
   url: string,
   params?: any,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.get<T>(url, {
@@ -21,7 +21,6 @@ async function getRequest<T>(
         ...headers,
       },
     });
-    console.log(process.env.BASE_URL);
     return {
       success: true,
       data: response.data,
@@ -34,8 +33,6 @@ async function getRequest<T>(
     console.log(params);
     console.log(headers);
     return {
-      
-      
       success: false,
       error: error?.response?.data || error.message,
       status: error?.response?.status,
@@ -47,7 +44,7 @@ async function getRequest<T>(
 async function postRequest<T>(
   url: string,
   data: any,
-  headers?: Record<string, string>
+  headers?: Record<string, string>,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await api.post<T>(url, data, { headers });

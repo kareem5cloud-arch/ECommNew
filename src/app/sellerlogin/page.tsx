@@ -22,7 +22,7 @@ export default function Login() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showList, setShowList] = useState(false);
 
-  const [Email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [UserNameSeller, setUserNameSeller] = useState("");
@@ -41,7 +41,7 @@ export default function Login() {
   const Login = async () => {
     try {
       setLoading(true);
-      const formData = { Email, password };
+      const formData = { email, password };
       const response = await LoginApi(formData);
       console.log("Response from Login API:", response);
       if (response?.status === 200 || response?.status === 201) {
@@ -75,7 +75,7 @@ export default function Login() {
     console.log("Response from SellerVerification API:", response.data);
     if (response.data === "UnVerified Seller") {
       verfiy();
-      localStorage.setItem("userEmail", Email.toLowerCase());
+      localStorage.setItem("userEmail", email.toLowerCase());
       router.push("/sellerlogin/otpVerification");
     } else {
       setShowList(true);
@@ -323,7 +323,7 @@ export default function Login() {
                 <input
                   type="Email"
                   id="email"
-                  value={Email}
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Email"

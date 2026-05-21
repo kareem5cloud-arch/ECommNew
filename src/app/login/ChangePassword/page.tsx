@@ -45,7 +45,7 @@ export default function Login() {
       const response = await ChangePassword(
         String(email),
         passwordSeller,
-        String(token)
+        String(token),
       );
       if (response.status === 200) {
         router.push("/login");

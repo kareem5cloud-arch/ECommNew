@@ -1,5 +1,5 @@
 export interface RequestLoginData {
-  Email: string;
+  email: string;
   password: string;
 }
 export interface ResponseLoginData {

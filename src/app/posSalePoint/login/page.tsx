@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function SellerPosLogin() {
   const router = useRouter();
-  const [Email, setEmail] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [responseBack, setResponseBack] = useState("");
   const [ShowMessage, setShowMessage] = useState(false);
@@ -17,7 +17,7 @@ export default function SellerPosLogin() {
   const Login = async () => {
     try {
       setLoading(true);
-      const formData = { Email, password };
+      const formData = { email, password };
       const response = await LoginOfflineSeller(formData);
       console.log("Response from Login API:", response);
       if (response?.status === 200 || response?.status === 201) {
@@ -68,7 +68,7 @@ export default function SellerPosLogin() {
               <input
                 type="Email"
                 id="email"
-                value={Email}
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Email"
