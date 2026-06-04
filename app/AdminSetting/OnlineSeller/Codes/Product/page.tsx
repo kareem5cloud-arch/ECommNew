@@ -17,7 +17,7 @@ export default function ProductManagement() {
   const [showBasicINfoModel, setShowBasicINfoModel] = useState(false);
   const [showImageListModel, setShowImageListModel] = useState(false);
   const [productList, setProductList] = useState<productList>();
-
+  const [event, setEvent] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
   return (
     <>
@@ -53,6 +53,7 @@ export default function ProductManagement() {
             </h1>
             <ModifyBasicInfo
               initalData={productList}
+              refreshevent={setEvent}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
@@ -89,12 +90,13 @@ export default function ProductManagement() {
             </h1>
             <ModifyProductImage
               initalData={productList}
+              refreshevent={setEvent}
               onShowMessage={(msg, type) => {
                 setShowMessage(msg);
                 setMessageType(type);
                 if (type === "success") {
                   setView("list");
-                  setShowBasicINfoModel(false);
+                  setShowImageListModel(false);
                 }
               }}
             />
@@ -130,6 +132,7 @@ export default function ProductManagement() {
           {view === "list" && (
             <>
               <GetProductList
+                refreshevent={event}
                 setShowBasicINfoModel={setShowBasicINfoModel}
                 initalData={setProductList}
                 setShowImageListModel={setShowImageListModel}

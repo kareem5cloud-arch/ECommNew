@@ -22,6 +22,7 @@ import {
   Star,
   ShoppingBag,
 } from "lucide-react";
+import { ResposneStoreListHomePage } from "@/app/api/Types/Customer/HomePageStoreSetting";
 
 // Custom social icons (not in Lucide)
 const FacebookIcon = () => (
@@ -59,7 +60,10 @@ const YoutubeIcon = () => (
   </svg>
 );
 
-export default function Footer() {
+interface BannerSliderProps {
+  storeInfo?: ResposneStoreListHomePage;
+}
+export default function Footer({ storeInfo }: BannerSliderProps) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -89,11 +93,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12 pb-12 border-b border-white/10">
           {/* Brand Section */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
+            {/* <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-6 h-6 text-purple-400" />
               <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
                 ShopHub
               </h2>
+            </div> */}
+            <div className="flex-shrink-0 ml-4 lg:ml-0">
+              {storeInfo?.logoUrl ? (
+                <img
+                  src={storeInfo.logoUrl}
+                  alt="Store Logo"
+                  className="h-8 lg:h-10 w-auto object-contain"
+                />
+              ) : (
+                <span className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"></span>
+              )}
             </div>
             <p className="text-gray-300 text-sm mb-6 leading-relaxed max-w-md">
               Experience the future of online shopping with premium quality
@@ -104,31 +119,31 @@ export default function Footer() {
             {/* Social Links with Modern Design */}
             <div className="flex gap-3 mb-8">
               <a
-                href="#"
+                href={storeInfo?.facebook}
                 className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
               >
                 <FacebookIcon />
               </a>
               <a
-                href="#"
+                href={storeInfo?.facebook}
                 className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
               >
                 <TwitterIcon />
               </a>
               <a
-                href="#"
+                href={storeInfo?.instagram}
                 className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
               >
                 <InstagramIcon />
               </a>
               <a
-                href="#"
+                href={storeInfo?.linkdin}
                 className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
               >
                 <LinkedinIcon />
               </a>
               <a
-                href="#"
+                href={storeInfo?.youtube}
                 className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
               >
                 <YoutubeIcon />
@@ -278,15 +293,15 @@ export default function Footer() {
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-gray-400 text-sm">
                 <MapPin className="w-4 h-4 mt-0.5 text-purple-400" />
-                <span>123 Luxury Avenue, New York, NY 10001</span>
+                <span>{storeInfo?.address}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <Phone className="w-4 h-4 text-purple-400" />
-                <span>+1 (555) 123-4567</span>
+                <span>{storeInfo?.phoneNo}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <Mail className="w-4 h-4 text-purple-400" />
-                <span>hello@shophub.com</span>
+                <span>{storeInfo?.email}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <Headphones className="w-4 h-4 text-purple-400" />

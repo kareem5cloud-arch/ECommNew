@@ -20,11 +20,13 @@ import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod"
 import ProductInasertImageApi from "@/app/api/Controller/OnlineSellerController/Product/ModifyProduct/InsertImages";
 interface props {
   initalData?: productList;
+  refreshevent: (data: boolean) => void;
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
 export default function ModifyProductImage({
   initalData,
   onShowMessage,
+  refreshevent,
 }: props) {
   const [images, setImages] = useState<File[]>([]);
   const [imagesList, setImagesList] = useState<imagesList[]>([]);
@@ -102,10 +104,11 @@ export default function ModifyProductImage({
           url: item.data,
         })),
       };
-
-      const response = await ProductInasertImageApi(formData);
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await ProductInasertImageApi(formData, String(token));
       if (response.status == 200) {
         onShowMessage(response.data.message, "success");
+        refreshevent(true);
       } else {
         onShowMessage(response.data.message, "error");
       }

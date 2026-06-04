@@ -14,13 +14,13 @@ import ProductDetailPage from "./ProductDetail/page";
 import ShopPage from "./Shop/page";
 
 export default function HomePage() {
-  const { storeInfo } = useAppContext();
+  const { storeInfo, categroyInfo } = useAppContext();
   // useEffect(() => {
   //   console.log(storeInfo);
   // }, [storeInfo]);
   return (
     <>
-      <Navbar />
+      <Navbar categoryData={categroyInfo} storeInfo={storeInfo[0]} />
       {/* <CheckoutPage /> */}
       {/* <ProductDetailPage /> */}
       {/* <ShopPage /> */}
@@ -29,7 +29,7 @@ export default function HomePage() {
       <NewArrivals />
       <FeaturesSection />
       <MoreDecentProduct />
-      <FooterMinimal />
+      <FooterMinimal storeInfo={storeInfo[0]} />
     </>
   );
 }

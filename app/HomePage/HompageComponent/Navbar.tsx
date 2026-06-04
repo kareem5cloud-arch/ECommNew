@@ -14,6 +14,8 @@ import {
 import CartSidebar from "../useFullComponent/cartSideBar";
 import AuthModal from "./LoginSignUp";
 import WishlistSidebar from "../useFullComponent/wishListSideBar";
+import { categoryListHomePageCustomerCategroy } from "@/app/api/Types/Customer/HomePageCustomerCategroy";
+import { ResposneStoreListHomePage } from "@/app/api/Types/Customer/HomePageStoreSetting";
 
 interface SubSubcategory {
   id: string;
@@ -38,7 +40,11 @@ interface Category {
   subcategories: Subcategory[];
 }
 
-export default function Navbar() {
+interface NavabarProps {
+  categoryData: categoryListHomePageCustomerCategroy[];
+  storeInfo?: ResposneStoreListHomePage;
+}
+export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(
@@ -62,358 +68,10 @@ export default function Navbar() {
   }, []);
 
   // Sample categories data with 3 levels
-  const categories: Category[] = [
-    {
-      id: "1",
-      name: "Electronics",
-      slug: "electronics",
-      image:
-        "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=600&h=400&fit=crop",
-      subcategories: [
-        {
-          id: "1-1",
-          name: "Smartphones",
-          slug: "smartphones",
-          image:
-            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "1-1-1",
-              name: "Apple",
-              slug: "apple",
-              image:
-                "https://images.unsplash.com/photo-1591332936887-76c0a0b98de3?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-1-2",
-              name: "Samsung",
-              slug: "samsung",
-              image:
-                "https://images.unsplash.com/photo-1610945264803-c22e62d2a7b3?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-1-3",
-              name: "Xiaomi",
-              slug: "xiaomi",
-              image:
-                "https://images.unsplash.com/photo-1592899677977-9e10cb588be2?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-1-4",
-              name: "Google Pixel",
-              slug: "google-pixel",
-              image:
-                "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "1-2",
-          name: "Laptops",
-          slug: "laptops",
-          image:
-            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "1-2-1",
-              name: "Gaming Laptops",
-              slug: "gaming-laptops",
-              image:
-                "https://images.unsplash.com/photo-1593642702821-c8da6771f0c4?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-2-2",
-              name: "Business Laptops",
-              slug: "business-laptops",
-              image:
-                "https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-2-3",
-              name: "Ultrabooks",
-              slug: "ultrabooks",
-              image:
-                "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "1-3",
-          name: "Headphones",
-          slug: "headphones",
-          image:
-            "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "1-3-1",
-              name: "Wireless",
-              slug: "wireless-headphones",
-              image:
-                "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-3-2",
-              name: "Noise Cancelling",
-              slug: "noise-cancelling",
-              image:
-                "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=200&h=150&fit=crop",
-            },
-            {
-              id: "1-3-3",
-              name: "Gaming Headsets",
-              slug: "gaming-headsets",
-              image:
-                "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "1-4",
-          name: "Cameras",
-          slug: "cameras",
-          image:
-            "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=200&h=150&fit=crop",
-        },
-        {
-          id: "1-5",
-          name: "Smart Watches",
-          slug: "smart-watches",
-          image:
-            "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200&h=150&fit=crop",
-        },
-      ],
-    },
-    {
-      id: "2",
-      name: "Fashion",
-      slug: "fashion",
-      image:
-        "https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&h=400&fit=crop",
-      subcategories: [
-        {
-          id: "2-1",
-          name: "Men's Clothing",
-          slug: "mens-clothing",
-          image:
-            "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "2-1-1",
-              name: "Shirts",
-              slug: "shirts",
-              image:
-                "https://images.unsplash.com/photo-1603252109303-2751441dd157?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-1-2",
-              name: "T-Shirts",
-              slug: "t-shirts",
-              image:
-                "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-1-3",
-              name: "Jeans",
-              slug: "jeans",
-              image:
-                "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-1-4",
-              name: "Suits",
-              slug: "suits",
-              image:
-                "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "2-2",
-          name: "Women's Clothing",
-          slug: "womens-clothing",
-          image:
-            "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "2-2-1",
-              name: "Dresses",
-              slug: "dresses",
-              image:
-                "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-2-2",
-              name: "Tops",
-              slug: "tops",
-              image:
-                "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-2-3",
-              name: "Skirts",
-              slug: "skirts",
-              image:
-                "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "2-3",
-          name: "Shoes",
-          slug: "shoes",
-          image:
-            "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "2-3-1",
-              name: "Sports Shoes",
-              slug: "sports-shoes",
-              image:
-                "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-3-2",
-              name: "Formal Shoes",
-              slug: "formal-shoes",
-              image:
-                "https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=200&h=150&fit=crop",
-            },
-            {
-              id: "2-3-3",
-              name: "Casual Shoes",
-              slug: "casual-shoes",
-              image:
-                "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "2-4",
-          name: "Accessories",
-          slug: "accessories",
-          image:
-            "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=150&fit=crop",
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Home & Living",
-      slug: "home-living",
-      image:
-        "https://images.unsplash.com/photo-1484154218962-a197022b5858?w=600&h=400&fit=crop",
-      subcategories: [
-        {
-          id: "3-1",
-          name: "Furniture",
-          slug: "furniture",
-          image:
-            "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "3-1-1",
-              name: "Sofas",
-              slug: "sofas",
-              image:
-                "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=200&h=150&fit=crop",
-            },
-            {
-              id: "3-1-2",
-              name: "Beds",
-              slug: "beds",
-              image:
-                "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=200&h=150&fit=crop",
-            },
-            {
-              id: "3-1-3",
-              name: "Tables",
-              slug: "tables",
-              image:
-                "https://images.unsplash.com/photo-1577140917170-285929fb55b7?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "3-2",
-          name: "Decor",
-          slug: "decor",
-          image:
-            "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=200&h=150&fit=crop",
-        },
-        {
-          id: "3-3",
-          name: "Kitchen",
-          slug: "kitchen",
-          image:
-            "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&h=150&fit=crop",
-        },
-      ],
-    },
-    {
-      id: "4",
-      name: "Beauty",
-      slug: "beauty",
-      image:
-        "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&h=400&fit=crop",
-      subcategories: [
-        {
-          id: "4-1",
-          name: "Skincare",
-          slug: "skincare",
-          image:
-            "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200&h=150&fit=crop",
-          subcategories: [
-            {
-              id: "4-1-1",
-              name: "Moisturizers",
-              slug: "moisturizers",
-              image:
-                "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200&h=150&fit=crop",
-            },
-            {
-              id: "4-1-2",
-              name: "Serums",
-              slug: "serums",
-              image:
-                "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=200&h=150&fit=crop",
-            },
-          ],
-        },
-        {
-          id: "4-2",
-          name: "Makeup",
-          slug: "makeup",
-          image:
-            "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200&h=150&fit=crop",
-        },
-      ],
-    },
-    {
-      id: "5",
-      name: "Sports",
-      slug: "sports",
-      image:
-        "https://images.unsplash.com/photo-1461896836934-ffe807baa8b8?w=600&h=400&fit=crop",
-      subcategories: [
-        {
-          id: "5-1",
-          name: "Running",
-          slug: "running",
-          image:
-            "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=200&h=150&fit=crop",
-        },
-        {
-          id: "5-2",
-          name: "Gym",
-          slug: "gym",
-          image:
-            "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=150&fit=crop",
-        },
-      ],
-    },
-  ];
 
-  const activeCategoryData = categories.find((c) => c.id === activeCategory);
+  const activeCategoryData = categoryData.find(
+    (c) => c.categoryID === activeCategory,
+  );
 
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
@@ -465,9 +123,15 @@ export default function Navbar() {
                 )}
               </button>
               <div className="flex-shrink-0 ml-4 lg:ml-0">
-                <span className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  ShopHub
-                </span>
+                {storeInfo?.logoUrl ? (
+                  <img
+                    src={storeInfo.logoUrl}
+                    alt="Store Logo"
+                    className="h-8 lg:h-10 w-auto object-contain"
+                  />
+                ) : (
+                  <span className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"></span>
+                )}
               </div>
             </div>
 
@@ -525,126 +189,126 @@ export default function Navbar() {
           </div>
 
           {/* Categories - Desktop */}
-          <div className="hidden lg:block border-t border-gray-100">
-            <div className="flex justify-center space-x-1 xl:space-x-8">
-              {categories.map((category) => (
+          <div className="hidden lg:block border-t border-gray-100 relative">
+            <div className="flex justify-start xl:justify-center space-x-1 xl:space-x-8 overflow-x-auto">
+              {categoryData.map((category) => (
                 <div
-                  key={category.id}
+                  key={category.categoryID}
                   className="relative"
-                  onMouseEnter={() => handleMouseEnter(category.id)}
+                  onMouseEnter={() => handleMouseEnter(category.categoryID)}
                   onMouseLeave={handleMouseLeave}
                 >
                   <button
-                    className={`px-4 xl:px-6 py-4 text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative
+                    className={`px-4 xl:px-6 py-4 text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative whitespace-nowrap
                     ${
-                      activeCategory === category.id
+                      activeCategory === category.categoryID
                         ? "text-purple-600"
                         : "text-gray-700 hover:text-purple-600"
                     }
                   `}
                   >
-                    <span>{category.name}</span>
+                    <span>{category.categoryName}</span>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200
-                    ${activeCategory === category.id ? "rotate-180" : ""}
-                  `}
+                      ${activeCategory === category.categoryID ? "rotate-180" : ""}
+                    `}
                     />
-                    {activeCategory === category.id && (
+                    {activeCategory === category.categoryID && (
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full"></div>
                     )}
                   </button>
 
-                  {/* Dropdown menu - 3 Level */}
-                  {activeCategory === category.id && (
-                    <div className="absolute left-0 mt-0 w-screen max-w-6xl bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fadeIn">
-                      <div className="flex">
-                        {/* Level 1 & 2 - Subcategories */}
-                        <div className="w-2/3 p-6 border-r border-gray-100">
-                          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between">
-                            <span>{category.name}</span>
-                            <a
-                              href={`/category/${category.slug}`}
-                              className="text-xs text-purple-600 hover:underline"
-                            >
-                              View All →
-                            </a>
-                          </h3>
-                          <div className="grid grid-cols-2 gap-6">
-                            {category.subcategories.map((sub) => (
-                              <div key={sub.id} className="relative group/sub">
-                                <div className="flex items-center justify-between">
-                                  <a
-                                    href={`/category/${category.slug}/${sub.slug}`}
-                                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-purple-50 transition-colors duration-200 flex-1"
-                                  >
-                                    {sub.image && (
-                                      <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                                        <img
-                                          src={sub.image}
-                                          alt={sub.name}
-                                          className="w-full h-full object-cover group-hover/sub:scale-110 transition-transform duration-200"
-                                        />
+                  {/* Dropdown menu - Full width from category position */}
+                  {activeCategory === category.categoryID && (
+                    <div className="fixed left-0 right-0 w-full bg-white   border-t lg:border border-gray-100 overflow-hidden z-50 animate-fadeIn">
+                      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex flex-col lg:flex-row">
+                          {/* Level 1 & 2 - Subcategories */}
+                          <div className="w-full lg:w-2/3 p-6 border-r border-gray-100">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center justify-between">
+                              <span>{category.categoryName}</span>
+                              <a
+                                href="#"
+                                className="text-xs text-purple-600 hover:underline"
+                              >
+                                View All →
+                              </a>
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                              {category.subCategoryList.map((sub) => (
+                                <div
+                                  key={sub.subCategoryID}
+                                  className="relative group/sub"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <a
+                                      href="#"
+                                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-purple-50 transition-colors duration-200 flex-1"
+                                    >
+                                      <span className="text-gray-700 group-hover/sub:text-purple-600 font-medium text-sm">
+                                        {sub.subCategoryName}
+                                      </span>
+                                    </a>
+                                    {sub.subCategoryDetailList &&
+                                      sub.subCategoryDetailList.length > 0 && (
+                                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                                      )}
+                                  </div>
+
+                                  {/* Level 3 - Sub-subcategories */}
+                                  {sub.subCategoryDetailList &&
+                                    sub.subCategoryDetailList.length > 0 && (
+                                      <div className="ml-12 mt-1 space-y-1">
+                                        {sub.subCategoryDetailList
+                                          .slice(0, 3)
+                                          .map((subsub) => (
+                                            <a
+                                              key={subsub.subCategoryDetailID}
+                                              href="#"
+                                              className="block text-xs text-gray-500 hover:text-purple-600 py-1 transition-colors"
+                                            >
+                                              {subsub.name}
+                                            </a>
+                                          ))}
+                                        {sub.subCategoryDetailList.length >
+                                          3 && (
+                                          <a
+                                            href="#"
+                                            className="block text-xs text-purple-600 hover:underline mt-1"
+                                          >
+                                            +
+                                            {sub.subCategoryDetailList.length -
+                                              3}{" "}
+                                            more
+                                          </a>
+                                        )}
                                       </div>
                                     )}
-                                    <span className="text-gray-700 group-hover/sub:text-purple-600 font-medium text-sm">
-                                      {sub.name}
-                                    </span>
-                                  </a>
-                                  {sub.subcategories &&
-                                    sub.subcategories.length > 0 && (
-                                      <ChevronRight className="h-4 w-4 text-gray-400" />
-                                    )}
                                 </div>
-
-                                {/* Level 3 - Sub-subcategories */}
-                                {sub.subcategories &&
-                                  sub.subcategories.length > 0 && (
-                                    <div className="ml-12 mt-1 space-y-1">
-                                      {sub.subcategories
-                                        .slice(0, 3)
-                                        .map((subsub) => (
-                                          <a
-                                            key={subsub.id}
-                                            href={`/category/${category.slug}/${sub.slug}/${subsub.slug}`}
-                                            className="block text-xs text-gray-500 hover:text-purple-600 py-1 transition-colors"
-                                          >
-                                            {subsub.name}
-                                          </a>
-                                        ))}
-                                      {sub.subcategories.length > 3 && (
-                                        <a
-                                          href="#"
-                                          className="block text-xs text-purple-600 hover:underline mt-1"
-                                        >
-                                          +{sub.subcategories.length - 3} more
-                                        </a>
-                                      )}
-                                    </div>
-                                  )}
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Category Image & Promo */}
-                        <div className="w-1/3 bg-gradient-to-br from-purple-50 to-pink-50 p-6 flex flex-col">
-                          <div className="rounded-xl overflow-hidden shadow-lg mb-4">
-                            <img
-                              src={activeCategoryData?.image}
-                              alt={activeCategoryData?.name}
-                              className="w-full h-56 object-cover transform hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                          <p className="text-sm text-gray-600 text-center mb-3">
-                            Explore our {category.name} collection
-                          </p>
-                          <button className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition shadow-md">
-                            Shop Now →
-                          </button>
-                          <div className="mt-4 text-center">
-                            <p className="text-xs text-gray-500">
-                              Free shipping on orders over $50
+                          {/* Category Image & Promo */}
+                          <div className="w-full lg:w-1/3 bg-gradient-to-br from-purple-50 to-pink-50 p-6 flex flex-col">
+                            <div className="rounded-xl overflow-hidden shadow-lg mb-4">
+                              <img
+                                src={category.url}
+                                alt={category.categoryName}
+                                className="w-full h-48 lg:h-56 object-cover transform hover:scale-105 transition-transform duration-300"
+                              />
+                            </div>
+                            <p className="text-sm text-gray-600 text-center mb-3">
+                              Explore our {category.categoryName} collection
                             </p>
+                            <button className="w-full px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 transition shadow-md">
+                              Shop Now →
+                            </button>
+                            <div className="mt-4 text-center">
+                              <p className="text-xs text-gray-500">
+                                Free shipping on orders over $50
+                              </p>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -658,47 +322,60 @@ export default function Navbar() {
 
         {/* Mobile menu with 3 levels */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-white pt-16 overflow-y-auto">
-            <div className="px-4 py-4 space-y-4">
-              {/* Search bar - Mobile */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-                <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+          <>
+            <div className="lg:hidden fixed inset-0 z-40 bg-white pt-16 overflow-y-auto">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  <X className="h-6 w-6 text-gray-600" />
+                </button>
               </div>
+              <div className="px-4 py-4 space-y-4">
+                {/* Search bar - Mobile */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                </div>
 
-              {/* Mobile categories with 3 levels */}
-              {categories.map((category) => (
-                <div key={category.id} className="space-y-2">
-                  <button
-                    onClick={() =>
-                      setActiveCategory(
-                        activeCategory === category.id ? null : category.id,
-                      )
-                    }
-                    className="w-full flex items-center justify-between px-3 py-3 text-gray-700 hover:bg-purple-50 rounded-lg transition-colors"
-                  >
-                    <span className="font-semibold">{category.name}</span>
-                    <ChevronDown
-                      className={`h-5 w-5 transition-transform duration-200
-                    ${activeCategory === category.id ? "rotate-180" : ""}
+                {/* Mobile categories with 3 levels */}
+                {categoryData.map((category) => (
+                  <div key={category.categoryID} className="space-y-2">
+                    <button
+                      onClick={() =>
+                        setActiveCategory(
+                          activeCategory === category.categoryID
+                            ? null
+                            : category.categoryID,
+                        )
+                      }
+                      className="w-full flex items-center justify-between px-3 py-3 text-gray-700 hover:bg-purple-50 rounded-lg transition-colors"
+                    >
+                      <span className="font-semibold">
+                        {category.categoryName}
+                      </span>
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform duration-200
+                    ${activeCategory === category.categoryID ? "rotate-180" : ""}
                   `}
-                    />
-                  </button>
+                      />
+                    </button>
 
-                  {activeCategory === category.id && (
-                    <div className="ml-4 space-y-3">
-                      {category.subcategories.map((sub) => (
-                        <div key={sub.id} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <a
-                              href={`/category/${category.slug}/${sub.slug}`}
-                              className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg flex-1"
-                            >
-                              {sub.image && (
+                    {activeCategory === category.categoryID && (
+                      <div className="ml-4 space-y-3">
+                        {category.subCategoryList.map((sub) => (
+                          <div key={sub.subCategoryID} className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <a
+                                href=""
+                                className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg flex-1"
+                              >
+                                {/* {sub.image && (
                                 <div className="w-8 h-8 rounded overflow-hidden">
                                   <img
                                     src={sub.image}
@@ -706,64 +383,65 @@ export default function Navbar() {
                                     className="w-full h-full object-cover"
                                   />
                                 </div>
-                              )}
-                              <span>{sub.name}</span>
-                            </a>
-                            {sub.subcategories &&
-                              sub.subcategories.length > 0 && (
-                                <button
-                                  onClick={() =>
-                                    setActiveSubcategory(
-                                      activeSubcategory === sub.id
-                                        ? null
-                                        : sub.id,
-                                    )
-                                  }
-                                  className="p-2"
-                                >
-                                  <ChevronRight
-                                    className={`h-4 w-4 transition-transform duration-200
-                                ${activeSubcategory === sub.id ? "rotate-90" : ""}
+                              )} */}
+                                <span>{sub.subCategoryName}</span>
+                              </a>
+                              {sub.subCategoryDetailList &&
+                                sub.subCategoryDetailList.length > 0 && (
+                                  <button
+                                    onClick={() =>
+                                      setActiveSubcategory(
+                                        activeSubcategory === sub.subCategoryID
+                                          ? null
+                                          : sub.subCategoryID,
+                                      )
+                                    }
+                                    className="p-2"
+                                  >
+                                    <ChevronRight
+                                      className={`h-4 w-4 transition-transform duration-200
+                                ${activeSubcategory === sub.subCategoryID ? "rotate-90" : ""}
                               `}
-                                  />
-                                </button>
+                                    />
+                                  </button>
+                                )}
+                            </div>
+
+                            {/* Level 3 on mobile */}
+                            {activeSubcategory === sub.subCategoryID &&
+                              sub.subCategoryDetailList && (
+                                <div className="ml-8 space-y-2">
+                                  {sub.subCategoryDetailList.map((subsub) => (
+                                    <a
+                                      key={subsub.subCategoryDetailID}
+                                      href=""
+                                      className="block px-3 py-2 text-xs text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
+                                    >
+                                      {subsub.name}
+                                    </a>
+                                  ))}
+                                </div>
                               )}
                           </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
 
-                          {/* Level 3 on mobile */}
-                          {activeSubcategory === sub.id &&
-                            sub.subcategories && (
-                              <div className="ml-8 space-y-2">
-                                {sub.subcategories.map((subsub) => (
-                                  <a
-                                    key={subsub.id}
-                                    href={`/category/${category.slug}/${sub.slug}/${subsub.slug}`}
-                                    className="block px-3 py-2 text-xs text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
-                                  >
-                                    {subsub.name}
-                                  </a>
-                                ))}
-                              </div>
-                            )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="pt-4 border-t border-gray-200 space-y-2">
+                  <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
+                    <Heart className="h-5 w-5" />
+                    <span>Wishlist</span>
+                  </button>
+                  <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
+                    <User className="h-5 w-5" />
+                    <span>Account</span>
+                  </button>
                 </div>
-              ))}
-
-              <div className="pt-4 border-t border-gray-200 space-y-2">
-                <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
-                  <Heart className="h-5 w-5" />
-                  <span>Wishlist</span>
-                </button>
-                <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
-                  <User className="h-5 w-5" />
-                  <span>Account</span>
-                </button>
               </div>
             </div>
-          </div>
+          </>
         )}
 
         {/* Add animation styles */}

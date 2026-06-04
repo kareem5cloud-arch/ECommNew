@@ -1,11 +1,7 @@
 "use client";
+import { getRequest } from "../../MainController/main";
 
-import { getRequest, postRequest } from "../../../MainController/main";
-
-export default async function ProductDeleteImageApi(
-  urlID: string,
-  token?: string,
-) {
+export default async function HomePageCustomerCategroyApi(token?: string) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -13,7 +9,7 @@ export default async function ProductDeleteImageApi(
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/OnlineSeller/ModifyProduct/ImagesDelete/${urlID}`,
+    `/api/ProductCategory/Customer/GetCategory`,
     null,
     customHeader,
   );
