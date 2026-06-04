@@ -6,6 +6,7 @@ interface GenericInputProps {
   SateChange: string;
   required: boolean;
   disabled?: boolean;
+  readonly?: boolean;
 }
 
 export default function InputFieldGeneric({
@@ -16,6 +17,7 @@ export default function InputFieldGeneric({
   required = false,
   SateChange,
   disabled = false,
+  readonly,
 }: GenericInputProps) {
   return (
     <>
@@ -27,6 +29,7 @@ export default function InputFieldGeneric({
         <input
           type={type}
           value={SateChange}
+          readOnly={readonly}
           onChange={(e) => setSateChange(e.target.value)}
           className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
           placeholder={placeholder}

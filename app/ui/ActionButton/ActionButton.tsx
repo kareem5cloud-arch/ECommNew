@@ -2,6 +2,7 @@ interface PrimaryButtonProps {
   text: string;
   update?: boolean;
   loading?: boolean;
+  size?: boolean;
   loadingtext: string;
   onClick?: () => void;
   disabled?: boolean;
@@ -12,6 +13,7 @@ export default function ActionButton({
   update,
   loading,
   loadingtext,
+  size,
   onClick,
   disabled,
 }: PrimaryButtonProps) {
@@ -21,7 +23,7 @@ export default function ActionButton({
         type="button"
         onClick={onClick}
         disabled={disabled || loading}
-        className={`px-6 py-2 rounded-xl bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition shadow-lg`}
+        className={`px-6 py-2 ${size ? "w-full" : ""} rounded-xl bg-blue-700 text-white font-medium hover:bg-blue-800 transition shadow-lg`}
       >
         {update ? loadingtext : text}
       </button>

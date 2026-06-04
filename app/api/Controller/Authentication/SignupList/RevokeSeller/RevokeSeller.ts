@@ -1,0 +1,29 @@
+"use client";
+
+import { postRequest } from "../../../MainController/main";
+
+export default async function RevokeSellerApi(
+  sellerID: string,
+  value: boolean,
+  token?: string,
+) {
+  const customHeader: Record<string, string> = {};
+
+  if (token) {
+    customHeader.Authorization = `Bearer ${token}`;
+  }
+
+  const response = await postRequest(
+    `/api/SellerAuthentication/RevokeSeller/${sellerID}?value=${value}`,
+    {},
+    customHeader,
+  );
+
+  return {
+    data: response.data,
+    status: response.status,
+    // message: response.message,
+    // success: response.success,
+    // error: response.error,
+  };
+}

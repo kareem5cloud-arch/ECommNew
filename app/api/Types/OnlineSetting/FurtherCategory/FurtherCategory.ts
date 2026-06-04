@@ -1,0 +1,34 @@
+export interface RequestAddFurtherSub {
+  subCategoryID: string;
+  name: string;
+  units: unitReqesut[];
+}
+export interface RequestModifyFurtherSub {
+  subCategoryDetailID: string;
+  subCategoryID: string;
+  name: string;
+  units: unitReqesut[];
+}
+export interface unitReqesut {
+  unitID: string;
+  unitName?: string;
+}
+
+export interface RespopnseFurtherListGet {
+  message: string;
+  error: string;
+  furtherSubCategoryList: furtherSubCategoryList[];
+}
+export interface furtherSubCategoryList {
+  subCategoryID: string;
+  categoryID: string;
+  subCategoryName: string;
+  categoryName: string;
+  subCategoryDetailID: string;
+  name: string;
+  unitListSub: unitListSub[];
+}
+export interface unitListSub {
+  unitID: string;
+  unitName: string;
+}

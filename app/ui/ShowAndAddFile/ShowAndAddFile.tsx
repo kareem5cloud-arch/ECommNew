@@ -3,10 +3,16 @@ import { List, Plus } from "lucide-react";
 interface ShowListprops {
   update: (data: boolean) => void;
   setView: (data: "list" | "form") => void;
+  setlistView: () => void;
   view: string;
 }
 
-export default function ShowAddFile({ update, setView, view }: ShowListprops) {
+export default function ShowAddFile({
+  update,
+  setView,
+  setlistView,
+  view,
+}: ShowListprops) {
   return (
     <>
       <div className="w-full bg-gray-100 dark:bg-gray-800/50 shadow-md flex justify-between p-2 rounded-xl">
@@ -29,7 +35,8 @@ export default function ShowAddFile({ update, setView, view }: ShowListprops) {
         <button
           onClick={() => {
             setView("form");
-            //setUpdate(false);
+            update(false);
+            setlistView();
           }}
           className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-base font-semibold transition-all duration-200
             ${

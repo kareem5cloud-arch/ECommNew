@@ -1,18 +1,125 @@
+// AddProductForm.tsx
 import { Check } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ProductBasicInfo from "./AddProduct/ProductBasicInfo";
 import ProductCategroyInfo from "./AddProduct/ProductCategroyInfo";
+import AddVarientInformation, {
+  listVarient,
+  varientAttributes,
+} from "./AddProduct/VarientInformation";
+import AddProductImage from "./AddProduct/ProductImageInfo";
+import PaymnetInfo from "./AddProduct/PaymnetInfo";
+import { countryList } from "@/app/api/Types/Shipment/Country";
+import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+import {
+  furtherSubCategoryList,
+  unitListSub,
+} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+import { SupplierListReponse } from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
+import convertImageToWebPWithWatermark from "@/app/api/Controller/MiddleWare/WebConverter";
+import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
+import ProductAddApi from "@/app/api/Controller/OnlineSellerController/Product/AddProduct";
 
-export default function AddProductForm() {
+interface propsForAddRegion {
+  onShowMessage: (message: string, type: "success" | "error") => void;
+}
+export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
+  const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [StoreName, setStoreName] = useState("");
+  const [storeID, setStoreID] = useState("");
+  const [StoreList, setStoreList] = useState<storeList[]>([]);
+  // Define the actual state here in the parent
+  const [ProductName, setProductName] = useState("");
+  const [ShortCode, setShortCode] = useState("");
+  const [Discount, setDiscount] = useState("");
+  const [Weight, setWeight] = useState("");
+  const [Depth, setDepth] = useState("");
+  const [Width, setWidth] = useState("");
+  const [Height, setHeight] = useState("");
+  const [Threshold, setThreshold] = useState("");
+  const [FeaturedProduct, setFeaturedProduct] = useState("Yes");
+  const [description, setDescription] = useState("");
+  const [checked, setChecked] = useState(false);
+  const [storeSale, setStoreSale] = useState("Both");
+
+  //CategoryStates
+  const [ShowCountry, setShowCountry] = useState("ShowAllCountry");
+  const [conuntryDataListShowCountry, setConuntryDataListShowCountry] =
+    useState<countryList[]>([]);
+  const [conuntryDataListHideCountry, setConuntryDataListHideCountry] =
+    useState<countryList[]>([]);
+  const [CategoryName, setCategoryName] = useState("");
+  const [CategoryID, setCategoryID] = useState("");
+  const [CategoryList, setCategoryList] = useState<CategoryList[]>([]);
+  const [SubCategoryName, setSubCategoryName] = useState("");
+  const [SubCategoryID, setSubCategoryID] = useState("");
+  const [SubCategoryList, setSubCategoryList] = useState<subCategoryList[]>([]);
+  const [furtherSubCategoryName, setfurtherSubCategoryName] = useState("");
+  const [furtherSubCategoryID, setfurtherSubCategoryID] = useState("");
+  const [FurtherSubCategoryList, setFurtherSubCategoryList] = useState<
+    furtherSubCategoryList[]
+  >([]);
+  const [UnitName, setUnitName] = useState("");
+  const [UnitID, setUnitID] = useState("");
+  const [unitList, setunitList] = useState<unitListSub[]>([]);
+  const [countryData, setCountryData] = useState<countryList[]>([]);
+  const [countryName, setCountryName] = useState("");
+  const [countryID, setCountryID] = useState("");
+
+  //VarientListInfromationStates
+  const [mainVarientName, setMainVarientName] = useState("");
+  const [listVarient, setListVarient] = useState<listVarient[]>([]);
+  const [currentAttributes, setCurrentAttributes] = useState<
+    varientAttributes[]
+  >([]);
+  const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(
+    null,
+  );
+  const [newAttribute, setNewAttribute] = useState<varientAttributes>({
+    varientValue: "",
+    qty: "",
+    costPrice: "",
+    salePrice: "",
+    barcode: "",
+  });
+
+  //Image Component States
+  const [images, setImages] = useState<File[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  //PaymentInfo Component State
+  const [PurcahseAdd, setPurcahseAdd] = useState("Yes");
+  const [SupplierID, setSupplierID] = useState("");
+  const [SupplierName, setSupplierName] = useState("");
+  const [supplierList, setSupplierList] = useState<SupplierListReponse[]>([]);
+  const [TotalBill, setTotalBill] = useState("");
+  const [AmountPaid, setAmountPaid] = useState("");
+  const [Adjustment, setAdjustment] = useState("");
 
   const steps = [
-    { number: 1, title: "Shipping" },
-    { number: 2, title: "Payment" },
+    { number: 1, title: "Product Information" },
+    { number: 2, title: "Variant Information" },
     { number: 3, title: "Review" },
     { number: 4, title: "Confirm" },
   ];
 
+  const calculatedTotalBill = useMemo(() => {
+    let total = 0;
+    listVarient.forEach((variant) => {
+      variant.varientAttributes.forEach((attr) => {
+        // Calculate cost price * quantity for each attribute
+        const costPrice = parseFloat(attr.costPrice) || 0;
+        const quantity = parseFloat(attr.qty) || 0;
+        total += costPrice * quantity;
+      });
+    });
+    return total;
+  }, [listVarient]);
   const handleNext = () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
@@ -26,11 +133,82 @@ export default function AddProductForm() {
   };
 
   const handleStepClick = (stepNumber: number) => {
-    // Optional: allow clicking on completed steps
     if (stepNumber < currentStep) {
       setCurrentStep(stepNumber);
     }
   };
+  const AddProduct = async () => {
+    try {
+      setLoading(true);
+      const imageUrl = await Promise.all(
+        images.map((item) => SendDataToApi(item)),
+      );
+      const formData = {
+        storeID: storeID,
+        isStock: checked,
+        supplierID: SupplierID,
+        invoiceNo: "",
+        purchaseDate: new Date().toISOString().split("T")[0],
+        totalBill: PurcahseAdd === "Yes" ? Number(TotalBill) : 0,
+        amountPaid: PurcahseAdd === "Yes" ? Number(AmountPaid) : 0,
+        adjustments: PurcahseAdd === "Yes" ? Number(Adjustment) : 0,
+        categoryID: CategoryID,
+        unitID: UnitID,
+        productName: ProductName,
+        subCategoryDetailID: furtherSubCategoryID,
+        subCategoryID: SubCategoryID,
+        storeSale: storeSale,
+        discount: Number(Discount),
+        threshold: Number(Threshold),
+        showinAllCountry: ShowCountry === "ShowAllCountry" ? "true" : "false",
+        feturedProduct: FeaturedProduct === "Yes" ? true : false,
+        showinCountry: ShowCountry === "ShowCountry" ? "true" : "false",
+        notShowinCountry: ShowCountry === "HideCountry" ? "true" : "false",
+        description: description,
+        width: Number(Width),
+        height: Number(Height),
+        depth: Number(Depth),
+        weight: Number(Weight),
+        listCountry:
+          ShowCountry === "ShowAllCountry"
+            ? []
+            : ShowCountry === "ShowCountry"
+              ? conuntryDataListShowCountry.map((item) => ({
+                  countryID: item.countryID,
+                  countryName: item.countryName,
+                }))
+              : ShowCountry === "HideCountry"
+                ? conuntryDataListHideCountry.map((item) => ({
+                    countryID: item.countryID,
+                    countryName: item.countryName,
+                  }))
+                : [],
+        listImage: imageUrl.map((item) => ({
+          url: item.data,
+        })),
+        listVarient: listVarient.map((item) => ({
+          varientName: item.varientName,
+          varientAttributes: item.varientAttributes.map((item2) => ({
+            varientValue: item2.varientValue,
+            qty: Number(item2.qty),
+            costPrice: Number(item2.costPrice),
+            salePrice: Number(item2.salePrice),
+            barcode: item2.barcode,
+          })),
+        })),
+      };
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await ProductAddApi(formData, String(token));
+      if (response.status == 200) {
+        onShowMessage(response.data.message, "success");
+      } else {
+        onShowMessage(response.data.message, "error");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div>
@@ -40,7 +218,6 @@ export default function AddProductForm() {
             {steps.map((step, index) => (
               <div key={step.number} className="flex items-center flex-1">
                 <div className="flex flex-col items-center flex-1">
-                  {/* Circle */}
                   <div
                     onClick={() => handleStepClick(step.number)}
                     className={`
@@ -48,10 +225,10 @@ export default function AddProductForm() {
                     transition-all duration-200 cursor-pointer
                     ${
                       currentStep > step.number
-                        ? "bg-blue-500 text-white" // COMPLETED
+                        ? "bg-blue-500 text-white"
                         : currentStep === step.number
-                          ? "bg-blue-600 text-white ring-2 ring-blue-200" // ACTIVE
-                          : "bg-gray-100 text-gray-400 border border-gray-300" // PENDING
+                          ? "bg-blue-600 text-white ring-2 ring-blue-200"
+                          : "bg-gray-100 text-gray-400 border border-gray-300"
                     }
                   `}
                   >
@@ -62,7 +239,6 @@ export default function AddProductForm() {
                     )}
                   </div>
 
-                  {/* Label */}
                   <div
                     className={`
                     text-xs mt-2 hidden sm:block
@@ -77,7 +253,6 @@ export default function AddProductForm() {
                   </div>
                 </div>
 
-                {/* Connector Line */}
                 {index < steps.length - 1 && (
                   <div
                     className={`
@@ -96,14 +271,129 @@ export default function AddProductForm() {
           <div className="mb-6">
             <p className="text-gray-600 mt-2">
               {currentStep === 1 && (
-                <div className="flex gap-2">
-                  <ProductBasicInfo />
-                  <ProductCategroyInfo />
+                <div className="flex flex-col lg:flex-row gap-4 w-full">
+                  <ProductBasicInfo
+                    ProductName={ProductName}
+                    setProductName={setProductName}
+                    ShortCode={ShortCode}
+                    setShortCode={setShortCode}
+                    Discount={Discount}
+                    setDiscount={setDiscount}
+                    Weight={Weight}
+                    setWeight={setWeight}
+                    Depth={Depth}
+                    setDepth={setDepth}
+                    Width={Width}
+                    setWidth={setWidth}
+                    Height={Height}
+                    setHeight={setHeight}
+                    Threshold={Threshold}
+                    setThreshold={setThreshold}
+                    FeaturedProduct={FeaturedProduct}
+                    setFeaturedProduct={setFeaturedProduct}
+                    description={description}
+                    setDescription={setDescription}
+                    checked={checked}
+                    setChecked={setChecked}
+                    storeSale={storeSale}
+                    setStoreSale={setStoreSale}
+                  />
+
+                  <ProductCategroyInfo
+                    FeaturedProduct={ShowCountry}
+                    setFeaturedProduct={setShowCountry}
+                    conuntryDataListShowCountry={conuntryDataListShowCountry}
+                    setConuntryDataListShowCountry={
+                      setConuntryDataListShowCountry
+                    }
+                    conuntryDataListHideCountry={conuntryDataListHideCountry}
+                    setConuntryDataListHideCountry={
+                      setConuntryDataListHideCountry
+                    }
+                    CategoryName={CategoryName}
+                    setCategoryName={setCategoryName}
+                    CategoryID={CategoryID}
+                    setCategoryID={setCategoryID}
+                    CategoryList={CategoryList}
+                    setCategoryList={setCategoryList}
+                    SubCategoryName={SubCategoryName}
+                    setSubCategoryName={setSubCategoryName}
+                    SubCategoryID={SubCategoryID}
+                    setSubCategoryID={setSubCategoryID}
+                    SubCategoryList={SubCategoryList}
+                    setSubCategoryList={setSubCategoryList}
+                    furtherSubCategoryName={furtherSubCategoryName}
+                    setfurtherSubCategoryName={setfurtherSubCategoryName}
+                    furtherSubCategoryID={furtherSubCategoryID}
+                    setfurtherSubCategoryID={setfurtherSubCategoryID}
+                    FurtherSubCategoryList={FurtherSubCategoryList}
+                    setFurtherSubCategoryList={setFurtherSubCategoryList}
+                    UnitName={UnitName}
+                    setUnitName={setUnitName}
+                    UnitID={UnitID}
+                    setUnitID={setUnitID}
+                    unitList={unitList}
+                    setunitList={setunitList}
+                    countryData={countryData}
+                    setCountryData={setCountryData}
+                    countryName={countryName}
+                    setCountryName={setCountryName}
+                    countryID={countryID}
+                    setCountryID={setCountryID}
+                    setStoreID={setStoreID}
+                    setStoreName={setStoreName}
+                    setStoreList={setStoreList}
+                    StoreID={storeID}
+                    StoreName={StoreName}
+                    StoreList={StoreList}
+                  />
                 </div>
               )}
-              {currentStep === 2 && "Choose your payment method"}
-              {currentStep === 3 && "Review your order details"}
-              {currentStep === 4 && "Confirm and complete your order"}
+              {currentStep === 2 && (
+                <AddVarientInformation
+                  mainVarientName={mainVarientName}
+                  setMainVarientName={setMainVarientName}
+                  listVarient={listVarient}
+                  setListVarient={setListVarient}
+                  currentAttributes={currentAttributes}
+                  setCurrentAttributes={setCurrentAttributes}
+                  editingVariantIndex={editingVariantIndex}
+                  setEditingVariantIndex={setEditingVariantIndex}
+                  newAttribute={newAttribute}
+                  setNewAttribute={setNewAttribute}
+                />
+              )}
+              {currentStep === 3 && (
+                <AddProductImage
+                  images={images}
+                  setImages={setImages}
+                  dragIndex={dragIndex}
+                  setDragIndex={setDragIndex}
+                  hoverIndex={hoverIndex}
+                  setHoverIndex={setHoverIndex}
+                  isDragOver={isDragOver}
+                  setIsDragOver={setIsDragOver}
+                />
+              )}
+              {currentStep === 4 && (
+                <PaymnetInfo
+                  PurcahseAdd={PurcahseAdd}
+                  setPurcahseAdd={setPurcahseAdd}
+                  SupplierID={SupplierID}
+                  setSupplierID={setSupplierID}
+                  SupplierName={SupplierName}
+                  setSupplierName={setSupplierName}
+                  supplierList={supplierList}
+                  setSupplierList={setSupplierList}
+                  TotalBill={TotalBill}
+                  setTotalBill={setTotalBill}
+                  AmountPaid={AmountPaid}
+                  setAmountPaid={setAmountPaid}
+                  Adjustment={Adjustment}
+                  setAdjustment={setAdjustment}
+                  calculatedTotalBill={calculatedTotalBill}
+                />
+              )}
             </p>
           </div>
 
@@ -125,18 +415,27 @@ export default function AddProductForm() {
             </button>
 
             <button
-              onClick={handleNext}
-              disabled={currentStep === steps.length}
+              onClick={() => {
+                if (currentStep !== steps.length) {
+                  handleNext();
+                } else {
+                  AddProduct();
+                }
+              }}
               className={`
               px-5 py-2 rounded-lg font-medium transition-all
               ${
                 currentStep === steps.length
-                  ? "bg-blue-100 text-blue-400 cursor-not-allowed"
+                  ? "bg-blue-600 text-white hover:bg-blue-700 "
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }
             `}
             >
-              {currentStep === steps.length ? "Completed" : "Next"}
+              {currentStep === steps.length
+                ? loading
+                  ? "Saving..."
+                  : "Save"
+                : "Next"}
             </button>
           </div>
         </div>

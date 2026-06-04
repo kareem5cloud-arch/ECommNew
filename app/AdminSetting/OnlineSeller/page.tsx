@@ -49,9 +49,11 @@ import {
   Package,
   PackageSearch,
   Bike,
+  UserSearch,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
 
 export default function OnlineSellerSidebar() {
   const router = useRouter();
@@ -105,8 +107,22 @@ export default function OnlineSellerSidebar() {
         {
           id: "Product",
           label: "Product",
-          icon: Coins,
+          icon: Package,
           href: "/AdminSetting/OnlineSeller/Codes/Product",
+        },
+      ],
+    },
+    {
+      id: "login",
+      label: "Create Login",
+      icon: Users,
+      type: "dropdown",
+      items: [
+        {
+          id: "WareHouseLogin",
+          label: "WareHouse Seller",
+          icon: UserSearch,
+          href: "/AdminSetting/OnlineSeller/CreateLogin",
         },
       ],
     },
@@ -157,6 +173,24 @@ export default function OnlineSellerSidebar() {
     //   ],
     // },
   ];
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem("OnlineSellerToken");
+    const response = await CheckAuth(String(token));
+    if (response.status === 200) {
+      return;
+    } else {
+      window.location.href = "/AdminSetting/login";
+    }
+  };
+  const logOut = async () => {
+    localStorage.removeItem("OnlineSellerToken");
+    window.location.href = "/AdminSetting/login";
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));
@@ -286,7 +320,10 @@ export default function OnlineSellerSidebar() {
 
         {/* User Profile & Logout */}
         <div className="border-t border-gray-200 p-4 dark:border-gray-700">
-          <button className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 transition-all duration-200 hover:text-red-600 hover:bg-red-50 dark:text-gray-300 dark:hover:bg-red-900/20 dark:hover:text-red-400 group">
+          <button
+            onClick={logOut}
+            className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-gray-700 transition-all duration-200 hover:text-red-600 hover:bg-red-50 dark:text-gray-300 dark:hover:bg-red-900/20 dark:hover:text-red-400 group"
+          >
             <LogOut className="h-5 w-5 transition-transform group-hover:scale-110" />
             <span>Logout</span>
           </button>
