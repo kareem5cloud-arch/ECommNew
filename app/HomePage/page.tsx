@@ -25,10 +25,10 @@ export default function HomePage() {
       {/* <ProductDetailPage /> */}
       {/* <ShopPage /> */}
       <BannerSlider storeInfo={storeInfo[0]} />
-      <CategoryShowcaseMinimal />
+      {/* <CategoryShowcaseMinimal />
       <NewArrivals />
       <FeaturesSection />
-      <MoreDecentProduct />
+      <MoreDecentProduct /> */}
       <FooterMinimal storeInfo={storeInfo[0]} />
     </>
   );
