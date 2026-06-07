@@ -9,9 +9,6 @@ import FeaturesSection from "./HompageComponent/PlatformFeatured";
 import FooterMinimal from "./HompageComponent/Footer";
 import MoreDecentProduct from "./HompageComponent/MoreProductYouLike";
 import Navbar from "./HompageComponent/Navbar";
-// import NewArrivals from "./HompageComponent/NewArival";
-import ProductDetailPage from "./ProductDetail/page";
-import ShopPage from "../subMenu/Shop/page";
 
 import { getServerCart } from "../api/Controller/Customer/CookiesController/Cart/GetCart";
 import { CartData } from "../api/Types/Customer/Cookies/Cart";
