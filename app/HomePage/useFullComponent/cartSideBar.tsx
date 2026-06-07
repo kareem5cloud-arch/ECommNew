@@ -15,6 +15,10 @@ import {
   ArrowRight,
   AlertCircle,
 } from "lucide-react";
+import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
+import { useAppContext } from "@/app/useContext";
+import { removeItemFromServerCart } from "@/app/api/Controller/Customer/CookiesController/Cart/DeleteCart";
+import { modifyCartServer } from "@/app/api/Controller/Customer/CookiesController/Cart/ModifyCart";
 
 interface CartItem {
   id: string;
@@ -22,8 +26,8 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  variant?: string;
-  size?: string;
+  variant: string;
+  size: string;
   color?: string;
   inStock: boolean;
 }
@@ -31,49 +35,53 @@ interface CartItem {
 interface CartSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  cartData: CartData[];
+  onClickCall: () => void;
 }
 
-// Sample cart data
-const sampleCartItems: CartItem[] = [
-  {
-    id: "1",
-    name: "Sony WH-1000XM5 Wireless Headphones",
-    price: 399.99,
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=200&h=200&fit=crop",
-    variant: "Black",
-    inStock: true,
-  },
-  {
-    id: "2",
-    name: "Apple iPhone 15 Pro Max",
-    price: 1199.99,
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&h=200&fit=crop",
-    variant: "Natural Titanium",
-    size: "256GB",
-    inStock: true,
-  },
-  {
-    id: "3",
-    name: "Nike Air Max 270",
-    price: 149.99,
-    quantity: 2,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop",
-    variant: "Black/White",
-    size: "US 9",
-    inStock: true,
-  },
-];
-
-export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
-  const [cartItems, setCartItems] = useState<CartItem[]>(sampleCartItems);
+export default function CartSidebar({
+  isOpen,
+  onClose,
+  cartData,
+  onClickCall,
+}: CartSidebarProps) {
+  const { ProductData } = useAppContext();
+  const [productValue, setProductValue] = useState<CartItem[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+
+  useEffect(() => {
+    if (cartData.length === 0) return;
+
+    const productValues = ProductData.flatMap((product) => {
+      return product.variants.flatMap((variant) => {
+        return variant.variantValues
+          .filter((value) =>
+            cartData.some((cart) => cart.attributeID === value.attributeID),
+          )
+          .map((value) => {
+            const cartItem = cartData.find(
+              (cart) => cart.attributeID === value.attributeID,
+            );
+
+            return {
+              id: value.attributeID,
+              name: product.productName,
+              price: value.salePrice ?? 0,
+              quantity: cartItem?.qty ?? 0,
+              image: product.images[0]?.url ?? "",
+              variant: variant.variantName,
+              size: value.varientValue,
+              color: "",
+              inStock: product.isStock,
+            };
+          });
+      });
+    });
+
+    setProductValue(productValues);
+  }, [cartData, ProductData]);
 
   // Prevent body scroll when cart is open
   useEffect(() => {
@@ -89,23 +97,26 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems((items) =>
+    modifyCartServer(id, newQuantity);
+    setProductValue((items) =>
       items.map((item) =>
         item.id === id ? { ...item, quantity: newQuantity } : item,
       ),
     );
   };
 
-  const removeItem = (id: string) => {
-    setCartItems((items) => items.filter((item) => item.id !== id));
+  const removeItem = async (id: string) => {
+    const data = await removeItemFromServerCart(id);
+    onClickCall();
+    setProductValue((items) => items.filter((item) => item.id !== id));
   };
 
-  const subtotal = cartItems.reduce(
+  const subtotal = productValue.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
   const shipping = subtotal > 500 ? 0 : 9.99;
-  const tax = subtotal * 0.1; // 10% tax
+  const tax = 0; // 10% tax
   const total = subtotal + shipping + tax - discount;
 
   const handleApplyPromo = () => {
@@ -146,7 +157,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
             <div className="relative">
               <ShoppingBag className="w-6 h-6 text-purple-600" />
               <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {cartItems.length}
+                {productValue.length}
               </span>
             </div>
             <h2 className="text-xl font-bold text-gray-900">Your Cart</h2>
@@ -179,7 +190,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
 
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {cartItems.length === 0 ? (
+          {productValue.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <ShoppingBag className="w-12 h-12 text-gray-400" />
@@ -198,7 +209,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
               </button>
             </div>
           ) : (
-            cartItems.map((item) => (
+            productValue.map((item) => (
               <div
                 key={item.id}
                 className="flex gap-3 p-3 bg-gray-50 rounded-xl hover:shadow-md transition-all group"
@@ -206,7 +217,10 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                 {/* Product Image */}
                 <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
                   <img
-                    src={item.image}
+                    src={
+                      item.image ||
+                      "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+                    }
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
@@ -228,8 +242,6 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
                       </h4>
                       {(item.variant || item.size) && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {item.variant && <span>{item.variant}</span>}
-                          {item.variant && item.size && <span> • </span>}
                           {item.size && <span>Size: {item.size}</span>}
                         </p>
                       )}
@@ -282,7 +294,7 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         </div>
 
         {/* Promo Code */}
-        {cartItems.length > 0 && (
+        {productValue.length > 0 && (
           <div className="p-4 border-t border-gray-100">
             <div className="flex gap-2">
               <input
@@ -309,33 +321,33 @@ export default function CartSidebar({ isOpen, onClose }: CartSidebarProps) {
         )}
 
         {/* Cart Summary */}
-        {cartItems.length > 0 && (
+        {productValue.length > 0 && (
           <div className="p-4 border-t border-gray-100 bg-gray-50">
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">{subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-sm">
+              {/* <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-semibold">
-                  {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? "Free" : `${shipping.toFixed(2)}`}
                 </span>
-              </div>
-              <div className="flex justify-between text-sm">
+              </div> */}
+              {/* <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Estimated Tax</span>
                 <span className="font-semibold">${tax.toFixed(2)}</span>
-              </div>
+              </div> */}
               {discount > 0 && (
                 <div className="flex justify-between text-sm text-green-600">
                   <span>Discount</span>
-                  <span>-${discount.toFixed(2)}</span>
+                  <span>{discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="pt-2 border-t border-gray-200">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-purple-600">${total.toFixed(2)}</span>
+                  <span className="text-purple-600">{total.toFixed(2)}</span>
                 </div>
               </div>
             </div>

@@ -14,7 +14,7 @@ export default async function SellerSignupApi(
   }
 
   const response = await postRequest(
-    `/api/SellerAuthentication/SignUp`,
+    `/api/Authentication/Seller/SignUp`,
     data,
     customHeader,
   );

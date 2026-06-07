@@ -11,15 +11,17 @@ import {
   AlertCircle,
   Star,
 } from "lucide-react";
+import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
+import { useAppContext } from "@/app/useContext";
+import { removeItemFromServerwishList } from "@/app/api/Controller/Customer/CookiesController/WishList/DeleteWishList";
+import { addToServerCart } from "@/app/api/Controller/Customer/CookiesController/Cart/AddCart";
 
 interface WishlistItem {
   id: string;
   name: string;
   price: number;
-  originalPrice?: number;
   image: string;
   rating: number;
-  reviews: number;
   inStock: boolean;
   discount?: number;
 }
@@ -27,69 +29,57 @@ interface WishlistItem {
 interface WishlistSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  wishListData: CartData[];
   onAddToCart?: (item: WishlistItem) => void;
+  onClickCall: () => void;
 }
 
 // Sample wishlist data
-const sampleWishlistItems: WishlistItem[] = [
-  {
-    id: "1",
-    name: "Sony WH-1000XM5 Wireless Headphones",
-    price: 399.99,
-    originalPrice: 499.99,
-    image:
-      "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=200&h=200&fit=crop",
-    rating: 4.9,
-    reviews: 128,
-    inStock: true,
-    discount: 20,
-  },
-  {
-    id: "2",
-    name: "Apple iPhone 15 Pro Max",
-    price: 1199.99,
-    originalPrice: 1299.99,
-    image:
-      "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&h=200&fit=crop",
-    rating: 4.8,
-    reviews: 245,
-    inStock: true,
-    discount: 8,
-  },
-  {
-    id: "3",
-    name: "Dyson V15 Detect Absolute Vacuum",
-    price: 699.99,
-    originalPrice: 799.99,
-    image:
-      "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=200&h=200&fit=crop",
-    rating: 4.9,
-    reviews: 56,
-    inStock: false,
-    discount: 12,
-  },
-  {
-    id: "4",
-    name: "Nike Air Max 270",
-    price: 149.99,
-    originalPrice: 189.99,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop",
-    rating: 4.7,
-    reviews: 89,
-    inStock: true,
-    discount: 21,
-  },
-];
 
 export default function WishlistSidebar({
   isOpen,
   onClose,
   onAddToCart,
+  wishListData,
+  onClickCall,
 }: WishlistSidebarProps) {
-  const [wishlistItems, setWishlistItems] =
-    useState<WishlistItem[]>(sampleWishlistItems);
+  const { ProductData } = useAppContext();
+  const [productValue, setProductValue] = useState<WishlistItem[]>([]);
+
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (wishListData.length === 0) return;
+
+    const productValues = ProductData.flatMap((product) => {
+      return product.variants.flatMap((variant) => {
+        return variant.variantValues
+          .filter((value) =>
+            wishListData.some((cart) => cart.attributeID === value.attributeID),
+          )
+          .map((value) => {
+            const cartItem = wishListData.find(
+              (cart) => cart.attributeID === value.attributeID,
+            );
+
+            return {
+              id: value.attributeID,
+              name: product.productName,
+              price: value.salePrice ?? 0,
+              quantity: cartItem?.qty ?? 0,
+              image: product.images[0]?.url ?? "",
+              variant: variant.variantName,
+              size: value.varientValue,
+              rating: product.rating,
+              color: "",
+              inStock: product.isStock,
+            };
+          });
+      });
+    });
+    console.log(productValue);
+    setProductValue(productValues);
+  }, [wishListData, ProductData]);
 
   useEffect(() => {
     if (isOpen) {
@@ -102,38 +92,26 @@ export default function WishlistSidebar({
     };
   }, [isOpen]);
 
-  const removeFromWishlist = (id: string) => {
-    setWishlistItems((items) => items.filter((item) => item.id !== id));
+  const removeFromWishlist = async (id: string) => {
+    await removeItemFromServerwishList(id);
+    setProductValue((items) => items.filter((item) => item.id !== id));
   };
 
-  const handleAddToCart = (item: WishlistItem) => {
-    setAddingToCart(item.id);
-    setTimeout(() => {
-      if (onAddToCart) {
-        onAddToCart(item);
-      }
-      setAddingToCart(null);
-      // Optional: remove from wishlist after adding to cart
-      // removeFromWishlist(item.id);
-    }, 800);
+  const handleAddToCart = async (item: WishlistItem) => {
+    const formData: CartData[] = [
+      {
+        attributeID: item.id,
+        qty: 1,
+      },
+    ];
+    await addToServerCart(formData);
+    await removeFromWishlist(item.id);
+    setProductValue((items) => items.filter((item) => item.id !== item.id));
+    onClickCall();
   };
 
-  const moveAllToCart = () => {
-    const inStockItems = wishlistItems.filter((item) => item.inStock);
-    inStockItems.forEach((item) => {
-      if (onAddToCart) {
-        onAddToCart(item);
-      }
-    });
-    // Optional: clear wishlist after moving all
-    // setWishlistItems([]);
-  };
-
-  const totalSavings = wishlistItems.reduce((sum, item) => {
-    if (item.originalPrice) {
-      return sum + (item.originalPrice - item.price);
-    }
-    return sum;
+  const totalSavings = productValue.reduce((sum, item) => {
+    return sum + item.price;
   }, 0);
 
   return (
@@ -158,7 +136,7 @@ export default function WishlistSidebar({
             <div className="relative">
               <Heart className="w-5 h-5 text-gray-700" />
               <span className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {wishlistItems.length}
+                {productValue.length}
               </span>
             </div>
             <h2 className="text-lg font-semibold text-gray-900">Wishlist</h2>
@@ -172,7 +150,7 @@ export default function WishlistSidebar({
         </div>
 
         {/* Savings Banner */}
-        {totalSavings > 0 && wishlistItems.length > 0 && (
+        {totalSavings > 0 && productValue.length > 0 && (
           <div className="mx-4 mt-4 p-3 bg-green-50 border border-green-100 rounded-lg">
             <p className="text-sm text-green-700 flex items-center gap-2">
               <span className="text-lg">💸</span>
@@ -183,7 +161,7 @@ export default function WishlistSidebar({
 
         {/* Wishlist Items */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {wishlistItems.length === 0 ? (
+          {productValue.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <Heart className="w-10 h-10 text-gray-400" />
@@ -204,17 +182,17 @@ export default function WishlistSidebar({
           ) : (
             <>
               {/* Move All Button */}
-              <button
+              {/* <button
                 onClick={moveAllToCart}
                 className="w-full py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-4 h-4" />
                 Move all to cart
                 <MoveRight className="w-4 h-4" />
-              </button>
+              </button> */}
 
               {/* Items List */}
-              {wishlistItems.map((item) => (
+              {productValue.map((item) => (
                 <div
                   key={item.id}
                   className="flex gap-3 p-3 bg-gray-50 rounded-xl hover:shadow-md transition-all group"
@@ -222,7 +200,10 @@ export default function WishlistSidebar({
                   {/* Product Image */}
                   <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
                     <img
-                      src={item.image}
+                      src={
+                        item.image ||
+                        "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+                      }
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
@@ -255,9 +236,9 @@ export default function WishlistSidebar({
                               {item.rating}
                             </span>
                           </div>
-                          <span className="text-xs text-gray-400">
+                          {/* <span className="text-xs text-gray-400">
                             ({item.reviews})
-                          </span>
+                          </span> */}
                         </div>
                       </div>
                       <button
@@ -272,13 +253,13 @@ export default function WishlistSidebar({
                     <div className="mt-2">
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-gray-900">
-                          ${item.price.toLocaleString()}
+                          {item.price.toLocaleString()}
                         </span>
-                        {item.originalPrice && (
+                        {/* {item.originalPrice && (
                           <span className="text-xs text-gray-400 line-through">
                             ${item.originalPrice.toLocaleString()}
                           </span>
-                        )}
+                        )} */}
                       </div>
                     </div>
 
@@ -312,7 +293,7 @@ export default function WishlistSidebar({
         </div>
 
         {/* Footer with Recommendations */}
-        {wishlistItems.length > 0 && (
+        {/* {productValue.length > 0 && (
           <div className="border-t border-gray-100 p-4 bg-gray-50">
             <h4 className="text-sm font-medium text-gray-700 mb-3">
               You might also like
@@ -360,7 +341,7 @@ export default function WishlistSidebar({
               ))}
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </>
   );

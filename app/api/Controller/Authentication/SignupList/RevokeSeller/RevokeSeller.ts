@@ -14,7 +14,7 @@ export default async function RevokeSellerApi(
   }
 
   const response = await postRequest(
-    `/api/SellerAuthentication/RevokeSeller/${sellerID}?value=${value}`,
+    `/api/Authentication/Seller/RevokeSeller/${sellerID}?value=${value}`,
     {},
     customHeader,
   );

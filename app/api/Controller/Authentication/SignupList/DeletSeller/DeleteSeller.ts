@@ -13,7 +13,7 @@ export default async function DeleteSellerApi(
   }
 
   const response = await postRequest(
-    `/api/SellerAuthentication/DeleteSeller/${sellerID}`,
+    `/api/Authentication/Seller/DeleteSeller/${sellerID}`,
     {},
     customHeader,
   );

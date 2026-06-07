@@ -10,10 +10,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [ShowMessage, setShowMessage] = useState(false);
   const [responseMessage, setResponseMessage] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [activeMessage, setActiveMessage] = useState<"success" | "error">(
     "success",
   );
+  const [showPassword, setShowPassword] = useState(false);
   const [user, setUser] = useState("");
 
   const Login = async () => {

@@ -12,6 +12,8 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import CustomerSignupApi from "@/app/api/Controller/Authentication/Signup/CustomerSignUp";
+import LoginApi from "@/app/api/Controller/Authentication/Login/login";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,26 +29,22 @@ export default function AuthModal({
   const [mode, setMode] = useState<"login" | "signup">(defaultMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setloading] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [ShowMessage, setShowMessage] = useState(false);
+  const [responseMessage, setResponseMessage] = useState("");
+  const [activeMessage, setActiveMessage] = useState<"success" | "error">(
+    "success",
+  );
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState("");
-
-  useEffect(() => {
-    if (!isOpen) {
-      setTimeout(() => {
-        setMode(defaultMode);
-        setFormData({ name: "", email: "", password: "", confirmPassword: "" });
-        setErrors({});
-        setSuccessMessage("");
-      }, 300);
-    }
-  }, [isOpen, defaultMode]);
+  const [user, setUser] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -59,48 +57,68 @@ export default function AuthModal({
     };
   }, [isOpen]);
 
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
+  const StoreAdd = async () => {
+    try {
+      setloading(true);
+      if (!email || !password || !phoneNo)
+        return alert("Please Fill in Filed with *");
+      else {
+        const formData = {
+          userName: userName,
+          email: email,
+          password: password,
+          phoneNo: phoneNo,
+          status: "customer",
+          address: "",
+          stores: [],
+        };
+        //console.log(formData);
+        //const token = localStorage.getItem("adminToken");
+        const response = await CustomerSignupApi(formData);
+        if (response.status == 200) {
+          setEmail("");
+          setPassword("");
+          setShowMessage(true);
+          setActiveMessage("success");
+          setResponseMessage(response.data?.message);
 
-    if (mode === "signup" && !formData.name.trim()) {
-      newErrors.name = "Name is required";
+          onClose();
+        } else {
+          setPassword("");
+          setShowMessage(true);
+          setActiveMessage("error");
+          setResponseMessage(response.data?.message);
+        }
+      }
+    } finally {
+      setloading(false);
     }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Enter a valid email address";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (mode === "signup" && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords don't match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-      setSuccessMessage(
-        mode === "login" ? "Welcome back!" : "Account created successfully!",
-      );
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    }, 1500);
+  const Login = async () => {
+    try {
+      setloading(true);
+      const formData = { email: email, password: password };
+      const response = await LoginApi(formData);
+      if (response.status === 200) {
+        setEmail("");
+        setPassword("");
+        setShowMessage(true);
+        setActiveMessage("success");
+        setResponseMessage(response.data?.message);
+        setUser(response.data?.status);
+        const token = response.data?.token;
+        localStorage.setItem("customerToken", token as string);
+        window.location.href = "/";
+        onclose;
+      } else {
+        setPassword("");
+        setShowMessage(true);
+        setActiveMessage("error");
+        setResponseMessage(response.data?.message);
+      }
+    } finally {
+      setloading(false);
+    }
   };
 
   return (
@@ -159,36 +177,49 @@ export default function AuthModal({
               )}
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-4">
                 {/* Name Field */}
                 {mode === "signup" && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full name
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <input
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) =>
-                          setFormData({ ...formData, name: e.target.value })
-                        }
-                        className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
-                          errors.name
-                            ? "border-red-300 focus:ring-red-100"
-                            : "border-gray-200 focus:border-gray-300 focus:ring-gray-100"
-                        }`}
-                        placeholder="John Doe"
-                      />
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Full name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={userName}
+                          onChange={(e) => setUserName(e.target.value)}
+                          className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                            errors.name
+                              ? "border-red-300 focus:ring-red-100"
+                              : "border-gray-200 focus:border-gray-300 focus:ring-gray-100"
+                          }`}
+                          placeholder="John Doe"
+                        />
+                      </div>
                     </div>
-                    {errors.name && (
-                      <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        {errors.name}
-                      </p>
-                    )}
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone No
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          value={phoneNo}
+                          onChange={(e) => setPhoneNo(e.target.value)}
+                          className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
+                            errors.name
+                              ? "border-red-300 focus:ring-red-100"
+                              : "border-gray-200 focus:border-gray-300 focus:ring-gray-100"
+                          }`}
+                          placeholder="+92-123-45678912"
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {/* Email Field */}
@@ -200,10 +231,8 @@ export default function AuthModal({
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                         errors.email
                           ? "border-red-300 focus:ring-red-100"
@@ -212,12 +241,6 @@ export default function AuthModal({
                       placeholder="you@example.com"
                     />
                   </div>
-                  {errors.email && (
-                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.email}
-                    </p>
-                  )}
                 </div>
 
                 {/* Password Field */}
@@ -229,10 +252,8 @@ export default function AuthModal({
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                     <input
                       type={showPassword ? "text" : "password"}
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                         errors.password
                           ? "border-red-300 focus:ring-red-100"
@@ -252,12 +273,6 @@ export default function AuthModal({
                       )}
                     </button>
                   </div>
-                  {errors.password && (
-                    <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.password}
-                    </p>
-                  )}
                 </div>
 
                 {/* Confirm Password */}
@@ -270,13 +285,8 @@ export default function AuthModal({
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            confirmPassword: e.target.value,
-                          })
-                        }
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`w-full pl-10 pr-12 py-2 border rounded-lg focus:outline-none focus:ring-2 transition-all ${
                           errors.confirmPassword
                             ? "border-red-300 focus:ring-red-100"
@@ -318,28 +328,45 @@ export default function AuthModal({
                     </a>
                   </div>
                 )}
-
+                {ShowMessage && (
+                  <div
+                    className={`${
+                      activeMessage === "success"
+                        ? "bg-green-50 border border-green-200"
+                        : "bg-red-50 border border-red-200"
+                    } rounded-lg p-3 animate-in fade-in duration-200`}
+                  >
+                    <p
+                      className={`${
+                        activeMessage === "success"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      } text-sm text-center`}
+                    >
+                      {responseMessage}
+                    </p>
+                  </div>
+                )}
                 {/* Submit Button */}
                 <button
-                  type="submit"
+                  type="button"
                   disabled={isLoading}
+                  onClick={mode === "login" ? Login : StoreAdd}
                   className="w-full py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {mode === "login"
-                        ? "Signing in..."
-                        : "Creating account..."}
+                      {loading ? "Signing in..." : "Creating account..."}
                     </>
                   ) : (
                     <>
-                      {mode === "login" ? "Sign in" : "Create account"}
+                      {loading ? "Sign in" : "Create account"}
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
-              </form>
+              </div>
 
               {/* Divider */}
               <div className="relative my-6">

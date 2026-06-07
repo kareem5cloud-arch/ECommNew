@@ -15,7 +15,7 @@ export default async function ModifySeller(
   }
 
   const response = await postRequest(
-    `/api/SellerAuthentication/ModifySignUp?sellerID=${sellerID}`,
+    `/api/Authentication/Seller/ModifySignUp?sellerID=${sellerID}`,
     data,
     customHeader,
   );

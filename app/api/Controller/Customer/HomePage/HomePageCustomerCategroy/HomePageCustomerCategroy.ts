@@ -1,8 +1,8 @@
 "use client";
 
-import { getRequest } from "../../MainController/main";
+import { getRequest } from "../../../MainController/main";
 
-export default async function CheckAuth(token?: string) {
+export default async function HomePageCustomerCategroyApi(token?: string) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -10,7 +10,7 @@ export default async function CheckAuth(token?: string) {
   }
 
   const response = await getRequest(
-    `/api/Authentication/Seller/checkAuth`,
+    `/api/ProductCategory/Customer/GetCategory`,
     null,
     customHeader,
   );
@@ -18,5 +18,8 @@ export default async function CheckAuth(token?: string) {
   return {
     data: response.data,
     status: response.status,
+    // message: response.message,
+    // success: response.success,
+    // error: response.error,
   };
 }

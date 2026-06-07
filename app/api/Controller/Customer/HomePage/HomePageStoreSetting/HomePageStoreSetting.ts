@@ -1,7 +1,8 @@
 "use client";
-import { getRequest } from "../../MainController/main";
 
-export default async function HomePageCustomerCategroyApi(token?: string) {
+import { getRequest } from "../../../MainController/main";
+
+export default async function HomePageSettingStoreApi(token?: string) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -9,7 +10,7 @@ export default async function HomePageCustomerCategroyApi(token?: string) {
   }
 
   const response = await getRequest(
-    `/api/ProductCategory/Customer/GetCategory`,
+    `/api/Store/Customer/HomePageSetting/GetStoreSetting`,
     null,
     customHeader,
   );

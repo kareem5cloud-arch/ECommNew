@@ -11,7 +11,7 @@ export default async function LoginApi(data: loginRequest, token?: string) {
   }
 
   const response = await postRequest(
-    `/api/SellerAuthentication/Login`,
+    `/api/Authentication/Login`,
     data,
     customHeader,
   );

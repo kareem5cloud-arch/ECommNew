@@ -6,6 +6,7 @@ import {
   responseStoreListImageList,
   ResposneStoreListHomePage,
 } from "@/app/api/Types/Customer/HomePageStoreSetting";
+import Link from "next/link";
 
 interface BannerSliderProps {
   slides?: responseStoreListImageList[];
@@ -120,9 +121,12 @@ export default function BannerSlider({
                   </p>
 
                   {/* CTA Button */}
-                  <button className="group relative inline-flex items-center px-8 py-4 md:px-10 md:py-4 bg-white text-gray-900 font-semibold text-lg rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                  <Link
+                    href="/subMenu/Shop"
+                    className="group relative inline-flex items-center px-8 py-4 md:px-10 md:py-4 bg-white text-gray-900 font-semibold text-lg rounded-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-xl"
+                  >
                     <span>Explore Collection →</span>
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

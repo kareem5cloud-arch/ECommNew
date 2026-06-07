@@ -10,54 +10,53 @@ import {
   ChevronDown,
   ChevronRight,
   Heart,
+  LayoutDashboard,
 } from "lucide-react";
 import CartSidebar from "../useFullComponent/cartSideBar";
 import AuthModal from "./LoginSignUp";
 import WishlistSidebar from "../useFullComponent/wishListSideBar";
 import { categoryListHomePageCustomerCategroy } from "@/app/api/Types/Customer/HomePageCustomerCategroy";
 import { ResposneStoreListHomePage } from "@/app/api/Types/Customer/HomePageStoreSetting";
-
-interface SubSubcategory {
-  id: string;
-  name: string;
-  slug: string;
-  image?: string;
-}
-
-interface Subcategory {
-  id: string;
-  name: string;
-  slug: string;
-  image?: string;
-  subcategories?: SubSubcategory[];
-}
-
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  image: string;
-  subcategories: Subcategory[];
-}
+import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
+import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
+import { ProductSectionHomePage } from "@/app/api/Types/Customer/ProductSectionHomePage";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface NavabarProps {
   categoryData: categoryListHomePageCustomerCategroy[];
   storeInfo?: ResposneStoreListHomePage;
+  cartList: CartData[];
+  wishList: CartData[];
+  onClickCall: () => void;
+  productData: ProductSectionHomePage[];
 }
-export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
+export default function Navbar({
+  categoryData,
+  storeInfo,
+  cartList,
+  wishList,
+  onClickCall,
+  productData,
+}: NavabarProps) {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [activeSubcategory, setActiveSubcategory] = useState<string | null>(
     null,
   );
   const [searchFocused, setSearchFocused] = useState(false);
+  const [tokenExist, settokenExist] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [searchProduct, setSearchProduct] = useState("");
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-
+  const [open, setOpen] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -91,9 +90,70 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
     setIsCartOpen(true);
   };
 
+  const checkAuth = async () => {
+    const token = localStorage.getItem("customerToken");
+    const response = await CheckAuth(String(token));
+    if (response.status === 200) {
+      settokenExist(true);
+    } else {
+      settokenExist(false);
+    }
+  };
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const filteredOptions = productData.filter((item) =>
+    item.productName.toLowerCase().includes(searchProduct.toLowerCase()),
+  );
+  // SELECT ITEM
+  const handleSelect = (item: ProductSectionHomePage) => {
+    setOpen(false);
+    setSearchProduct(item.productName);
+    router.push(`/subMenu/Product/${item.productID}`);
+  };
+
+  // KEYBOARD CONTROL
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!open || filteredOptions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev + 1 >= filteredOptions.length ? 0 : prev + 1,
+      );
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightIndex((prev) =>
+        prev <= 0 ? filteredOptions.length - 1 : prev - 1,
+      );
+    }
+
+    if (e.key === "Enter") {
+      e.preventDefault();
+
+      if (highlightIndex >= 0) {
+        const selected = filteredOptions[highlightIndex];
+
+        handleSelect(selected);
+        router.push(`/subMenu/Product/${selected.productID}`);
+      }
+    }
+
+    if (e.key === "Escape") {
+      setOpen(false);
+    }
+  };
   return (
     <>
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <CartSidebar
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartData={cartList}
+        onClickCall={onClickCall}
+      />
       <AuthModal
         isOpen={isAuthOpen}
         onClose={() => setIsAuthOpen(false)}
@@ -102,14 +162,19 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
       <WishlistSidebar
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
+        wishListData={wishList}
         onAddToCart={handleAddToCart}
+        onClickCall={onClickCall}
       />
       <nav
         className={`bg-white transition-all duration-300 sticky top-0 z-10 ${scrolled ? "shadow-lg" : "shadow-md"}`}
       >
         <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
           {/* Top bar */}
-          <div className="flex items-center justify-between h-16 lg:h-20">
+          <div
+            onClick={() => setOpen(false)}
+            className="flex items-center justify-between h-16 lg:h-20"
+          >
             {/* Logo */}
             <div className="flex items-center">
               <button
@@ -136,53 +201,128 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
             </div>
 
             {/* Search bar - Desktop */}
-            <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
+            <div className="hidden lg:flex flex-1 max-w-2xl mx-8 relative ">
               <div className="relative w-full">
                 <input
                   type="text"
+                  value={searchProduct}
                   placeholder="Search products, brands, categories..."
                   className={`w-full px-5 py-2.5 border rounded-full focus:outline-none focus:ring-2 transition-all duration-200
-                  ${
-                    searchFocused
-                      ? "border-purple-500 ring-2 ring-purple-200 bg-white"
-                      : "border-gray-300 bg-gray-50 hover:bg-white"
-                  }
-                `}
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
+                    ${
+                      searchFocused
+                        ? "border-purple-500 ring-2 ring-purple-200 bg-white"
+                        : "border-gray-300 bg-gray-50 hover:bg-white"
+                    }
+                  `}
+                  onFocus={() => setOpen(true)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setSearchProduct(value);
+                    setOpen(true);
+                    setHighlightIndex(-1);
+                  }}
+                  onKeyDown={handleKeyDown}
                 />
                 <Search className="absolute right-4 top-3 h-5 w-5 text-gray-400" />
               </div>
+
+              {open && (
+                <ul className="absolute z-50 w-full bg-white rounded-lg mt-12 shadow-lg max-h-80 overflow-auto border border-gray-200">
+                  {filteredOptions.length === 0 ? (
+                    <li className="px-4 py-8 text-center text-gray-500">
+                      No products found
+                    </li>
+                  ) : (
+                    filteredOptions.map((option, index) => (
+                      <li
+                        key={option.productID}
+                        ref={(el) => {
+                          itemRefs.current[index] = el;
+                        }}
+                        onMouseDown={() => handleSelect(option)}
+                        className={`px-3 py-2 cursor-pointer transition-colors flex items-center gap-3 ${
+                          index === highlightIndex
+                            ? "bg-purple-50"
+                            : "hover:bg-gray-50"
+                        } ${index !== filteredOptions.length - 1 ? "border-b border-gray-100" : ""}`}
+                      >
+                        {/* Product Image */}
+
+                        <img
+                          src={
+                            option.images?.[0]?.url ||
+                            "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+                          }
+                          alt={option.productName}
+                          className="w-10 h-10 object-cover rounded-md"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg";
+                          }}
+                        />
+
+                        {/* Product Name */}
+                        <span
+                          className={`text-sm flex-1 ${
+                            index === highlightIndex
+                              ? "text-purple-600 font-medium"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {option.productName}
+                        </span>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              )}
             </div>
 
             {/* Right icons */}
             <div className="flex items-center space-x-3 lg:space-x-5">
-              <button className="hidden lg:flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors">
-                <Heart
-                  onClick={() => setIsWishlistOpen(true)}
-                  className="h-5 w-5"
-                />
-                <span className="text-sm font-medium">Wishlist</span>
-              </button>
               <button
-                onClick={() => {
-                  setAuthMode("login");
-                  setIsAuthOpen(true);
-                }}
+                onClick={() => setIsWishlistOpen(true)}
                 className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
               >
-                <User className="h-5 w-5" />
+                <Heart className="h-5 w-5" />
                 <span className="hidden lg:inline text-sm font-medium">
-                  Account
+                  WishList
                 </span>
               </button>
+              {tokenExist ? (
+                <button
+                  // onClick={() => {
+                  //   setAuthMode("login");
+                  //   setIsAuthOpen(true);
+                  // }}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
+                >
+                  <LayoutDashboard className="h-5 w-5" />
+                  <span className="hidden lg:inline text-sm font-medium">
+                    Dashboard
+                  </span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setAuthMode("login");
+                    setIsAuthOpen(true);
+                  }}
+                  className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="hidden lg:inline text-sm font-medium">
+                    Account
+                  </span>
+                </button>
+              )}
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative text-gray-600 hover:text-purple-600 transition-colors"
               >
                 <ShoppingCart className="h-5 w-5 lg:h-6 lg:w-6" />
                 <span className="absolute -top-2 -right-2 bg-purple-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
-                  3
+                  {cartList.length}
                 </span>
               </button>
             </div>
@@ -198,7 +338,8 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                   onMouseEnter={() => handleMouseEnter(category.categoryID)}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <button
+                  <Link
+                    href="/subMenu/Shop"
                     className={`px-4 xl:px-6 py-4 text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative whitespace-nowrap
                     ${
                       activeCategory === category.categoryID
@@ -216,7 +357,7 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                     {activeCategory === category.categoryID && (
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full"></div>
                     )}
-                  </button>
+                  </Link>
 
                   {/* Dropdown menu - Full width from category position */}
                   {activeCategory === category.categoryID && (
@@ -333,14 +474,80 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                 </button>
               </div>
               <div className="px-4 py-4 space-y-4">
-                {/* Search bar - Mobile */}
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                  <Search className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                <div className="relative ">
+                  <div className="relative w-full">
+                    <input
+                      type="text"
+                      value={searchProduct}
+                      placeholder="Search products, brands, categories..."
+                      className={`w-full px-5 py-2.5 border rounded-full focus:outline-none focus:ring-2 transition-all duration-200
+                    ${
+                      searchFocused
+                        ? "border-purple-500 ring-2 ring-purple-200 bg-white"
+                        : "border-gray-300 bg-gray-50 hover:bg-white"
+                    }
+                  `}
+                      onFocus={() => setOpen(true)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchProduct(value);
+                        setOpen(true);
+                        setHighlightIndex(-1);
+                      }}
+                      onKeyDown={handleKeyDown}
+                    />
+                    <Search className="absolute bg-white right-4 top-3 h-5 w-5 text-gray-400" />
+                  </div>
+
+                  {open && (
+                    <ul className="absolute z-50 w-full bg-white rounded-lg mt-12 shadow-lg max-h-80 overflow-auto border border-gray-200">
+                      {filteredOptions.length === 0 ? (
+                        <li className="px-4 py-8 text-center text-gray-500">
+                          No products found
+                        </li>
+                      ) : (
+                        filteredOptions.map((option, index) => (
+                          <li
+                            key={option.productID}
+                            ref={(el) => {
+                              itemRefs.current[index] = el;
+                            }}
+                            onMouseDown={() => handleSelect(option)}
+                            className={`px-3 py-2 cursor-pointer transition-colors flex items-center gap-3 ${
+                              index === highlightIndex
+                                ? "bg-purple-50"
+                                : "hover:bg-gray-50"
+                            } ${index !== filteredOptions.length - 1 ? "border-b border-gray-100" : ""}`}
+                          >
+                            {/* Product Image */}
+                            <img
+                              src={
+                                option.images?.[0]?.url ||
+                                "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+                              }
+                              alt={option.productName}
+                              className="w-10 h-10 object-cover rounded-md"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src =
+                                  "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg";
+                              }}
+                            />
+
+                            {/* Product Name */}
+                            <span
+                              className={`text-sm flex-1 ${
+                                index === highlightIndex
+                                  ? "text-purple-600 font-medium"
+                                  : "text-gray-700"
+                              }`}
+                            >
+                              {option.productName}
+                            </span>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Mobile categories with 3 levels */}
@@ -388,7 +595,8 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                               </a>
                               {sub.subCategoryDetailList &&
                                 sub.subCategoryDetailList.length > 0 && (
-                                  <button
+                                  <Link
+                                    href="/subMenu/Shop"
                                     onClick={() =>
                                       setActiveSubcategory(
                                         activeSubcategory === sub.subCategoryID
@@ -403,7 +611,7 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                                 ${activeSubcategory === sub.subCategoryID ? "rotate-90" : ""}
                               `}
                                     />
-                                  </button>
+                                  </Link>
                                 )}
                             </div>
 
@@ -428,17 +636,6 @@ export default function Navbar({ categoryData, storeInfo }: NavabarProps) {
                     )}
                   </div>
                 ))}
-
-                <div className="pt-4 border-t border-gray-200 space-y-2">
-                  <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
-                    <Heart className="h-5 w-5" />
-                    <span>Wishlist</span>
-                  </button>
-                  <button className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-gray-700 hover:bg-purple-50 rounded-lg">
-                    <User className="h-5 w-5" />
-                    <span>Account</span>
-                  </button>
-                </div>
               </div>
             </div>
           </>

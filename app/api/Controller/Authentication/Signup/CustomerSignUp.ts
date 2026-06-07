@@ -1,17 +1,21 @@
 "use client";
 
-import { getRequest } from "../../../MainController/main";
+import { SignupRequest } from "@/app/api/Types/Authentication/login";
+import { postRequest } from "../../MainController/main";
 
-export default async function OnlineSellerSignUpList(token?: string) {
+export default async function CustomerSignupApi(
+  data: SignupRequest,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
     customHeader.Authorization = `Bearer ${token}`;
   }
 
-  const response = await getRequest(
-    `/api/Authentication/Seller/GetOnlineSeller`,
-    null,
+  const response = await postRequest(
+    `/api/Authentication/Customer/SignUp`,
+    data,
     customHeader,
   );
 

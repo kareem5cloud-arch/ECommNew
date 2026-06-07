@@ -10,7 +10,7 @@ export default async function OfflineSellerSignUpList(token?: string) {
   }
 
   const response = await getRequest(
-    `/api/SellerAuthentication/GetOfflineSeller`,
+    `/api/Authentication/Seller/GetOfflineSeller`,
     null,
     customHeader,
   );

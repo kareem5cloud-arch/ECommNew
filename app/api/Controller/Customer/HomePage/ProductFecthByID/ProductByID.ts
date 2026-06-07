@@ -2,7 +2,10 @@
 
 import { getRequest } from "../../../MainController/main";
 
-export default async function OnlineSellerSignUpList(token?: string) {
+export default async function ProductDataByID(
+  productID: string,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -10,7 +13,7 @@ export default async function OnlineSellerSignUpList(token?: string) {
   }
 
   const response = await getRequest(
-    `/api/Authentication/Seller/GetOnlineSeller`,
+    `/api/ProductManagment/Customer/GetProductID/${productID}`,
     null,
     customHeader,
   );

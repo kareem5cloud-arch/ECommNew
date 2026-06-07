@@ -6,25 +6,15 @@ import {
   Phone,
   MapPin,
   Send,
-  Apple,
-  Smartphone,
-  CreditCard,
-  Shield,
-  Truck,
-  RefreshCw,
   ChevronRight,
   Heart,
-  Sparkles,
-  Award,
   Clock,
   Headphones,
-  Globe,
-  Star,
-  ShoppingBag,
 } from "lucide-react";
 import { ResposneStoreListHomePage } from "@/app/api/Types/Customer/HomePageStoreSetting";
+import { categoryListHomePageCustomerCategroy } from "@/app/api/Types/Customer/HomePageCustomerCategroy";
 
-// Custom social icons (not in Lucide)
+// Custom social icons
 const FacebookIcon = () => (
   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -62,8 +52,13 @@ const YoutubeIcon = () => (
 
 interface BannerSliderProps {
   storeInfo?: ResposneStoreListHomePage;
+  categroyMainInfo: categoryListHomePageCustomerCategroy[];
 }
-export default function Footer({ storeInfo }: BannerSliderProps) {
+
+export default function Footer({
+  storeInfo,
+  categroyMainInfo,
+}: BannerSliderProps) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
 
@@ -79,152 +74,120 @@ export default function Footer({ storeInfo }: BannerSliderProps) {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900 text-white overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full opacity-10 blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full opacity-10 blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-blue-500 rounded-full opacity-5 blur-3xl"></div>
-      </div>
-
+    <footer className="bg-gray-900 text-gray-300">
       {/* Main Footer */}
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-8">
-        {/* Top Section with Gradient Border */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12 pb-12 border-b border-white/10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-6">
+        {/* Top Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10 pb-8 border-b border-gray-800">
           {/* Brand Section */}
           <div>
-            {/* <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-6 h-6 text-purple-400" />
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-                ShopHub
-              </h2>
-            </div> */}
-            <div className="flex-shrink-0 ml-4 lg:ml-0">
-              {storeInfo?.logoUrl ? (
-                <img
-                  src={storeInfo.logoUrl}
-                  alt="Store Logo"
-                  className="h-8 lg:h-10 w-auto object-contain"
-                />
-              ) : (
-                <span className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"></span>
-              )}
-            </div>
-            <p className="text-gray-300 text-sm mb-6 leading-relaxed max-w-md">
-              Experience the future of online shopping with premium quality
-              products, exclusive deals, and unparalleled customer service. Join
-              millions of happy customers worldwide.
+            {storeInfo?.logoUrl ? (
+              <img
+                src={storeInfo.logoUrl}
+                alt="Store Logo"
+                className="h-10 w-auto object-contain mb-4"
+              />
+            ) : (
+              <h2 className="text-2xl font-bold text-white mb-4">ShopHub</h2>
+            )}
+            <p className="text-gray-400 text-sm mb-5 leading-relaxed max-w-md">
+              Experience quality shopping with premium products, great deals,
+              and dedicated customer service. Join thousands of happy customers
+              worldwide.
             </p>
 
-            {/* Social Links with Modern Design */}
-            <div className="flex gap-3 mb-8">
+            {/* Social Links */}
+            <div className="flex gap-3 mb-6">
               <a
                 href={storeInfo?.facebook}
-                className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
+                className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
               >
                 <FacebookIcon />
               </a>
               <a
                 href={storeInfo?.facebook}
-                className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
+                className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
               >
                 <TwitterIcon />
               </a>
               <a
                 href={storeInfo?.instagram}
-                className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
+                className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
               >
                 <InstagramIcon />
               </a>
               <a
                 href={storeInfo?.linkdin}
-                className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
+                className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
               >
                 <LinkedinIcon />
               </a>
               <a
                 href={storeInfo?.youtube}
-                className="group relative w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 transition-all duration-300"
+                className="w-9 h-9 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition-colors"
               >
                 <YoutubeIcon />
               </a>
             </div>
 
-            {/* Trust Badges */}
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 bg-white/5 rounded-full px-3 py-1.5 backdrop-blur-sm">
-                <Award className="w-4 h-4 text-yellow-400" />
-                <span className="text-xs">Award Winner 2024</span>
+            {/* Info Badges */}
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 bg-gray-800 rounded-full px-3 py-1.5">
+                <Clock className="w-3.5 h-3.5 text-gray-400" />
+                <span className="text-xs">Fast Delivery</span>
               </div>
-              <div className="flex items-center gap-2 bg-white/5 rounded-full px-3 py-1.5 backdrop-blur-sm">
-                <Shield className="w-4 h-4 text-green-400" />
-                <span className="text-xs">100% Secure</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/5 rounded-full px-3 py-1.5 backdrop-blur-sm">
-                <Clock className="w-4 h-4 text-blue-400" />
+              <div className="flex items-center gap-2 bg-gray-800 rounded-full px-3 py-1.5">
+                <Headphones className="w-3.5 h-3.5 text-gray-400" />
                 <span className="text-xs">24/7 Support</span>
               </div>
             </div>
           </div>
 
           {/* Newsletter Section */}
-          <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-            <h3 className="text-xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Stay in the Loop
+          <div className="bg-gray-800/50 rounded-xl p-5">
+            <h3 className="text-lg font-semibold text-white mb-1">
+              Stay Updated
             </h3>
-            <p className="text-gray-300 text-sm mb-4">
-              Subscribe to get special offers, free giveaways, and exclusive
-              deals.
+            <p className="text-gray-400 text-sm mb-4">
+              Get exclusive offers and updates directly to your inbox.
             </p>
             <form onSubmit={handleSubscribe} className="relative mb-3">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                className="w-full px-5 py-3 pr-32 rounded-xl bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all"
+                placeholder="Enter your email"
+                className="w-full px-4 py-2.5 pr-28 rounded-lg bg-gray-800 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-all text-sm"
                 required
               />
               <button
                 type="submit"
-                className="absolute right-1.5 top-1.5 bottom-1.5 px-5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all flex items-center gap-2"
+                className="absolute right-1.5 top-1.5 bottom-1.5 px-4 bg-gray-700 hover:bg-gray-600 rounded-md transition-all flex items-center gap-2 text-sm"
               >
-                <Send className="w-4 h-4" />
-                <span className="text-sm font-medium">Subscribe</span>
+                <Send className="w-3.5 h-3.5" />
+                <span>Subscribe</span>
               </button>
             </form>
             {isSubscribed && (
-              <p className="text-green-400 text-xs animate-pulse">
-                🎉 Thanks for subscribing! Check your inbox.
+              <p className="text-green-500 text-xs">
+                ✓ Thanks for subscribing!
               </p>
             )}
-            <p className="text-gray-500 text-xs mt-3">
-              No spam. Unsubscribe anytime.
-            </p>
           </div>
         </div>
 
         {/* Links Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           <div>
-            <h4 className="font-semibold text-lg mb-4 relative inline-block">
-              Shop
-              <div className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            </h4>
+            <h4 className="font-semibold text-white text-md mb-3">Shop</h4>
             <ul className="space-y-2">
-              {[
-                "New Arrivals",
-                "Best Sellers",
-                "Trending Now",
-                "Exclusive Deals",
-                "Gift Cards",
-              ].map((item) => (
+              {["New Arrivals", "Explore Product"].map((item) => (
                 <li key={item}>
                   <a
-                    href="#"
-                    className="text-gray-400 hover:text-purple-400 transition-all flex items-center gap-1 text-sm group"
+                    href="/subMenu/Shop"
+                    className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1"
                   >
-                    <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="w-3 h-3" />
                     {item}
                   </a>
                 </li>
@@ -233,26 +196,18 @@ export default function Footer({ storeInfo }: BannerSliderProps) {
           </div>
 
           <div>
-            <h4 className="font-semibold text-lg mb-4 relative inline-block">
+            <h4 className="font-semibold text-white text-md mb-3">
               Categories
-              <div className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
             </h4>
             <ul className="space-y-2">
-              {[
-                "Electronics",
-                "Fashion",
-                "Home & Living",
-                "Beauty",
-                "Sports",
-                "Books",
-              ].map((item) => (
-                <li key={item}>
+              {categroyMainInfo.map((item) => (
+                <li key={item.categoryID}>
                   <a
-                    href="#"
-                    className="text-gray-400 hover:text-purple-400 transition-all flex items-center gap-1 text-sm group"
+                    href="/subMenu/Shop"
+                    className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1"
                   >
-                    <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                    {item}
+                    <ChevronRight className="w-3 h-3" />
+                    {item.categoryName}
                   </a>
                 </li>
               ))}
@@ -260,10 +215,7 @@ export default function Footer({ storeInfo }: BannerSliderProps) {
           </div>
 
           <div>
-            <h4 className="font-semibold text-lg mb-4 relative inline-block">
-              Support
-              <div className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            </h4>
+            <h4 className="font-semibold text-white text-md mb-3">Support</h4>
             <ul className="space-y-2">
               {[
                 "Help Center",
@@ -275,9 +227,9 @@ export default function Footer({ storeInfo }: BannerSliderProps) {
                 <li key={item}>
                   <a
                     href="#"
-                    className="text-gray-400 hover:text-purple-400 transition-all flex items-center gap-1 text-sm group"
+                    className="text-gray-400 hover:text-white transition-colors text-sm flex items-center gap-1"
                   >
-                    <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    <ChevronRight className="w-3 h-3" />
                     {item}
                   </a>
                 </li>
@@ -286,149 +238,55 @@ export default function Footer({ storeInfo }: BannerSliderProps) {
           </div>
 
           <div>
-            <h4 className="font-semibold text-lg mb-4 relative inline-block">
-              Contact
-              <div className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-            </h4>
+            <h4 className="font-semibold text-white text-md mb-3">Contact</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-3 text-gray-400 text-sm">
-                <MapPin className="w-4 h-4 mt-0.5 text-purple-400" />
-                <span>{storeInfo?.address}</span>
+                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <span>{storeInfo?.address || "123 Commerce St, City"}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <Phone className="w-4 h-4 text-purple-400" />
-                <span>{storeInfo?.phoneNo}</span>
+                <Phone className="w-4 h-4 flex-shrink-0" />
+                <span>{storeInfo?.phoneNo || "+1 234 567 890"}</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <Mail className="w-4 h-4 text-purple-400" />
-                <span>{storeInfo?.email}</span>
-              </li>
-              <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <Headphones className="w-4 h-4 text-purple-400" />
-                <span>24/7 Customer Support</span>
+                <Mail className="w-4 h-4 flex-shrink-0" />
+                <span>{storeInfo?.email || "support@shophub.com"}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Features Bar */}
-        {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-8 border-t border-b border-white/10 mb-8">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Truck className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Free Express Shipping</p>
-              <p className="text-xs text-gray-400">On orders $50+</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <RefreshCw className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">30-Day Returns</p>
-              <p className="text-xs text-gray-400">Easy & hassle-free</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Shield className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Secure Checkout</p>
-              <p className="text-xs text-gray-400">256-bit encryption</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Star className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="font-semibold text-sm">Rewards Program</p>
-              <p className="text-xs text-gray-400">Earn points & save</p>
-            </div>
-          </div>
-        </div> */}
-
-        {/* App & Payment Section */}
-        {/* <div className="flex flex-col md:flex-row justify-between items-cnter gap-6 mb-8">
-          <div className="flex gap-3">
-            <a
-              href="#"
-              className="group flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/10 hover:border-purple-500 transition-all"
-            >
-              <Apple className="w-6 h-6" />
-              <div>
-                <p className="text-xs text-gray-400">Download on</p>
-                <p className="text-sm font-semibold">App Store</p>
-              </div>
-            </a>
-            <a
-              href="#"
-              className="group flex items-center gap-3 px-4 py-2 bg-white/5 rounded-xl border border-white/10 hover:border-purple-500 transition-all"
-            >
-              <Smartphone className="w-6 h-6" />
-              <div>
-                <p className="text-xs text-gray-400">Get it on</p>
-                <p className="text-sm font-semibold">Google Play</p>
-              </div>
-            </a>
-          </div>
-
-          <div className="flex gap-2">
-            <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-gray-400" />
-            </div>
-            <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-              Visa
-            </div>
-            <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-              MC
-            </div>
-            <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-              PP
-            </div>
-            <div className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
-              AE
-            </div>
-          </div>
-        </div> */}
-
         {/* Bottom Bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-sm">
-          <p className="text-gray-400">
-            © {currentYear} ShopHub. All rights reserved.
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-800 text-sm">
+          <p className="text-gray-500">
+            © {currentYear} Karim5. All rights reserved.
           </p>
-          <div className="flex gap-6">
+          <div className="flex gap-5">
             <a
               href="#"
-              className="text-gray-400 hover:text-purple-400 transition"
+              className="text-gray-500 hover:text-gray-300 transition text-xs"
             >
               Privacy Policy
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-purple-400 transition"
+              className="text-gray-500 hover:text-gray-300 transition text-xs"
             >
               Terms of Service
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-purple-400 transition"
+              className="text-gray-500 hover:text-gray-300 transition text-xs"
             >
               Cookie Settings
             </a>
           </div>
-          <p className="text-gray-500 flex items-center gap-1 text-xs">
-            Made with <Heart className="w-3 h-3 text-red-500 animate-pulse" />{" "}
-            by ShopHub Team
+          <p className="text-gray-600 text-xs flex items-center gap-1">
+            Made with <Heart className="w-3 h-3 text-red-500" /> by
+            MindLink(IT-House)
           </p>
         </div>
       </div>
-
-      {/* Decorative Bottom Gradient */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500"></div>
     </footer>
   );
 }
