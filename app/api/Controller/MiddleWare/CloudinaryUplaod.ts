@@ -1,27 +1,38 @@
 import axios from "axios";
+
 export async function SendDataToApi(file: File) {
   const formData = new FormData();
+
   formData.append("file", file);
-  formData.append("upload_preset", "my_preset");
+  formData.append(
+    "upload_preset",
+    process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET as string,
+  );
+
   try {
     const response = await axios.post(
-      `https://api.cloudinary.com/v1_1/daz8ajhg3/image/upload`,
+      `https://api.cloudinary.com/v1_1/${
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+      }/image/upload`,
       formData,
       {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
     );
-    if (response.status == 200 || response.status == 201) {
+
+    if (response.status === 200 || response.status === 201) {
       return {
         message: "Image uploaded successfully",
         data: response.data.secure_url,
       };
-    } else {
-      return {
-        error: "Failed to upload image",
-        status: response.status,
-      };
     }
+
+    return {
+      error: "Failed to upload image",
+      status: response.status,
+    };
   } catch (error: any) {
     return {
       message: error.message || "Unknown error",
