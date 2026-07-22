@@ -161,6 +161,12 @@ export default function AdminSidebar() {
           icon: UserLock,
           href: "/AdminSetting/admin/CreateLogin/OfflineSeller",
         },
+        {
+          id: "warehouse",
+          label: "WareHouse Seller",
+          icon: Warehouse,
+          href: "/AdminSetting/admin/CreateLogin/WareHouseSeller",
+        },
       ],
     },
     {

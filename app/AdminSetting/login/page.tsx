@@ -38,6 +38,14 @@ export default function LoginPage() {
           localStorage.setItem("OnlineSellerToken", token as string);
           window.location.href = "/AdminSetting/OnlineSeller/Dashboard";
         }
+        if (response.data?.status === "OfflineSeller") {
+          localStorage.setItem("OfflineSellerToken", token as string);
+          window.location.href = "/AdminSetting/OfflineSeller/Dashboard";
+        }
+        if (response.data?.status === "PurchaserLogin") {
+          localStorage.setItem("PurchaserLoginToken", token as string);
+          window.location.href = "/AdminSetting/Purchaserlogin/Dashboard";
+        }
       } else {
         setPassword("");
         setShowMessage(true);

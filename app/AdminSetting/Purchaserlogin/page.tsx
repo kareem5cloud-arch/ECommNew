@@ -1,62 +1,28 @@
 // components/AdminSidebar.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   LayoutDashboard,
-  Star,
-  ShoppingBag,
-  UserCog,
   LogOut,
   Menu,
   X,
-  Heart,
-  ShoppingCart,
-  Plus,
   ChevronRight,
   ChevronDown,
   User,
-  Briefcase,
-  ListCollapse,
-  Weight,
-  ListChecksIcon,
-  Settings,
-  Bell,
-  Loader2,
-  ChevronLeft,
   Coins,
-  Key,
-  Truck,
-  WholeWord,
-  Building,
-  Map,
-  Ship,
-  UserLock,
-  ShoppingBagIcon,
-  Home,
-  BarChart3,
-  Users,
-  FileText,
-  Calendar,
-  MessageSquare,
-  FolderTree,
-  Gift,
-  Tag,
-  Globe,
-  Shield,
-  Warehouse,
-  List,
-  Package,
-  PackageSearch,
-  Bike,
-  UserSearch,
   Wallet,
+  List,
+  Truck,
+  Globe,
+  Map,
+  Package,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
 
-export default function OnlineSellerSidebar() {
+export default function PurchaserloginSellerSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true); // Start open on desktop
@@ -72,33 +38,71 @@ export default function OnlineSellerSidebar() {
       id: "dashboard",
       label: "Dashboard",
       icon: LayoutDashboard,
-      href: "/AdminSetting/OnlineSeller/Dashboard",
+      href: "/AdminSetting/Purchaserlogin/Dashboard",
       type: "link",
     },
     {
-      id: "order",
-      label: "Order Management",
-      icon: Package,
+      id: "codes",
+      label: "Codes",
+      icon: List,
       type: "dropdown",
       items: [
         {
-          id: "OrderConfirmation",
-          label: "Order Confirmation",
-          icon: PackageSearch,
-          href: "/AdminSetting/OnlineSeller/OrderManagement/OrderConfirmation",
+          id: "Supplier",
+          label: "Supplier",
+          icon: User,
+          href: "/AdminSetting/Purchaserlogin/Codes/Supplier",
         },
         {
-          id: "TrackingAssign",
-          label: "Order Tracking",
-          icon: Bike,
-          href: "/AdminSetting/OnlineSeller/OrderManagement/OrderTracking",
+          id: "Category",
+          label: "Category",
+          icon: Truck,
+          href: "/AdminSetting/Purchaserlogin/Codes/Category",
+        },
+        {
+          id: "subCategory",
+          label: "Sub Category",
+          icon: Globe,
+          href: "/AdminSetting/Purchaserlogin/Codes/SubCategory",
+        },
+        {
+          id: "units",
+          label: "Units",
+          icon: Map,
+          href: "/AdminSetting/Purchaserlogin/Codes/Units",
+        },
+        {
+          id: "furtherSub",
+          label: "Further-SubCategory",
+          icon: Coins,
+          href: "/AdminSetting/Purchaserlogin/Codes/FurtherSubCategory",
+        },
+        {
+          id: "Product",
+          label: "Product",
+          icon: Package,
+          href: "/AdminSetting/Purchaserlogin/Codes/Product",
         },
       ],
+    },
+    {
+      id: "purchase",
+      label: "Purchase",
+      icon: Wallet,
+      href: "/AdminSetting/Purchaserlogin/Purchase",
+      type: "link",
+    },
+    {
+      id: "SupplierLedger",
+      label: "Supplier Ledger",
+      icon: Coins,
+      href: "/AdminSetting/Purchaserlogin/Ledger/SupplierLedger",
+      type: "link",
     },
   ];
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CheckAuth(String(token));
     if (response.status === 200) {
       return;
@@ -107,13 +111,13 @@ export default function OnlineSellerSidebar() {
     }
   };
   const logOut = async () => {
-    localStorage.removeItem("OnlineSellerToken");
+    localStorage.removeItem("PurchaserLoginToken");
     window.location.href = "/AdminSetting/login";
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  //   useEffect(() => {
+  //     checkAuth();
+  //   }, []);
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));
@@ -157,7 +161,7 @@ export default function OnlineSellerSidebar() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                OnlineSeller
+                Purchaser Login
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Dashboard

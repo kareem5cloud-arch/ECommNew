@@ -4,59 +4,19 @@
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
-  Star,
-  ShoppingBag,
-  UserCog,
   LogOut,
   Menu,
   X,
-  Heart,
-  ShoppingCart,
-  Plus,
   ChevronRight,
   ChevronDown,
-  User,
-  Briefcase,
-  ListCollapse,
-  Weight,
-  ListChecksIcon,
-  Settings,
-  Bell,
-  Loader2,
-  ChevronLeft,
-  Coins,
-  Key,
-  Truck,
-  WholeWord,
-  Building,
-  Map,
-  Ship,
-  UserLock,
-  ShoppingBagIcon,
-  Home,
-  BarChart3,
   Users,
-  FileText,
-  Calendar,
-  MessageSquare,
-  FolderTree,
-  Gift,
-  Tag,
-  Globe,
-  Shield,
-  Warehouse,
-  List,
-  Package,
-  PackageSearch,
-  Bike,
-  UserSearch,
-  Wallet,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
+import { FaCashRegister } from "react-icons/fa";
 
-export default function OnlineSellerSidebar() {
+export default function OfflineSellerSidebar() {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true); // Start open on desktop
@@ -72,33 +32,27 @@ export default function OnlineSellerSidebar() {
       id: "dashboard",
       label: "Dashboard",
       icon: LayoutDashboard,
-      href: "/AdminSetting/OnlineSeller/Dashboard",
+      href: "/AdminSetting/OfflineSeller/Dashboard",
       type: "link",
     },
     {
-      id: "order",
-      label: "Order Management",
-      icon: Package,
-      type: "dropdown",
-      items: [
-        {
-          id: "OrderConfirmation",
-          label: "Order Confirmation",
-          icon: PackageSearch,
-          href: "/AdminSetting/OnlineSeller/OrderManagement/OrderConfirmation",
-        },
-        {
-          id: "TrackingAssign",
-          label: "Order Tracking",
-          icon: Bike,
-          href: "/AdminSetting/OnlineSeller/OrderManagement/OrderTracking",
-        },
-      ],
+      id: "createTill",
+      label: "Create Till",
+      icon: FaCashRegister,
+      href: "/AdminSetting/OfflineSeller/CreateTill",
+      type: "link",
+    },
+    {
+      id: "createLogin",
+      label: "Create Login",
+      icon: Users,
+      href: "/AdminSetting/OfflineSeller/CreateLogin",
+      type: "link",
     },
   ];
 
   const checkAuth = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("OfflineSellerToken");
     const response = await CheckAuth(String(token));
     if (response.status === 200) {
       return;
@@ -107,13 +61,13 @@ export default function OnlineSellerSidebar() {
     }
   };
   const logOut = async () => {
-    localStorage.removeItem("OnlineSellerToken");
+    localStorage.removeItem("OfflineSellerToken");
     window.location.href = "/AdminSetting/login";
   };
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
+  // useEffect(() => {
+  //   checkAuth();
+  // }, []);
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));
@@ -157,7 +111,7 @@ export default function OnlineSellerSidebar() {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                OnlineSeller
+                OfflineSeller
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Dashboard
@@ -213,7 +167,7 @@ export default function OnlineSellerSidebar() {
                     )}
                   </button>
 
-                  {openMenus[item.id] && (
+                  {/* {openMenus[item.id] && (
                     <div className="ml-7 mt-2 space-y-1 border-l-2 border-gray-200 pl-4 dark:border-gray-700">
                       {item.items?.map((subItem) => (
                         <Link
@@ -234,7 +188,7 @@ export default function OnlineSellerSidebar() {
                         </Link>
                       ))}
                     </div>
-                  )}
+                  )} */}
                 </>
               )}
             </div>
