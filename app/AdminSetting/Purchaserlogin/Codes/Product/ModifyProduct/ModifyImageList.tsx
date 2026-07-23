@@ -14,10 +14,10 @@ import {
   listImage,
   productList,
 } from "@/app/api/Types/OnlineSetting/Product/Product";
-import ProductDeleteImageApi from "@/app/api/Controller/OnlineSellerController/Product/ModifyProduct/DeleteImages";
+import ProductDeleteImageApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/DeleteImages";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
-import ProductInasertImageApi from "@/app/api/Controller/OnlineSellerController/Product/ModifyProduct/InsertImages";
+import ProductInasertImageApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/InsertImages";
 interface props {
   initalData?: productList;
   refreshevent: (data: boolean) => void;
@@ -85,7 +85,7 @@ export default function ModifyProductImage({
   }, [initalData]);
 
   const DeleteImage = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await ProductDeleteImageApi(ID, String(token));
     if (response.status === 200) {
       setImagesList(imagesList.filter((item) => item.urlID !== ID));
@@ -104,7 +104,7 @@ export default function ModifyProductImage({
           url: item.data,
         })),
       };
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await ProductInasertImageApi(formData, String(token));
       if (response.status == 200) {
         onShowMessage(response.data.message, "success");

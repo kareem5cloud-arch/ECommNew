@@ -167,6 +167,12 @@ export default function AdminSidebar() {
           icon: Warehouse,
           href: "/AdminSetting/admin/CreateLogin/WareHouseSeller",
         },
+        {
+          id: "PurchaseLogin",
+          label: "Purchaser Login",
+          icon: UserLock,
+          href: "/AdminSetting/admin/CreateLogin/PurcahseLogin",
+        },
       ],
     },
     {

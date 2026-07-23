@@ -1,6 +1,6 @@
 "use client";
-import CategoryAddApi from "@/app/api/Controller/OnlineSellerController/Category/AddCategory";
-import CategoryModifyApi from "@/app/api/Controller/OnlineSellerController/Category/ModifyCategory";
+import CategoryAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/AddCategory";
+import CategoryModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/ModifyCategory";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
@@ -40,7 +40,7 @@ export default function AddCategoryForm({
           description: description,
           storeID: StoreID,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await CategoryAddApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");
@@ -64,7 +64,7 @@ export default function AddCategoryForm({
           description: description,
           storeID: StoreID,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await CategoryModifyApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");

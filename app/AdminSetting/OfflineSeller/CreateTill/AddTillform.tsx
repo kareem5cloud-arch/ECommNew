@@ -1,4 +1,4 @@
-import ProductIDGetApi from "@/app/api/Controller/OnlineSellerController/Product/GetProductByStore";
+import ProductIDGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/GetProductByStore";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import {
   productList,

@@ -1,10 +1,10 @@
 import GetCountryApi from "@/app/api/Controller/AdminController/Shipment/Country/CountryGet";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
-import CategoryGetApi from "@/app/api/Controller/OnlineSellerController/Category/CategoryGet";
-import FurtherGetApi from "@/app/api/Controller/OnlineSellerController/FurtherSubCategory/GetFurtherCategory";
-import ProductModifyApi from "@/app/api/Controller/OnlineSellerController/Product/ModifyProduct/ModifyProduct";
+import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryGet";
+import FurtherGetApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/GetFurtherCategory";
+import ProductModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/ModifyProduct";
 
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import {
   ResponseGetStore,
   storeList,
@@ -162,7 +162,7 @@ export default function ModifyBasicInfo({
     loadData();
   }, [initalData]);
   const getCountries = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await GetCountryApi(String(token));
     if (response.status === 200) {
       const data = response.data as GetCountryListResponse;
@@ -255,7 +255,7 @@ export default function ModifyBasicInfo({
   };
 
   const CategoryGet = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategoryGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseCategory;
@@ -266,7 +266,7 @@ export default function ModifyBasicInfo({
   };
 
   const SubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategorySubGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as ResponseSubCategory;
@@ -277,7 +277,7 @@ export default function ModifyBasicInfo({
   };
 
   const FurtherSubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await FurtherGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as RespopnseFurtherListGet;
@@ -291,7 +291,7 @@ export default function ModifyBasicInfo({
   };
 
   const getStores = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await StoreSellerGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseGetStore;
@@ -368,7 +368,7 @@ export default function ModifyBasicInfo({
         listImage: [],
         listVarient: [],
       };
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await ProductModifyApi(formData, String(token));
       if (response.status == 200) {
         onShowMessage(response.data.message, "success");

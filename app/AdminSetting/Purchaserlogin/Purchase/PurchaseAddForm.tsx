@@ -1,6 +1,6 @@
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
-import SuppliergetApi from "@/app/api/Controller/OfflineSellerController/Codes/Supplier/SupplierGet";
-import ProductIDGetApi from "@/app/api/Controller/OnlineSellerController/Product/GetProductByStore";
+import SuppliergetApi from "@/app/api/Controller/PurchaserLogin/Codes/Supplier/SupplierGet";
+import ProductIDGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/GetProductByStore";
 import {
   ResponseGetStore,
   storeList,
@@ -8,7 +8,7 @@ import {
 import {
   ResponseGetSupplpierlist,
   SupplierListReponse,
-} from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+} from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import {
   productList,
   responseGetProduct,

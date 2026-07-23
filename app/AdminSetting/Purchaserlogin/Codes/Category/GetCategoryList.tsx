@@ -1,5 +1,5 @@
 "use client";
-import CategoryGetApi from "@/app/api/Controller/OnlineSellerController/Category/CategoryGet";
+import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryGet";
 import {
   CategoryList,
   ResponseCategory,
@@ -40,7 +40,7 @@ export default function GetCategoryMainList({
     try {
       setisLoading(true);
 
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await CategoryGetApi(String(token));
       if (response.status == 200) {
         const data = response.data as ResponseCategory;

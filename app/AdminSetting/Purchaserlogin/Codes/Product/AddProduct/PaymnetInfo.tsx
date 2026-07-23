@@ -1,9 +1,9 @@
 // PaymnetInfo.tsx
-import SuppliergetApi from "@/app/api/Controller/OfflineSellerController/Codes/Supplier/SupplierGet";
+import SuppliergetApi from "@/app/api/Controller/PurchaserLogin/Codes/Supplier/SupplierGet";
 import {
   ResponseGetSupplpierlist,
   SupplierListReponse,
-} from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+} from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import GenericRadio from "@/app/ui/RadioButton/RadioButton";
@@ -52,7 +52,7 @@ export default function PaymnetInfo({
   calculatedTotalBill,
 }: PaymnetInfoProps) {
   const GetSupplier = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await SuppliergetApi(String(token));
     if (response.status === 200) {
       const data = response.data as ResponseGetSupplpierlist;

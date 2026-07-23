@@ -1,6 +1,6 @@
 "use client";
-import SubCategoryAddApi from "@/app/api/Controller/OnlineSellerController/SubCategory/AddSubCategory";
-import CategorySubModifyApi from "@/app/api/Controller/OnlineSellerController/SubCategory/ModifySubCategory";
+import SubCategoryAddApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/AddSubCategory";
+import CategorySubModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/ModifySubCategory";
 import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
 import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
@@ -50,7 +50,7 @@ export default function SubCategoryAddForm({
           subCategoryName: SubCategoryName,
           description: description,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await SubCategoryAddApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");
@@ -74,7 +74,7 @@ export default function SubCategoryAddForm({
           subCategoryName: SubCategoryName,
           description: description,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await CategorySubModifyApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");

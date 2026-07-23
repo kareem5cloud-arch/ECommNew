@@ -1,9 +1,9 @@
 // ProductCategroyInfo.tsx
 import GetCountryApi from "@/app/api/Controller/AdminController/Shipment/Country/CountryGet";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
-import CategoryGetApi from "@/app/api/Controller/OnlineSellerController/Category/CategoryGet";
-import FurtherGetApi from "@/app/api/Controller/OnlineSellerController/FurtherSubCategory/GetFurtherCategory";
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
+import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryGet";
+import FurtherGetApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/GetFurtherCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import {
   ResponseGetStore,
   storeList,
@@ -138,7 +138,7 @@ export default function ProductCategroyInfo({
   setStoreList,
 }: ProductCategoryInfoProps) {
   const getCountries = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await GetCountryApi(String(token));
     if (response.status === 200) {
       const data = response.data as GetCountryListResponse;
@@ -231,7 +231,7 @@ export default function ProductCategroyInfo({
   };
 
   const CategoryGet = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategoryGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseCategory;
@@ -242,7 +242,7 @@ export default function ProductCategroyInfo({
   };
 
   const SubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategorySubGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as ResponseSubCategory;
@@ -253,7 +253,7 @@ export default function ProductCategroyInfo({
   };
 
   const FurtherSubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await FurtherGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as RespopnseFurtherListGet;
@@ -267,7 +267,7 @@ export default function ProductCategroyInfo({
   };
 
   const getStores = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await StoreSellerGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseGetStore;

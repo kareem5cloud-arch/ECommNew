@@ -1,9 +1,9 @@
 "use client";
-import SuppliergetApi from "@/app/api/Controller/OfflineSellerController/Codes/Supplier/SupplierGet";
+import SuppliergetApi from "@/app/api/Controller/PurchaserLogin/Codes/Supplier/SupplierGet";
 import {
   ResponseGetSupplpierlist,
   SupplierListReponse,
-} from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+} from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import ShowAddFile from "@/app/ui/ShowAndAddFile/ShowAndAddFile";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";

@@ -11,7 +11,7 @@ import { unitList } from "@/app/api/Types/OnlineSetting/Unit/Unit";
 import GetUnitList from "./GetUnitList";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
-import UnitDeleteApi from "@/app/api/Controller/OnlineSellerController/Unit/DeleteUnit";
+import UnitDeleteApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/DeleteUnit";
 
 export default function UnitManagement() {
   const [update, setUpdate] = useState(false);
@@ -27,7 +27,7 @@ export default function UnitManagement() {
   const [UnitModifyList, setUnitModifyList] = useState<unitList>();
 
   const getStores = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await StoreSellerGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseGetStore;
@@ -40,7 +40,7 @@ export default function UnitManagement() {
     getStores();
   }, []);
   const DeleteRegion = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await UnitDeleteApi(ID, String(token));
     if (response.status == 200) {
       const data = UnitList.filter((item) => item.unitID !== ID);

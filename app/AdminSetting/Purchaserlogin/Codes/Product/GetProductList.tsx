@@ -1,4 +1,4 @@
-import ProductGetApi from "@/app/api/Controller/OnlineSellerController/Product/GetProduct";
+import ProductGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/GetProduct";
 import {
   productList,
   responseGetProduct,
@@ -33,7 +33,7 @@ export default function GetProductList({
     try {
       setisLoading(true);
 
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await ProductGetApi(String(token));
       if (response.status == 200) {
         const data = response.data as responseGetProduct;

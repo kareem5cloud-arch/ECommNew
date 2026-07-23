@@ -3,7 +3,7 @@ import ShowAddFile from "@/app/ui/ShowAndAddFile/ShowAndAddFile";
 import { useEffect, useState } from "react";
 import FurtherSubCategoryAddForm from "./AddFurtherSubCategoryForm";
 import GetFurtherSubCategoryList from "./GetFurtherSubCategory";
-import CategoryGetApi from "@/app/api/Controller/OnlineSellerController/Category/CategoryGet";
+import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryGet";
 import {
   CategoryList,
   ResponseCategory,
@@ -12,7 +12,7 @@ import {
   ResponseSubCategory,
   subCategoryList,
 } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
@@ -40,7 +40,7 @@ export default function FurtherSubCategoryMain() {
     useState<furtherSubCategoryList>();
 
   const CategoryGet = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategoryGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseCategory;
@@ -50,7 +50,7 @@ export default function FurtherSubCategoryMain() {
     }
   };
   const getStores = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await StoreSellerGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseGetStore;

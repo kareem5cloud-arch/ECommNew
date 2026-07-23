@@ -1,4 +1,4 @@
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
 import {
   ResponseSubCategory,
@@ -46,7 +46,7 @@ export default function GetSubCategoryList({
     try {
       setisLoading(true);
 
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await CategorySubGetApi(ID, String(token));
       if (response.status == 200) {
         const data = response.data as ResponseSubCategory;

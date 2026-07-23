@@ -1,6 +1,6 @@
-import UnitAddApi from "@/app/api/Controller/OnlineSellerController/Unit/AddUnits";
-import UnitGetApi from "@/app/api/Controller/OnlineSellerController/Unit/GetUnit";
-import UnitModifyApi from "@/app/api/Controller/OnlineSellerController/Unit/ModifyUnit";
+import UnitAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/AddUnits";
+import UnitGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/GetUnit";
+import UnitModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/ModifyUnit";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import { unitList } from "@/app/api/Types/OnlineSetting/Unit/Unit";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
@@ -40,7 +40,7 @@ export default function AddUnitForm({
           abbreviation: Abbreviation,
           description: description,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await UnitAddApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");
@@ -65,7 +65,7 @@ export default function AddUnitForm({
           abbreviation: Abbreviation,
           description: description,
         };
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await UnitModifyApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");

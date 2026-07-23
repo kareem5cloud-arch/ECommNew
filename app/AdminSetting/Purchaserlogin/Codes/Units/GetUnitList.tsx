@@ -1,4 +1,4 @@
-import UnitGetApi from "@/app/api/Controller/OnlineSellerController/Unit/GetUnit";
+import UnitGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/GetUnit";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import {
   RespopnseUInitListGet,
@@ -48,7 +48,7 @@ export default function GetUnitList({
     try {
       setisLoading(true);
 
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await UnitGetApi(ID, String(token));
       if (response.status == 200) {
         const data = response.data as RespopnseUInitListGet;

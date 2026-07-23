@@ -109,7 +109,7 @@ export default function AddOnlineLogin({
           email: Email,
           password: Password,
           phoneNo: PhoneNo,
-          status: "WareHouseSeller",
+          status: "PurchaserLogin",
           address: Address,
           stores: storesTable.map((item) => ({
             storeID: item.storeID,

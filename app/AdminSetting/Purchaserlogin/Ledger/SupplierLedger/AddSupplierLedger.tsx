@@ -1,4 +1,4 @@
-import { SupplierListReponse } from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+import { SupplierListReponse } from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import TextAreaFieldGeneric from "@/app/ui/TextArea/textArea";

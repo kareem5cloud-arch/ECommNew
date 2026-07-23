@@ -4,6 +4,8 @@ import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteCom
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import { useState } from "react";
 import AddSupplierForm from "./AddSupplier";
+import GetSupplierList from "./GetSupplierList";
+import { SupplierListReponse } from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 
 export default function Customer() {
   const [update, setUpdate] = useState(false);
@@ -14,6 +16,9 @@ export default function Customer() {
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
+  const [CategoryModifyList, setCategoryModifyList] =
+    useState<SupplierListReponse>();
+  const [CatList, setCatList] = useState<SupplierListReponse[]>([]);
   return (
     <>
       {showMessage && (
@@ -46,7 +51,32 @@ export default function Customer() {
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">
-          {view === "form" && <AddSupplierForm />}
+          {view === "form" && (
+            <AddSupplierForm
+              update={update}
+              onShowMessage={(msg, type) => {
+                setShowMessage(msg);
+                setMessageType(type);
+                if (type === "success") {
+                  setView("list");
+                }
+              }}
+              initalData={CategoryModifyList}
+            />
+          )}
+          {view === "list" && (
+            <GetSupplierList
+              setDelete={setDelete}
+              update={setUpdate}
+              setID={setID}
+              CategoryModifyList={(till) => {
+                setCategoryModifyList(till);
+                setView("form");
+              }}
+              CatList={setCatList}
+              CategoryNewList={CatList}
+            />
+          )}
         </div>
       </div>
     </>

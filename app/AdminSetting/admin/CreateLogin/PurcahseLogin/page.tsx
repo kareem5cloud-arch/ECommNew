@@ -83,7 +83,7 @@ export default function OnlineSeller() {
         />
         <div className="flex justify-between items-center mt-6 mb-6">
           <h1 className="text-2xl font-semibold text-neutral-900">
-            WareHouse-Seller Login
+            Purchaser Login
           </h1>
         </div>
         <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all">

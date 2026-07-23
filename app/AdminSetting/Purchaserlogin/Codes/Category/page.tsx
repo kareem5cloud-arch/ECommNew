@@ -6,7 +6,7 @@ import GetCategoryMainList from "./GetCategoryList";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
-import CategoryDelete from "@/app/api/Controller/OnlineSellerController/Category/CategoryDelete";
+import CategoryDelete from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryDelete";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
 import {
   ResponseGetStore,
@@ -30,7 +30,7 @@ export default function CategoryMain() {
   const [StoreList, setStoreList] = useState<storeList[]>([]);
 
   const getStores = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await StoreSellerGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseGetStore;
@@ -40,7 +40,7 @@ export default function CategoryMain() {
     }
   };
   const DeleteRegion = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategoryDelete(ID, String(token));
     if (response.status == 200) {
       const data = CatList.filter((item) => item.categoryID !== ID);

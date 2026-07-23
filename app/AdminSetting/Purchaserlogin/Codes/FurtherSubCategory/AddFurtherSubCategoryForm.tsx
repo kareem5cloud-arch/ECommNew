@@ -1,9 +1,10 @@
 "use client";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
-import FurtherAddApi from "@/app/api/Controller/OnlineSellerController/FurtherSubCategory/AddFurtherCategory";
-import FurtherModifyApi from "@/app/api/Controller/OnlineSellerController/FurtherSubCategory/ModifyFurtherCategory";
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
-import UnitGetApi from "@/app/api/Controller/OnlineSellerController/Unit/GetUnit";
+import FurtherAddApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/AddFurtherCategory";
+import FurtherModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/ModifyFurtherCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
+import UnitGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/GetUnit";
+import VarientsGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Variants/GetVarient";
 import {
   ResponseGetStore,
   storeList,
@@ -21,11 +22,15 @@ import {
   RespopnseUInitListGet,
   unitList,
 } from "@/app/api/Types/OnlineSetting/Unit/Unit";
+import {
+  ResponseVariantsListGet,
+  VariantsList,
+} from "@/app/api/Types/PurchaserLogin/Codes/Variants/Varints";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import TextAreaFieldGeneric from "@/app/ui/TextArea/textArea";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface propsFurtherSubCatgeory {
@@ -36,6 +41,10 @@ interface propsFurtherSubCatgeory {
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
 
+interface valueList {
+  ID: string;
+  value: string;
+}
 export default function FurtherSubCategoryAddForm({
   update,
   categoryList,
@@ -49,6 +58,8 @@ export default function FurtherSubCategoryAddForm({
   const [SubCategoryID, setSubCategoryID] = useState("");
   const [StoreName, setStoreName] = useState("");
   const [StoreID, setStoreID] = useState("");
+  const [VarientName, setVarientName] = useState("");
+  const [VarientID, setVarientID] = useState("");
   const [UnitID, setUnitID] = useState("");
   const [UnitName, setUnitName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,6 +70,8 @@ export default function FurtherSubCategoryAddForm({
 
   const [SubCategoryList, setSubCategoryList] = useState<subCategoryList[]>([]);
   const [UnitTable, setUnitTable] = useState<unitReqesut[]>([]);
+  const [VarinetList, setVarinetList] = useState<VariantsList[]>([]);
+  const [valueList, setValueList] = useState<valueList[]>([]);
 
   useEffect(() => {
     if (CategoryID) {
@@ -66,8 +79,20 @@ export default function FurtherSubCategoryAddForm({
     }
   }, [CategoryID]);
 
+  const VareintGet = async () => {
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const response = await VarientsGetApi(String(token));
+    if (response.status == 200) {
+      const data = response.data as ResponseVariantsListGet;
+      setVarinetList(data.variantsList);
+      console.log(data);
+    } else {
+      setVarinetList([]);
+    }
+  };
+
   const SubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategorySubGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as ResponseSubCategory;
@@ -78,12 +103,15 @@ export default function FurtherSubCategoryAddForm({
   };
 
   useEffect(() => {
+    VareintGet();
+  }, []);
+  useEffect(() => {
     if (StoreID) {
       UnitListGet(StoreID);
     }
   }, [StoreID]);
   const UnitListGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await UnitGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as RespopnseUInitListGet;
@@ -138,9 +166,13 @@ export default function FurtherSubCategoryAddForm({
           units: UnitTable.map((item) => ({
             unitID: item.unitID,
           })),
+          varientslist: valueList.map((item) => ({
+            values: item.value,
+            id: item.ID,
+          })),
         };
         //console.log(formData);
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await FurtherAddApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");
@@ -165,9 +197,13 @@ export default function FurtherSubCategoryAddForm({
           units: UnitTable.map((item) => ({
             unitID: item.unitID,
           })),
+          varientslist: valueList.map((item) => ({
+            values: item.value,
+            id: item.ID,
+          })),
         };
         //console.log(formData);
-        const token = localStorage.getItem("OnlineSellerToken");
+        const token = localStorage.getItem("PurchaserLoginToken");
         const response = await FurtherModifyApi(formData, String(token));
         if (response.status == 200) {
           onShowMessage(response.data.message, "success");
@@ -199,6 +235,12 @@ export default function FurtherSubCategoryAddForm({
       } else {
         setUnitTable([]);
       }
+      setValueList(
+        initalData.varientslist.map((item, index) => ({
+          ID: item.id,
+          value: item.values,
+        })),
+      );
     } else {
       setCategoryName("");
       setCategoryID("");
@@ -207,8 +249,34 @@ export default function FurtherSubCategoryAddForm({
       setID("");
       setFurtherSubCategoryName("");
       setUnitTable([]);
+      setValueList([]);
     }
   }, [initalData, update]);
+
+  const AddVarientData = (ID: string, value: string) => {
+    const data = valueList.find((item) => item.ID === ID);
+    if (data) {
+      setVarientID("");
+      setVarientName("");
+      return alert("Variant Already Exist");
+    }
+    if (!value.trim()) return;
+
+    setValueList((prev) => [
+      ...prev,
+      {
+        ID: ID,
+        value: value,
+      },
+    ]);
+
+    setVarientID("");
+    setVarientName("");
+  };
+
+  const removerData = (ID: string) => {
+    setValueList((prev) => prev.filter((item) => item.ID !== ID));
+  };
   return (
     <>
       <div className="w-full flex flex-col lg:flex-row gap-8">
@@ -252,6 +320,7 @@ export default function FurtherSubCategoryAddForm({
               id: item.storeID,
             }))}
           />
+
           <div className="flex gap-2">
             <DropDownList
               label="Unit "
@@ -275,6 +344,46 @@ export default function FurtherSubCategoryAddForm({
                 <Plus />
               </button>
             </div>
+          </div>
+          <div className="flex gap-2">
+            <DropDownList
+              label="Variant "
+              placeholder="Enter Variant"
+              required={true}
+              filedID={setVarientID}
+              value={VarientName}
+              onChange={setVarientName}
+              options={VarinetList.map((item) => ({
+                label: item.variantsName,
+                value: item.variantsName,
+                id: item.variantsID,
+              }))}
+            />
+            <div className="mt-7">
+              <button
+                onClick={() => AddVarientData(VarientID, VarientName)}
+                title="Add Variant"
+                className="px-2 py-2 text-white bg-yellow-500 hover:bg-yellow-600 rounded-md shadow-md"
+              >
+                <Plus />
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            {valueList.map((item, index) => (
+              <div
+                key={item.ID}
+                className="flex gap-2 px-3 py-1 text-sm rounded-full bg-green-200 text-gray-800"
+              >
+                <p className="">{item.value}</p>
+                <button
+                  onClick={() => removerData(item.ID)}
+                  className=" text-gray-800 hover:text-red-600"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            ))}
           </div>
           <InputFieldGeneric
             label="Category Name"

@@ -1,5 +1,5 @@
-import FurtherGetApi from "@/app/api/Controller/OnlineSellerController/FurtherSubCategory/GetFurtherCategory";
-import CategorySubGetApi from "@/app/api/Controller/OnlineSellerController/SubCategory/GetSubCategory";
+import FurtherGetApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/GetFurtherCategory";
+import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
 import {
@@ -61,7 +61,7 @@ export default function GetFurtherSubCategoryList({
   }, [CategoryID]);
 
   const SubCategoryGet = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategorySubGetApi(ID, String(token));
     if (response.status == 200) {
       const data = response.data as ResponseSubCategory;
@@ -75,7 +75,7 @@ export default function GetFurtherSubCategoryList({
     try {
       setisLoading(true);
 
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await FurtherGetApi(ID, String(token));
       if (response.status == 200) {
         const data = response.data as RespopnseFurtherListGet;

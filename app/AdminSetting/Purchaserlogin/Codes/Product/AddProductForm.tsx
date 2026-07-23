@@ -16,11 +16,11 @@ import {
   furtherSubCategoryList,
   unitListSub,
 } from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
-import { SupplierListReponse } from "@/app/api/Types/OfflineSeller/Supplier/supplier";
+import { SupplierListReponse } from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import convertImageToWebPWithWatermark from "@/app/api/Controller/MiddleWare/WebConverter";
 import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
-import ProductAddApi from "@/app/api/Controller/OnlineSellerController/Product/AddProduct";
+import ProductAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/AddProduct";
 
 interface propsForAddRegion {
   onShowMessage: (message: string, type: "success" | "error") => void;
@@ -197,7 +197,7 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
           })),
         })),
       };
-      const token = localStorage.getItem("OnlineSellerToken");
+      const token = localStorage.getItem("PurchaserLoginToken");
       const response = await ProductAddApi(formData, String(token));
       if (response.status == 200) {
         onShowMessage(response.data.message, "success");

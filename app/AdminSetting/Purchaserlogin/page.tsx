@@ -1,7 +1,7 @@
 // components/AdminSidebar.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   LogOut,
@@ -21,6 +21,7 @@ import {
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
+import LogOutApi from "@/app/api/Controller/Authentication/Logout/Logout";
 
 export default function PurchaserloginSellerSidebar() {
   const router = useRouter();
@@ -47,6 +48,12 @@ export default function PurchaserloginSellerSidebar() {
       icon: List,
       type: "dropdown",
       items: [
+        {
+          id: "Variant",
+          label: "Variant",
+          icon: User,
+          href: "/AdminSetting/Purchaserlogin/Codes/Variant",
+        },
         {
           id: "Supplier",
           label: "Supplier",
@@ -110,14 +117,23 @@ export default function PurchaserloginSellerSidebar() {
       window.location.href = "/AdminSetting/login";
     }
   };
+
   const logOut = async () => {
-    localStorage.removeItem("PurchaserLoginToken");
-    window.location.href = "/AdminSetting/login";
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const response = await LogOutApi(String(token));
+    if (response.status === 200) {
+      {
+        localStorage.removeItem("PurchaserLoginToken");
+        window.location.href = "/AdminSetting/login";
+      }
+    } else {
+      return;
+    }
   };
 
-  //   useEffect(() => {
-  //     checkAuth();
-  //   }, []);
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const toggleMenu = (menuId: string) => {
     setOpenMenus((prev) => ({ ...prev, [menuId]: !prev[menuId] }));

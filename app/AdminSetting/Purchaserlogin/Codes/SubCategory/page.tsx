@@ -3,13 +3,13 @@ import ShowAddFile from "@/app/ui/ShowAndAddFile/ShowAndAddFile";
 import { useEffect, useState } from "react";
 import SubCategoryAddForm from "./SubCategoryAddForm";
 import GetSubCategoryList from "./GetSubCategoryList";
-import CategoryGetApi from "@/app/api/Controller/OnlineSellerController/Category/CategoryGet";
+import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryGet";
 import {
   CategoryList,
   ResponseCategory,
 } from "@/app/api/Types/OnlineSetting/Category/Category";
 import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
-import SubCategoryDelete from "@/app/api/Controller/OnlineSellerController/SubCategory/DeleteSubCategory";
+import SubCategoryDelete from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/DeleteSubCategory";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 
@@ -32,7 +32,7 @@ export default function SubCategoryMain() {
     useState<subCategoryList>();
 
   const CategoryGet = async () => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await CategoryGetApi(String(token));
     if (response.status == 200) {
       const data = response.data as ResponseCategory;
@@ -42,7 +42,7 @@ export default function SubCategoryMain() {
     }
   };
   const DeleteRegion = async (ID: string) => {
-    const token = localStorage.getItem("OnlineSellerToken");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await SubCategoryDelete(ID, String(token));
     if (response.status == 200) {
       const data = SubCategoryList.filter((item) => item.subCategoryID !== ID);
