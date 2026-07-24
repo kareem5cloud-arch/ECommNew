@@ -4,7 +4,9 @@ import { useMemo, useState } from "react";
 import ProductBasicInfo from "./AddProduct/ProductBasicInfo";
 import ProductCategroyInfo from "./AddProduct/ProductCategroyInfo";
 import AddVarientInformation, {
+  imagesData,
   listVarient,
+  RowData,
   varientAttributes,
 } from "./AddProduct/VarientInformation";
 import AddProductImage from "./AddProduct/ProductImageInfo";
@@ -23,9 +25,19 @@ import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod"
 import ProductAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/AddProduct";
 
 interface propsForAddRegion {
+  images: imagesData[];
+  imageRowID: (data: string) => void;
+  setImages: (data: File[]) => void;
+  showPopupModel: (data: boolean) => void;
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
-export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
+export default function AddProductForm({
+  showPopupModel,
+  imageRowID,
+  images,
+  setImages,
+  onShowMessage,
+}: propsForAddRegion) {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [StoreName, setStoreName] = useState("");
@@ -54,6 +66,8 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
   const [CategoryName, setCategoryName] = useState("");
   const [CategoryID, setCategoryID] = useState("");
   const [CategoryList, setCategoryList] = useState<CategoryList[]>([]);
+  const [combinationList, setCombinationList] = useState<RowData[]>([]);
+
   const [SubCategoryName, setSubCategoryName] = useState("");
   const [SubCategoryID, setSubCategoryID] = useState("");
   const [SubCategoryList, setSubCategoryList] = useState<subCategoryList[]>([]);
@@ -69,28 +83,11 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
   const [countryName, setCountryName] = useState("");
   const [countryID, setCountryID] = useState("");
 
-  //VarientListInfromationStates
-  const [mainVarientName, setMainVarientName] = useState("");
-  const [listVarient, setListVarient] = useState<listVarient[]>([]);
-  const [currentAttributes, setCurrentAttributes] = useState<
-    varientAttributes[]
-  >([]);
-  const [editingVariantIndex, setEditingVariantIndex] = useState<number | null>(
-    null,
-  );
-  const [newAttribute, setNewAttribute] = useState<varientAttributes>({
-    varientValue: "",
-    qty: "",
-    costPrice: "",
-    salePrice: "",
-    barcode: "",
-  });
-
   //Image Component States
-  const [images, setImages] = useState<File[]>([]);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
+  // const [images, setImages] = useState<File[]>([]);
+  // const [dragIndex, setDragIndex] = useState<number | null>(null);
+  // const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  // const [isDragOver, setIsDragOver] = useState(false);
 
   //PaymentInfo Component State
   const [PurcahseAdd, setPurcahseAdd] = useState("Yes");
@@ -104,22 +101,13 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
   const steps = [
     { number: 1, title: "Product Information" },
     { number: 2, title: "Variant Information" },
-    { number: 3, title: "Review" },
-    { number: 4, title: "Confirm" },
+    { number: 3, title: "Confirm" },
   ];
 
-  const calculatedTotalBill = useMemo(() => {
-    let total = 0;
-    listVarient.forEach((variant) => {
-      variant.varientAttributes.forEach((attr) => {
-        // Calculate cost price * quantity for each attribute
-        const costPrice = parseFloat(attr.costPrice) || 0;
-        const quantity = parseFloat(attr.qty) || 0;
-        total += costPrice * quantity;
-      });
-    });
-    return total;
-  }, [listVarient]);
+  const calculatedTotalBill = combinationList.reduce((sum, item) => {
+    return sum + Number(item.costPrice) * Number(item.qty);
+  }, 0);
+
   const handleNext = () => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
@@ -140,8 +128,29 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
   const AddProduct = async () => {
     try {
       setLoading(true);
-      const imageUrl = await Promise.all(
-        images.map((item) => SendDataToApi(item)),
+      const listVarient = await Promise.all(
+        combinationList.map(async (item) => ({
+          attributeList: item.attributeID.map((item2) => ({
+            attributeID: item2.values,
+          })),
+          qty: Number(item.qty),
+          costPrice: Number(item.costPrice),
+          salePrice: Number(item.salePrice),
+          barcode: item.barcode,
+
+          images:
+            item.file.length > 0
+              ? await Promise.all(
+                  item.file.map(async (file) => {
+                    const response = await SendDataToApi(file.file);
+
+                    return {
+                      url: response.data,
+                    };
+                  }),
+                )
+              : [],
+        })),
       );
       const formData = {
         storeID: storeID,
@@ -183,27 +192,16 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
                     countryName: item.countryName,
                   }))
                 : [],
-        listImage: imageUrl.map((item) => ({
-          url: item.data,
-        })),
-        listVarient: listVarient.map((item) => ({
-          varientName: item.varientName,
-          varientAttributes: item.varientAttributes.map((item2) => ({
-            varientValue: item2.varientValue,
-            qty: Number(item2.qty),
-            costPrice: Number(item2.costPrice),
-            salePrice: Number(item2.salePrice),
-            barcode: item2.barcode,
-          })),
-        })),
+        listVarient: listVarient,
       };
-      const token = localStorage.getItem("PurchaserLoginToken");
-      const response = await ProductAddApi(formData, String(token));
-      if (response.status == 200) {
-        onShowMessage(response.data.message, "success");
-      } else {
-        onShowMessage(response.data.message, "error");
-      }
+      console.log(formData);
+      // const token = localStorage.getItem("PurchaserLoginToken");
+      // const response = await ProductAddApi(formData, String(token));
+      // if (response.status == 200) {
+      //   onShowMessage(response.data.message, "success");
+      // } else {
+      //   onShowMessage(response.data.message, "error");
+      // }
     } finally {
       setLoading(false);
     }
@@ -351,19 +349,15 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
               )}
               {currentStep === 2 && (
                 <AddVarientInformation
-                  mainVarientName={mainVarientName}
-                  setMainVarientName={setMainVarientName}
-                  listVarient={listVarient}
-                  setListVarient={setListVarient}
-                  currentAttributes={currentAttributes}
-                  setCurrentAttributes={setCurrentAttributes}
-                  editingVariantIndex={editingVariantIndex}
-                  setEditingVariantIndex={setEditingVariantIndex}
-                  newAttribute={newAttribute}
-                  setNewAttribute={setNewAttribute}
+                  furtherSubCategoryID={furtherSubCategoryID}
+                  FurtherSubCategoryList={FurtherSubCategoryList}
+                  setCombinationList={setCombinationList}
+                  combinationList={combinationList}
+                  showPopupModel={showPopupModel}
+                  setRowID={imageRowID}
                 />
               )}
-              {currentStep === 3 && (
+              {/* {currentStep === 3 && (
                 <AddProductImage
                   images={images}
                   setImages={setImages}
@@ -374,8 +368,8 @@ export default function AddProductForm({ onShowMessage }: propsForAddRegion) {
                   isDragOver={isDragOver}
                   setIsDragOver={setIsDragOver}
                 />
-              )}
-              {currentStep === 4 && (
+              )} */}
+              {currentStep === 3 && (
                 <PaymnetInfo
                   PurcahseAdd={PurcahseAdd}
                   setPurcahseAdd={setPurcahseAdd}

@@ -13,24 +13,14 @@ import {
 interface AddProductImageProps {
   images: File[];
   setImages: (images: File[]) => void;
-  dragIndex: number | null;
-  setDragIndex: (index: number | null) => void;
-  hoverIndex: number | null;
-  setHoverIndex: (index: number | null) => void;
-  isDragOver: boolean;
-  setIsDragOver: (isDragOver: boolean) => void;
 }
-
 export default function AddProductImage({
   images,
   setImages,
-  dragIndex,
-  setDragIndex,
-  hoverIndex,
-  setHoverIndex,
-  isDragOver,
-  setIsDragOver,
 }: AddProductImageProps) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {

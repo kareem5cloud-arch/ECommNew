@@ -9,7 +9,7 @@ export default async function ProductIDGetApi(storeID: string, token?: string) {
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/OnlineSeller/GetProduct?storeID=${storeID}`,
+    `/api/ProductManagment/PurcahserLogin/GetProduct?storeID=${storeID}`,
     null,
     customHeader,
   );

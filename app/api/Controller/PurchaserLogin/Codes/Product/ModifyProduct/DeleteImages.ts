@@ -13,7 +13,7 @@ export default async function ProductDeleteImageApi(
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/OnlineSeller/ModifyProduct/ImagesDelete/${urlID}`,
+    `/api/ProductManagment/PurcahserLogin/ModifyProduct/ImagesDelete/${urlID}`,
     null,
     customHeader,
   );

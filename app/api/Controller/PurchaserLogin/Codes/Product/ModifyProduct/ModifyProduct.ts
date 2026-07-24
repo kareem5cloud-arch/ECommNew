@@ -18,7 +18,7 @@ export default async function ProductModifyApi(
   }
 
   const response = await postRequest(
-    `/api/ProductManagment/OnlineSeller/ModifyProduct/BasicInfo`,
+    `/api/ProductManagment/PurcahserLogin/ModifyProduct/BasicInfo`,
     data,
     customHeader,
   );

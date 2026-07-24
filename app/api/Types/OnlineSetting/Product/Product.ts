@@ -58,22 +58,21 @@ export interface RequestAddProduct {
   depth: number;
   weight: number;
   listCountry: countryList[];
-  listImage: listImage[];
+  // listImage: listImage[];
   listVarient: listVarient[];
 }
 export interface listImage {
   url: string;
 }
 export interface listVarient {
-  varientName: string;
-  varientAttributes: varientAttributes[];
-}
-export interface varientAttributes {
-  varientValue: string;
-  qty: number;
   costPrice: number;
   salePrice: number;
-  barcode: string;
+  qty: number;
+  imageUrl: listImage[];
+  attributeList: attributeList[];
+}
+export interface attributeList {
+  attributeID: string;
 }
 ///////////////////////Response Product Interface////////////////////
 export interface responseGetProduct {

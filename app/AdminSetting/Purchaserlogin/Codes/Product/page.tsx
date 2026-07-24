@@ -1,6 +1,6 @@
 "use client";
 import ShowAddFile from "@/app/ui/ShowAndAddFile/ShowAndAddFile";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddProductForm from "./AddProductForm";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import GetProductList from "./GetProductList";
@@ -8,6 +8,9 @@ import { productList } from "@/app/api/Types/OnlineSetting/Product/Product";
 import ModifyBasicInfo from "./ModifyProduct/ModifyBasicInfo";
 import { X } from "lucide-react";
 import ModifyProductImage from "./ModifyProduct/ModifyImageList";
+import AddProductImage from "./AddProduct/ProductImageInfo";
+import { imagesData } from "./AddProduct/VarientInformation";
+import { IoGitMerge } from "react-icons/io5";
 export default function ProductManagement() {
   const [update, setUpdate] = useState(false);
   const [view, setView] = useState<"list" | "form">("list");
@@ -19,6 +22,14 @@ export default function ProductManagement() {
   const [productList, setProductList] = useState<productList>();
   const [event, setEvent] = useState(false);
   const [showMessage, setShowMessage] = useState<string | null>(null);
+  const [showPopupModel, setShowPopupModel] = useState(false);
+  const [images, setImages] = useState<File[]>([]);
+  const [imagesList, setImagesList] = useState<imagesData[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [rowID, setRowID] = useState("");
+
   return (
     <>
       {showMessage && (
@@ -66,6 +77,7 @@ export default function ProductManagement() {
           </div>
         </div>
       )}
+
       {showImageListModel && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center"
@@ -126,6 +138,10 @@ export default function ProductManagement() {
                     setView("list");
                   }
                 }}
+                images={imagesList}
+                setImages={setImages}
+                showPopupModel={setShowPopupModel}
+                imageRowID={setRowID}
               />
             </>
           )}

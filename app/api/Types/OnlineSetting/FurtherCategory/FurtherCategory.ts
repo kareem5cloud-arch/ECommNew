@@ -15,7 +15,12 @@ export interface unitReqesut {
   unitID: string;
   unitName?: string;
 }
-interface varients {
+export interface varients {
+  id: string;
+  values: string;
+  attributeList?: attributeList[];
+}
+interface attributeList {
   id: string;
   values: string;
 }

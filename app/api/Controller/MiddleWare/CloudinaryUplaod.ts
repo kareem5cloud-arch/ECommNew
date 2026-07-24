@@ -31,12 +31,12 @@ export async function SendDataToApi(file: File) {
 
     return {
       error: "Failed to upload image",
-      status: response.status,
+      data: String(response.status),
     };
   } catch (error: any) {
     return {
       message: error.message || "Unknown error",
-      status: 500,
+      data: String(500),
     };
   }
 }
