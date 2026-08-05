@@ -1,8 +1,14 @@
+import FurtherGetApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/GetFurtherCategory";
 import ProductGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/GetProduct";
+import {
+  furtherSubCategoryList,
+  RespopnseFurtherListGet,
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 import {
   productList,
   responseGetProduct,
-} from "@/app/api/Types/OnlineSetting/Product/Product";
+  variantsList,
+} from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
 import { Pencil, Trash } from "lucide-react";
@@ -12,13 +18,19 @@ interface GetProductModifyInfomrationProps {
   initalData: (data: productList) => void;
   setShowImageListModel: (data: boolean) => void;
   refreshevent: boolean;
+  setSubCategoryID: (data: string) => void;
+  setFurtherSubCategoryList: (data: furtherSubCategoryList[]) => void;
+  setProductVariant: (data: variantsList[]) => void;
 }
 
 export default function GetProductList({
   setShowBasicINfoModel,
   initalData,
   setShowImageListModel,
+  setFurtherSubCategoryList,
   refreshevent,
+  setSubCategoryID,
+  setProductVariant,
 }: GetProductModifyInfomrationProps) {
   const [isloading, setisLoading] = useState(false);
   const [productList, setProductList] = useState<productList[]>([]);
@@ -54,14 +66,33 @@ export default function GetProductList({
     }
   };
 
-  const modifyImageINfo = (ID: string) => {
-    setShowImageListModel(true);
+  // const modifyImageINfo = (ID: string) => {
+  //   setShowImageListModel(true);
+  //   const data = productList.find((item) => item.productID === ID);
+  //   if (data) {
+  //     initalData(data);
+  //   }
+  // };
+
+  const fetchDataVareint = (ID: string) => {
     const data = productList.find((item) => item.productID === ID);
     if (data) {
-      initalData(data);
+      setSubCategoryID(data.subCategoryDetailID);
+      FurtherSubCategoryGet(data.subCategoryID);
+      setProductVariant(data.variants);
+      setShowImageListModel(true);
     }
   };
-
+  const FurtherSubCategoryGet = async (ID: string) => {
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const response = await FurtherGetApi(ID, String(token));
+    if (response.status == 200) {
+      const data = response.data as RespopnseFurtherListGet;
+      setFurtherSubCategoryList(data.furtherSubCategoryList);
+    } else {
+      setFurtherSubCategoryList([]);
+    }
+  };
   useEffect(() => {
     ProductGet();
   }, []);
@@ -99,20 +130,20 @@ export default function GetProductList({
               key={item.productID}
               className="bg-white shadow-md rounded-lg hover:shadow-lg transition overflow-hidden"
             >
-              <div className="flex justify-between md:flex-row gap-3">
+              <div className="flex  gap-3 p-2">
                 {/* SECTION 1 - Image with Camera Button - FIXED SIZE */}
-                <div className="relative group p-2 flex-shrink-0">
-                  <div className="w-12 h-12">
+                <div className="relative group flex-shrink-0 self-center">
+                  <div className="w-18 h-18">
                     <img
                       src={
-                        item.images?.[0]?.url ||
+                        item.variants?.[0]?.images[0]?.url ||
                         "https://via.placeholder.com/150"
                       }
                       alt={item.productName}
-                      className="w-full h-full object-cover rounded"
+                      className="w-full h-full object-contain rounded"
                     />
                     {/* Camera button on top of image */}
-                    <button
+                    {/* <button
                       onClick={() => modifyImageINfo(item.productID)}
                       className="absolute inset-0 bg-black bg-opacity-50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                       style={{
@@ -142,43 +173,47 @@ export default function GetProductList({
                           d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                    </button>
+                    </button> */}
                   </div>
                 </div>
 
-                {/* SECTION 2 - Product Name and Description - FIXED HEIGHT & WIDTH */}
-                <div className="flex items-center gap-2 p-4 flex-1 min-w-0">
-                  <div className="flex-1 min-w-0">
-                    <div className="h-12 flex flex-col justify-between">
-                      <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 break-words">
+                {/* SECTION 2 - Product Name and Description - FIXED HEIGHT & WIDTH with truncation */}
+                <div className="flex-1 ml-10 min-w-0 flex  gap-2">
+                  <div className="">
+                    <div className="h-12 w-100 flex flex-col justify-between">
+                      <h3 className="text-sm font-semibold text-gray-800 line-clamp-1 break-words">
                         {item.productName}
                       </h3>
-                      <p className="text-xs text-gray-600 line-clamp-2 break-words">
-                        {item.description || "No description available"}
+                      <p className="text-xs text-gray-600 truncate">
+                        {item.description.split(". ")[0] + " ..." ||
+                          "No description available"}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => modifyBasicINfo(item.productID)}
-                    className="flex-shrink-0 text-xs border border-yellow-500 p-1 rounded-md text-yellow-600 hover:text-yellow-800"
+                    className="flex-shrink-0 text-xs border border-yellow-500 p-1 rounded-md text-yellow-600 hover:text-yellow-800 self-center"
                   >
                     <Pencil />
                   </button>
                 </div>
 
                 {/* SECTION 3 - Only Variant Names - FIXED WIDTH */}
-                <div className="flex items-center gap-2 p-4 flex-shrink-0 w-48">
+                <div className="flex items-center gap-2 flex-shrink-0 w-80">
                   <span className="text-xs text-gray-500 flex-shrink-0">
                     Variants:
                   </span>
-                  <div className="flex flex-wrap gap-1 min-w-0 flex-1">
+                  <div className="flex flex-col gap-1 min-w-0 flex-1">
                     {item.variants && item.variants.length > 0 ? (
                       item.variants.map((variant, idx) => (
                         <span
                           key={variant.varientID || idx}
-                          className="text-xs text-gray-700 truncate"
+                          className="text-xs font-bold text-gray-700 truncate"
                         >
-                          {variant.variantName}
+                          {variant.values.map((list) => {
+                            return "( " + list.varientValue + " )" + " - ";
+                          })}{" "}
+                          {variant.qty}
                           {idx < item.variants.length - 1 && ","}
                         </span>
                       ))
@@ -189,10 +224,8 @@ export default function GetProductList({
                     )}
                   </div>
                   <button
-                    onClick={() =>
-                      console.log("Edit variants:", item.productID)
-                    }
-                    className="flex-shrink-0 text-xs border border-yellow-500 p-1 rounded-md text-yellow-600 hover:text-yellow-800"
+                    onClick={() => fetchDataVareint(item.productID)}
+                    className="flex-shrink-0 text-xs border border-yellow-500 p-1 rounded-md text-yellow-600 hover:text-yellow-800 self-center"
                   >
                     <Pencil />
                   </button>

@@ -1,10 +1,26 @@
 "use client";
 
-import { listImage } from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import { postRequest } from "../../../../MainController/main";
 
-export default async function ProductInasertImageApi(
-  data: { variantID: string; images: listImage[] },
+interface AddVaraints {
+  supplierID: string;
+  productID: string;
+  totalBill: number;
+  amountPaid: number;
+  listVarient: listVarient[];
+}
+interface listVarient {
+  qty: number;
+  costPrice: number;
+  salePrice: number;
+  barcode: string;
+  imageUrl: imageUrl[];
+}
+interface imageUrl {
+  url: string;
+}
+export default async function ProductAddVariantsApi(
+  data: AddVaraints,
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
@@ -14,7 +30,7 @@ export default async function ProductInasertImageApi(
   }
 
   const response = await postRequest(
-    `/api/ProductManagment/PurcahserLogin/ModifyProduct/ImagesAdd`,
+    `/api/ProductManagment/PurcahserLogin/ModifyProduct/VariantsAdd`,
     data,
     customHeader,
   );

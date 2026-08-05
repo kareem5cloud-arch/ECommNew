@@ -1,10 +1,11 @@
 "use client";
+import { postRequest } from "../../MainController/main";
+import { ModifyPurcahseRequest } from "@/app/api/Types/PurchaserLogin/Purchase/Purchase";
 
-import { RequestAddUnit } from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
-import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
-
-export default async function UnitAddApi(data: RequestAddUnit, token?: string) {
+export default async function PurchaseModifyApi(
+  data: ModifyPurcahseRequest,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -12,7 +13,7 @@ export default async function UnitAddApi(data: RequestAddUnit, token?: string) {
   }
 
   const response = await postRequest(
-    `/api/ProductCategory/Units/AddUnit`,
+    `/api/PurcahseSupplier/ModifyPurchase`,
     data,
     customHeader,
   );

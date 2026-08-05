@@ -9,19 +9,29 @@ import {
   Star,
   Plus,
 } from "lucide-react";
+import { imagesData } from "./VarientInformation";
+import ProductDeleteImageApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/DeleteImages";
+import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
+import ProductInasertImageApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/InsertImages";
+import ActionButton from "@/app/ui/ActionButton/ActionButton";
 
 interface AddProductImageProps {
-  images: File[];
-  setImages: (images: File[]) => void;
+  conditionShowSave: boolean;
+  variantID: string;
+  images: imagesData[];
+  setImages: (images: imagesData[]) => void;
 }
 export default function AddProductImage({
   images,
+  conditionShowSave,
   setImages,
+  variantID,
 }: AddProductImageProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -33,9 +43,14 @@ export default function AddProductImage({
 
   const handleImageChange = (files: FileList | null) => {
     if (!files) return;
-    const validFiles = Array.from(files).filter((file) =>
-      file.type.startsWith("image/"),
-    );
+    const validFiles: imagesData[] = Array.from(files)
+      .filter((file) => file.type.startsWith("image/"))
+      .map((file, index) => ({
+        id: String(index),
+        file,
+        url: undefined,
+      }));
+
     setImages([...images, ...validFiles]);
   };
 
@@ -57,6 +72,52 @@ export default function AddProductImage({
     setImages(updated);
   };
 
+  const deleteImage = async (ID: string) => {
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const response = await ProductDeleteImageApi(ID, String(token));
+    if (response.status == 200) {
+      const data = images.filter((item) => item.id !== ID);
+      setImages(data);
+    }
+  };
+
+  const AddImage = async () => {
+    try {
+      setLoading(true);
+
+      const imagesData =
+        images.length > 0
+          ? await Promise.all(
+              images.map(async (item) => {
+                // Already uploaded
+                if (item.url) {
+                  return {
+                    url: item.url,
+                  };
+                }
+
+                // Newly selected image
+                const response = await SendDataToApi(item.file);
+                return {
+                  url: response.data,
+                };
+              }),
+            )
+          : [];
+
+      const formData = {
+        variantID: variantID,
+        images: imagesData,
+      };
+
+      const token = localStorage.getItem("PurchaserLoginToken");
+
+      console.log(formData);
+      const response = await ProductInasertImageApi(formData, String(token));
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
       {/* Body */}
@@ -136,8 +197,8 @@ export default function AddProductImage({
                   {/* Image */}
                   <div className="aspect-square bg-gray-100">
                     <img
-                      src={URL.createObjectURL(img)}
-                      className="w-full h-full object-cover"
+                      src={img.url || URL.createObjectURL(img.file)}
+                      className="w-full h-full object-contain"
                       alt={`Product ${i + 1}`}
                     />
                   </div>
@@ -151,6 +212,7 @@ export default function AddProductImage({
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSetAsPrimary(i);
+                          deleteImage(img.id);
                         }}
                         className="p-1.5 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition"
                         title="Set as primary"
@@ -218,6 +280,19 @@ export default function AddProductImage({
           className="hidden"
         />
       </div>
+      {conditionShowSave && (
+        <div className="flex justify-end">
+          <ActionButton
+            text="Save"
+            update={false}
+            size={true}
+            loading={loading}
+            loadingtext="Saving..."
+            onClick={() => AddImage()}
+            disabled={false}
+          />
+        </div>
+      )}
     </div>
   );
 }

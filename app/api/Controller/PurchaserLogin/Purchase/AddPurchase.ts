@@ -1,16 +1,20 @@
 "use client";
-import { getRequest, postRequest } from "../../../MainController/main";
+import { postRequest } from "../../MainController/main";
+import { AddPurrchaseRequest } from "@/app/api/Types/PurchaserLogin/Purchase/Purchase";
 
-export default async function ProductIDGetApi(storeID: string, token?: string) {
+export default async function PurchaseAddApi(
+  data: AddPurrchaseRequest,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
     customHeader.Authorization = `Bearer ${token}`;
   }
 
-  const response = await getRequest(
-    `/api/ProductManagment/PurcahserLogin/GetProductbyID?storeID=${storeID}`,
-    null,
+  const response = await postRequest(
+    `/api/PurcahseSupplier/AddPurchase`,
+    data,
     customHeader,
   );
 

@@ -2,7 +2,7 @@
 import CategoryAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/AddCategory";
 import CategoryModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/ModifyCategory";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";

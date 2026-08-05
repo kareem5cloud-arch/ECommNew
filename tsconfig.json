@@ -29,7 +29,7 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts",
-    "app/api/Types/OnlineSetting/SubCategory"
+    "app/api/Types/PurchaserLogin/Codes/SubCategory"
   ],
   "exclude": ["node_modules"]
 }

@@ -1,7 +1,8 @@
 "use client";
-import { getRequest, postRequest } from "../../../MainController/main";
 
-export default async function ProductIDGetApi(storeID: string, token?: string) {
+import { getRequest } from "../../MainController/main";
+
+export default async function GetPurchasetApi(token?: string) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -9,8 +10,8 @@ export default async function ProductIDGetApi(storeID: string, token?: string) {
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/PurcahserLogin/GetProductbyID?storeID=${storeID}`,
-    null,
+    `/api/PurcahseSupplier/GetPurchase`,
+    {},
     customHeader,
   );
 

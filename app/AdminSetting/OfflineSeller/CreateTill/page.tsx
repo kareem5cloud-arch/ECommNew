@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import CategoryDelete from "@/app/api/Controller/PurchaserLogin/Codes/Category/CategoryDelete";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
 import {

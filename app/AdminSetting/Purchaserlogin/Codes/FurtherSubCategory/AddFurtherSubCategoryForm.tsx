@@ -9,19 +9,19 @@ import {
   ResponseGetStore,
   storeList,
 } from "@/app/api/Types/AdminSetting/Store/Store";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import {
   furtherSubCategoryList,
   unitReqesut,
-} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 import {
   ResponseSubCategory,
   subCategoryList,
-} from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import {
   RespopnseUInitListGet,
   unitList,
-} from "@/app/api/Types/OnlineSetting/Unit/Unit";
+} from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
 import {
   ResponseVariantsListGet,
   VariantsList,

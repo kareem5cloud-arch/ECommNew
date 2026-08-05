@@ -3,9 +3,9 @@
 import {
   RequestAddUnit,
   RequestModifyUnit,
-} from "@/app/api/Types/OnlineSetting/Unit/Unit";
+} from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
 import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 
 export default async function UnitModifyApi(
   data: RequestModifyUnit,

@@ -3,7 +3,7 @@ import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/C
 import {
   CategoryList,
   ResponseCategory,
-} from "@/app/api/Types/OnlineSetting/Category/Category";
+} from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";

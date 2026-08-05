@@ -1,8 +1,8 @@
 "use client";
 
-import { RequestAddProduct } from "@/app/api/Types/OnlineSetting/Product/Product";
+import { RequestAddProduct } from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import { getRequest, postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 
 export default async function ProductGetApi(token?: string) {
   const customHeader: Record<string, string> = {};
@@ -12,7 +12,7 @@ export default async function ProductGetApi(token?: string) {
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/OnlineSeller/GetProduct`,
+    `/api/ProductManagment/PurcahserLogin/GetProduct`,
     null,
     customHeader,
   );

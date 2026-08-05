@@ -7,8 +7,8 @@ import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/C
 import {
   CategoryList,
   ResponseCategory,
-} from "@/app/api/Types/OnlineSetting/Category/Category";
-import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
+import { subCategoryList } from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import SubCategoryDelete from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/DeleteSubCategory";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";

@@ -1,8 +1,8 @@
 "use client";
 import SubCategoryAddApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/AddSubCategory";
 import CategorySubModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/ModifySubCategory";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
-import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
+import { subCategoryList } from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";

@@ -1,4 +1,4 @@
-import { countryList } from "../../Shipment/Country";
+import { countryList } from "../../../Shipment/Country";
 
 export interface RequestModifyProduct {
   productID: string;
@@ -61,9 +61,7 @@ export interface RequestAddProduct {
   // listImage: listImage[];
   listVarient: listVarient[];
 }
-export interface listImage {
-  url: string;
-}
+
 export interface listVarient {
   costPrice: number;
   salePrice: number;
@@ -111,7 +109,6 @@ export interface productList {
   weight: number;
   countriesAllowedList: countriesAllowedList[];
   countriesNotAllowedList: countriesAllowedList[];
-  images: imagesList[];
   variants: variantsList[];
 }
 export interface countriesAllowedList {
@@ -124,14 +121,19 @@ export interface imagesList {
 }
 export interface variantsList {
   varientID: string;
-  variantName: string;
-  variantValues: variantValues[];
-}
-export interface variantValues {
-  attributeID: string;
-  varientValue: string;
   qty: number;
   barcode: string;
   costPrice: number;
   salePrice: number;
+  values: variantValues[];
+  images: listImage[];
+}
+export interface variantValues {
+  attributeID: string;
+  variantName: string; //Color , Specfictiopn
+  varientValue: string; // Blue or or any other value
+}
+export interface listImage {
+  url: string;
+  urlID?: string;
 }

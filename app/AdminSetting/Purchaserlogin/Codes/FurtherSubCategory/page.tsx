@@ -7,11 +7,11 @@ import CategoryGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Category/C
 import {
   CategoryList,
   ResponseCategory,
-} from "@/app/api/Types/OnlineSetting/Category/Category";
+} from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import {
   ResponseSubCategory,
   subCategoryList,
-} from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
@@ -20,7 +20,7 @@ import {
   ResponseGetStore,
   storeList,
 } from "@/app/api/Types/AdminSetting/Store/Store";
-import { furtherSubCategoryList } from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+import { furtherSubCategoryList } from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 
 export default function FurtherSubCategoryMain() {
   const [update, setUpdate] = useState(false);

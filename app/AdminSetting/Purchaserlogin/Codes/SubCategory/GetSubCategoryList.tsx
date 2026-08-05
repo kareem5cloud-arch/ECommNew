@@ -1,9 +1,9 @@
 import CategorySubGetApi from "@/app/api/Controller/PurchaserLogin/Codes/SubCategory/GetSubCategory";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import {
   ResponseSubCategory,
   subCategoryList,
-} from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";

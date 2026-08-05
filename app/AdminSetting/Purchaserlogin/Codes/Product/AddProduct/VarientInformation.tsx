@@ -2,7 +2,7 @@
 import {
   furtherSubCategoryList,
   varients,
-} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 import {
   List,
   Plus,
@@ -20,7 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import AddProductImage from "./ProductImageInfo";
 export interface RowData {
-  id: number;
+  id: string;
   attributeID: attributeList[];
   costPrice: string;
   salePrice: string;
@@ -30,10 +30,12 @@ export interface RowData {
 }
 export interface imagesData {
   id: string;
+  url?: string;
   file: File;
 }
 interface attributeList {
   id: string;
+  variantDefId?: string;
   values: string;
 }
 export interface varientAttributes {
@@ -71,12 +73,10 @@ export default function AddVarientInformation({
 }: AddVarientInformationProps) {
   const [vareintList, setVareintList] = useState<varients[]>([]);
   const [ShhowPopupModel2, setShhowPopupModel2] = useState(false);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedRowID, setSelectedRowID] = useState<number | null>(null);
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [selectedRowID, setSelectedRowID] = useState<string | null>("");
+  const [selectedImages, setSelectedImages] = useState<imagesData[]>([]);
   const [ID, setID] = useState("");
+  const [variantID, setVariantID] = useState("");
   //const [images, setImages] = useState<imagesData[]>([]);
 
   useEffect(() => {
@@ -89,7 +89,7 @@ export default function AddVarientInformation({
 
       setCombinationList([
         {
-          id: 0,
+          id: "0",
           attributeID: [],
           costPrice: "",
           salePrice: "",
@@ -101,7 +101,7 @@ export default function AddVarientInformation({
     }
   }, [FurtherSubCategoryList, furtherSubCategoryID]);
 
-  const updateRow = (rowIndex: number, field: keyof RowData, value: any) => {
+  const updateRow = (rowIndex: string, field: keyof RowData, value: any) => {
     setCombinationList((prev) =>
       prev.map((row) =>
         row.id === rowIndex ? { ...row, [field]: value } : row,
@@ -116,12 +116,10 @@ export default function AddVarientInformation({
 
   const addRow = () => {
     setCombinationList((prev) => {
-      const lastId = prev.length > 0 ? Number(prev[prev.length - 1].id) : 0;
-
       return [
         ...prev,
         {
-          id: lastId + 1,
+          id: String(prev.length + 1),
           attributeID: [],
           qty: "",
           barcode: "",
@@ -133,19 +131,25 @@ export default function AddVarientInformation({
     });
   };
 
-  const deleteRow = (ID: number) => {
+  const deleteRow = (ID: string) => {
     setCombinationList((prev) => {
       const updated = prev.filter((item) => item.id !== ID);
       return updated;
     });
   };
-  const fetchData = (id: number) => {
+  const fetchData = (id: string) => {
     const row = combinationList.find((item) => item.id === id);
 
     if (row) {
       setSelectedRowID(id);
 
-      setSelectedImages(row.file.map((item) => item.file));
+      setSelectedImages(
+        row.file.map((item) => ({
+          id: item.id,
+          file: item.file,
+          url: item.url,
+        })),
+      );
 
       setShhowPopupModel2(true);
     }
@@ -174,7 +178,9 @@ export default function AddVarientInformation({
               Add Product Image
             </h1>
             <AddProductImage
+              conditionShowSave={false}
               images={selectedImages}
+              variantID={variantID}
               setImages={(imgs) => {
                 if (selectedRowID === null) return;
 
@@ -187,7 +193,8 @@ export default function AddVarientInformation({
                           ...row,
                           file: imgs.map((file, index) => ({
                             id: String(index),
-                            file,
+                            url: file.url,
+                            file: file.file,
                           })),
                         }
                       : row,
@@ -296,7 +303,9 @@ export default function AddVarientInformation({
                 ))}
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <input
-                    onChange={(e) => updateRow(index, "qty", e.target.value)}
+                    onChange={(e) =>
+                      updateRow(String(index), "qty", e.target.value)
+                    }
                     className="w-full p-2  text-black placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     type="text"
                     placeholder="Qty"
@@ -305,7 +314,7 @@ export default function AddVarientInformation({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <input
                     onChange={(e) =>
-                      updateRow(index, "costPrice", e.target.value)
+                      updateRow(String(index), "costPrice", e.target.value)
                     }
                     className="w-full p-2  text-black placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     type="text"
@@ -315,7 +324,7 @@ export default function AddVarientInformation({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <input
                     onChange={(e) =>
-                      updateRow(index, "salePrice", e.target.value)
+                      updateRow(String(index), "salePrice", e.target.value)
                     }
                     className="w-full p-2  text-black placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     type="text"
@@ -325,7 +334,7 @@ export default function AddVarientInformation({
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <input
                     onChange={(e) =>
-                      updateRow(index, "barcode", e.target.value)
+                      updateRow(String(index), "barcode", e.target.value)
                     }
                     className="w-full p-2  text-black placeholder-gray-500 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     type="text"

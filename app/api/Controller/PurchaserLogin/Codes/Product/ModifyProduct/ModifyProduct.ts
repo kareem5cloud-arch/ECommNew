@@ -3,8 +3,8 @@
 import {
   RequestAddProduct,
   RequestModifyProduct,
-} from "@/app/api/Types/OnlineSetting/Product/Product";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+} from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import { postRequest } from "../../../../MainController/main";
 
 export default async function ProductModifyApi(

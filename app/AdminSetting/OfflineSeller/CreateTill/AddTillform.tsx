@@ -5,7 +5,7 @@ import {
   responseGetProduct,
   variantsList,
   variantValues,
-} from "@/app/api/Types/OnlineSetting/Product/Product";
+} from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";

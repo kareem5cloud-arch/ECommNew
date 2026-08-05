@@ -12,12 +12,12 @@ import AddVarientInformation, {
 import AddProductImage from "./AddProduct/ProductImageInfo";
 import PaymnetInfo from "./AddProduct/PaymnetInfo";
 import { countryList } from "@/app/api/Types/Shipment/Country";
-import { CategoryList } from "@/app/api/Types/OnlineSetting/Category/Category";
-import { subCategoryList } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
+import { subCategoryList } from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import {
   furtherSubCategoryList,
   unitListSub,
-} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 import { SupplierListReponse } from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import convertImageToWebPWithWatermark from "@/app/api/Controller/MiddleWare/WebConverter";
@@ -138,7 +138,7 @@ export default function AddProductForm({
           salePrice: Number(item.salePrice),
           barcode: item.barcode,
 
-          images:
+          imageUrl:
             item.file.length > 0
               ? await Promise.all(
                   item.file.map(async (file) => {
@@ -194,14 +194,14 @@ export default function AddProductForm({
                 : [],
         listVarient: listVarient,
       };
-      console.log(formData);
-      // const token = localStorage.getItem("PurchaserLoginToken");
-      // const response = await ProductAddApi(formData, String(token));
-      // if (response.status == 200) {
-      //   onShowMessage(response.data.message, "success");
-      // } else {
-      //   onShowMessage(response.data.message, "error");
-      // }
+      //console.log(formData);
+      const token = localStorage.getItem("PurchaserLoginToken");
+      const response = await ProductAddApi(formData, String(token));
+      if (response.status == 200) {
+        onShowMessage(response.data.message, "success");
+      } else {
+        onShowMessage(response.data.message, "error");
+      }
     } finally {
       setLoading(false);
     }

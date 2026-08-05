@@ -1,114 +1,81 @@
-import UnitGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/GetUnit";
-import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
+"use client";
+import GetPurchasetApi from "@/app/api/Controller/PurchaserLogin/Purchase/GetPurchase";
 import {
-  RespopnseUInitListGet,
-  unitList,
-} from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
-import ActionButton from "@/app/ui/ActionButton/ActionButton";
-import DropDownList from "@/app/ui/DropDownList/DropDownList";
+  GetPurchaseList,
+  ResponsePurchaseList,
+} from "@/app/api/Types/PurchaserLogin/Purchase/Purchase";
 import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
 import { Pencil, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
-interface StoreList {
-  storeID: string;
-  storeName: string;
-}
+
 interface propsForAddRegion {
   setDelete: (data: boolean) => void;
   update: (data: boolean) => void;
   setID: (data: string) => void;
-  storeList: storeList[];
-  unitDataList: (data: unitList[]) => void;
-  UnitDataListReturn: unitList[];
-  UnitModifyList: (data: unitList) => void;
+  CatList: (data: GetPurchaseList[]) => void;
+  CategoryNewList: GetPurchaseList[];
+  CategoryModifyList: (data: GetPurchaseList) => void;
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
-export default function GetUnitList({
+
+export default function GetPurchaseListForm({
   setDelete,
-  update,
   setID,
-  unitDataList,
-  UnitModifyList,
-  UnitDataListReturn,
-  storeList,
+  update,
+  CatList,
+  CategoryModifyList,
+  CategoryNewList,
+  onShowMessage,
 }: propsForAddRegion) {
   const [isloading, setisLoading] = useState(false);
-  const [StoreID, setStoreID] = useState("");
-  const [StoreName, setStoreName] = useState("");
-  const [UnitList, setUnitList] = useState<unitList[]>([]);
 
-  useEffect(() => {
-    if (UnitDataListReturn) {
-      setUnitList(UnitDataListReturn);
-    }
-  }, [UnitDataListReturn]);
+  const [CategoryList, setCategoryList] = useState<GetPurchaseList[]>([]);
 
-  const CategoryGet = async (ID: string) => {
-    if (!ID) return alert("Please Select a store!");
+  const CategoryGet = async () => {
     try {
       setisLoading(true);
 
       const token = localStorage.getItem("PurchaserLoginToken");
-      const response = await UnitGetApi(ID, String(token));
+      const response = await GetPurchasetApi(String(token));
       if (response.status == 200) {
-        const data = response.data as RespopnseUInitListGet;
-        setUnitList(data.unitList);
+        const data = response.data as ResponsePurchaseList;
+        setCategoryList(data.data);
       } else {
-        setUnitList([]);
+        setCategoryList([]);
       }
     } finally {
       setisLoading(false);
     }
   };
+
+  useEffect(() => {
+    CategoryGet();
+  }, []);
+
   const fetchData = (ID: string) => {
-    const data = UnitList.find((item) => item.unitID === ID);
+    const data = CategoryList.find((item) => item.ledgerID === ID);
     if (data) {
-      UnitModifyList(data);
+      CategoryModifyList(data);
       update(true);
     }
   };
   return (
     <>
-      <div className="mb-2">
-        <DropDownList
-          label="Store "
-          placeholder="Enter Store"
-          required={true}
-          filedID={setStoreID}
-          value={StoreName}
-          onChange={setStoreName}
-          options={storeList.map((item) => ({
-            label: item.storeName,
-            value: item.storeName,
-            id: item.storeID,
-          }))}
-        />
-      </div>
-      <div className="flex justify-end">
-        <ActionButton
-          text="Search"
-          update={false}
-          loading={false}
-          loadingtext="Fetching..."
-          onClick={() => CategoryGet(StoreID)}
-          disabled={false}
-        />
-      </div>
       <div className="space-y-4">
         {isloading ? (
           <div className="flex justify-center py-10">
             <Spinner />
           </div>
-        ) : UnitList.length === 0 ? (
+        ) : CategoryList.length === 0 ? (
           <div className="flex justify-center py-10">
             <span className="text-lg font-semibold text-gray-500">
               No Record Found
             </span>
           </div>
         ) : (
-          UnitList.map((item) => (
+          CategoryList.map((item) => (
             <div
-              key={item.unitID}
+              key={item.ledgerID}
               className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 hover:shadow-lg transition"
             >
               {/* Left Side */}
@@ -116,10 +83,13 @@ export default function GetUnitList({
                 <div className="w-2 h-10 bg-blue-500 rounded-full" />
                 <div className="flex flex-col">
                   <span className="text-lg font-semibold text-gray-800">
-                    {item.unitName}
+                    {item.supplierName}
                   </span>
                   <span className="text-sm text-gray-500">
-                    Abbreviation: {item.abbreviation}
+                    Total Bill: {item.totalBill.toLocaleString()}
+                  </span>
+                  <span className="text-sm text-gray-500">
+                    Amount Paid: {item.amountPaid.toLocaleString()}
                   </span>
                 </div>
               </div>
@@ -127,7 +97,7 @@ export default function GetUnitList({
               {/* Right Side Actions */}
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => fetchData(item.unitID)}
+                  onClick={() => fetchData(item.ledgerID)}
                   className="p-2 text-blue-600 border border-blue-600 rounded hover:bg-blue-50 transition"
                 >
                   <Pencil />
@@ -135,9 +105,9 @@ export default function GetUnitList({
 
                 <button
                   onClick={() => {
-                    setID(item.unitID);
+                    setID(item.ledgerID);
                     setDelete(true);
-                    unitDataList(UnitList);
+                    CatList(CategoryList);
                   }}
                   className="p-2 text-red-600 border border-red-600 rounded hover:bg-red-50 transition"
                 >

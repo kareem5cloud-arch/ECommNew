@@ -9,30 +9,41 @@ import {
   ResponseGetSupplpierlist,
   SupplierListReponse,
 } from "@/app/api/Types/PurchaserLogin/Supplier/supplier";
-import {
-  productList,
-  responseGetProduct,
-  variantsList,
-  variantValues,
-} from "@/app/api/Types/OnlineSetting/Product/Product";
+
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import TextAreaFieldGeneric from "@/app/ui/TextArea/textArea";
 import { Trash } from "lucide-react";
 import { useEffect, useState } from "react";
+import {
+  productList,
+  responseGetProduct,
+  variantsList,
+  variantValues,
+} from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
+import PurchaseAddApi from "@/app/api/Controller/PurchaserLogin/Purchase/AddPurchase";
+import PurchaseModifyApi from "@/app/api/Controller/PurchaserLogin/Purchase/ModifyPurchase";
+import { GetPurchaseList } from "@/app/api/Types/PurchaserLogin/Purchase/Purchase";
 interface tableData {
   productID: string;
   productName: string;
-  attributeID: string;
-  attributeName: string;
   varientID: string;
   varientName: string;
   costPrice: string;
   salePrice: string;
   qty: string;
 }
-export default function PurchaseAddForm() {
+interface AddPurchaseProps {
+  update: boolean;
+  initalData?: GetPurchaseList;
+  onShowMessage: (message: string, type: "success" | "error") => void;
+}
+export default function PurchaseAddForm({
+  update,
+  onShowMessage,
+  initalData,
+}: AddPurchaseProps) {
   const [postingDate, setPostingDate] = useState("");
   const [supplierName, setSupplierName] = useState("");
   const [supplierID, setSupplierID] = useState("");
@@ -43,19 +54,18 @@ export default function PurchaseAddForm() {
   const [productName, setProductName] = useState("");
   const [varientID, setVarientID] = useState("");
   const [varientName, setVarientName] = useState("");
-  const [attriubuteID, setattriubuteID] = useState("");
-  const [attriubuteName, setattriubuteName] = useState("");
+  const [ID, setID] = useState("");
   const [Qty, setQty] = useState("");
   const [CostPrice, setCostPrice] = useState("");
   const [SalePrice, setSalePrice] = useState("");
   const [TotalBill, setTotalBill] = useState("");
   const [AmountPaid, setAmountPaid] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const [supplierList, setSupplierList] = useState<SupplierListReponse[]>([]);
   const [StoreList, setStoreList] = useState<storeList[]>([]);
   const [productList, setProductList] = useState<productList[]>([]);
   const [varientList, setVarientList] = useState<variantsList[]>([]);
-  const [attriubuteList, setattriubuteList] = useState<variantValues[]>([]);
 
   const [tableData, setTableData] = useState<tableData[]>([]);
 
@@ -102,28 +112,18 @@ export default function PurchaseAddForm() {
     setProductName("");
     setVarientID("");
     setVarientName("");
-    setattriubuteID("");
-    setattriubuteName("");
     setQty("");
     setCostPrice("");
     setSalePrice("");
   };
   const AddRecord = (ID: string) => {
-    if (
-      !ID ||
-      !StoreID ||
-      !varientID ||
-      !attriubuteID ||
-      !Qty ||
-      !CostPrice ||
-      !SalePrice
-    )
+    if (!ID || !StoreID || !varientID || !Qty || !CostPrice || !SalePrice)
       return alert("Please Fill in All Required Fields");
-    const isExist = tableData.find((item) => item.productID === ID);
+    const isExist = tableData.find((item) => item.varientID === ID);
     if (isExist) {
       setTableData((prev) =>
         prev.map((item) =>
-          item.productID === ID
+          item.varientID === ID
             ? { ...item, qty: (Number(item.qty) + 1).toString() }
             : item,
         ),
@@ -133,8 +133,6 @@ export default function PurchaseAddForm() {
       const newRecord: tableData = {
         productID,
         productName,
-        attributeID: attriubuteID,
-        attributeName: attriubuteName,
         varientID,
         varientName,
         costPrice: CostPrice,
@@ -145,8 +143,73 @@ export default function PurchaseAddForm() {
       resetFunctionTable();
     }
   };
+
+  const CategoryAdd = async () => {
+    try {
+      setLoading(true);
+      if (!supplierID || !postingDate)
+        return alert("Please Fill in Filed with *");
+      else {
+        const formData = {
+          postingDate: postingDate,
+          remarks: description,
+          totalBill: Number(TotalBill),
+          amountPaid: Number(AmountPaid),
+          supplierID: supplierID,
+          productList: tableData.map((item) => ({
+            varientID: item.varientID,
+            costPrice: Number(item.costPrice),
+            salePrice: Number(item.salePrice),
+            qty: Number(item.qty),
+          })),
+        };
+        const token = localStorage.getItem("PurchaserLoginToken");
+        const response = await PurchaseAddApi(formData, String(token));
+        if (response.status == 200) {
+          onShowMessage(response.data.message, "success");
+        } else {
+          onShowMessage(response.data.message, "error");
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const CategoryModify = async () => {
+    try {
+      setLoading(true);
+      console.log("IDis ", ID);
+      if (!supplierID || !postingDate)
+        return alert("Please Fill in Filed with *");
+      else {
+        const formData = {
+          ledgerID: ID,
+          postingDate: postingDate,
+          remarks: description,
+          totalBill: Number(TotalBill),
+          amountPaid: Number(AmountPaid),
+          supplierID: supplierID,
+          productList: tableData.map((item) => ({
+            varientID: item.varientID,
+            costPrice: Number(item.costPrice),
+            salePrice: Number(item.salePrice),
+            qty: Number(item.qty),
+          })),
+        };
+        const token = localStorage.getItem("PurchaserLoginToken");
+        const response = await PurchaseModifyApi(formData, String(token));
+        if (response.status == 200) {
+          onShowMessage(response.data.message, "success");
+        } else {
+          onShowMessage(response.data.message, "error");
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
   const DeleteRecord = (ID: string) => {
-    const data = tableData.filter((item) => item.productID !== ID);
+    const data = tableData.filter((item) => item.varientID !== ID);
     if (data) {
       setTableData(data);
     }
@@ -157,12 +220,6 @@ export default function PurchaseAddForm() {
       setVarientList(data.variants);
     }
   }, [productID]);
-  useEffect(() => {
-    const data = varientList.find((item) => item.varientID === varientID);
-    if (data) {
-      setattriubuteList(data.variantValues);
-    }
-  }, [varientID]);
 
   useEffect(() => {
     const totalBill = tableData.reduce((sum, item) => {
@@ -171,6 +228,47 @@ export default function PurchaseAddForm() {
     setTotalBill(String(totalBill));
     setAmountPaid(String(totalBill));
   }, [tableData]);
+
+  useEffect(() => {
+    if (update) {
+      if (initalData) {
+        console.log(initalData);
+        setID(initalData.ledgerID);
+        setDescription(initalData.remarks);
+        setPostingDate(
+          new Date(initalData.postingDate).toISOString().split("T")[0],
+        );
+        setSupplierID(initalData.supplierID);
+        setSupplierName(initalData.supplierName);
+        setTotalBill(String(initalData.totalBill));
+        setAmountPaid(String(initalData.amountPaid));
+        setTableData(
+          initalData.detailList.map((item) => ({
+            productID: item.productID,
+            productName: item.productName,
+            varientID: item.varientID,
+            varientName: item.attributeValues
+              .map((attr) => attr.value)
+              .join("-"),
+            costPrice: String(item.costPrice),
+            salePrice: String(item.salePrice),
+            qty: String(item.qty),
+          })),
+        );
+      }
+    } else {
+      setDescription("");
+      setID("");
+      setPostingDate("");
+      setSupplierID("");
+      setSupplierName("");
+      setTotalBill("");
+      setAmountPaid("");
+      setStoreName("");
+      setStoreID("");
+      setTableData([]);
+    }
+  }, [initalData, update]);
 
   return (
     <>
@@ -272,36 +370,20 @@ export default function PurchaseAddForm() {
               }))}
             />
             <DropDownList
-              label="Varient "
-              placeholder="Enter Varient"
+              label="Variant"
+              placeholder="Select Variant"
               required={true}
               filedID={setVarientID}
               value={varientName}
               onChange={setVarientName}
               options={varientList.map((item) => ({
-                label: item.variantName,
-                value: item.variantName,
+                label: item.values.map((v) => v.varientValue).join(" - "),
+                value: item.values.map((v) => v.varientValue).join(" - "),
                 id: item.varientID,
               }))}
             />
           </div>
           <div className="w-full flex  flex-col lg:flex-row gap-2 ">
-            <div className="w-full mt-5">
-              <DropDownList
-                label="Attribute "
-                placeholder="Enter Attribute"
-                required={true}
-                filedID={setattriubuteID}
-                value={attriubuteName}
-                onChange={setattriubuteName}
-                options={attriubuteList.map((item) => ({
-                  label: item.varientValue,
-                  value: item.varientValue,
-                  id: item.attributeID,
-                }))}
-              />
-            </div>
-
             <div className="w-full">
               <InputFieldGeneric
                 label="Qty"
@@ -313,8 +395,6 @@ export default function PurchaseAddForm() {
                 disabled={false}
               />
             </div>
-          </div>
-          <div className="w-full flex  flex-col lg:flex-row gap-2 ">
             <div className="w-full">
               <InputFieldGeneric
                 label="Cost Price"
@@ -326,6 +406,8 @@ export default function PurchaseAddForm() {
                 disabled={false}
               />
             </div>
+          </div>
+          <div className="w-full flex  flex-col lg:flex-row gap-2 ">
             <div className="w-full">
               <InputFieldGeneric
                 label="Sale Price"
@@ -345,7 +427,7 @@ export default function PurchaseAddForm() {
               loading={false}
               loadingtext=""
               size={true}
-              onClick={() => AddRecord(productID)}
+              onClick={() => AddRecord(varientID)}
               disabled={false}
             />
           </div>
@@ -364,9 +446,7 @@ export default function PurchaseAddForm() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Variant
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Attribute
-              </th>
+
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Qty
               </th>
@@ -383,7 +463,7 @@ export default function PurchaseAddForm() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {tableData.map((store, index) => (
-              <tr key={store.productID} className="hover:bg-gray-50 transition">
+              <tr key={store.varientID} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {index + 1}
                 </td>
@@ -395,11 +475,6 @@ export default function PurchaseAddForm() {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">
                     {store.varientName}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {store.attributeName}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -419,7 +494,7 @@ export default function PurchaseAddForm() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <button
-                    onClick={() => DeleteRecord(store.productID)}
+                    onClick={() => DeleteRecord(store.varientID)}
                     className="text-red-600 hover:text-red-900 transition p-1 rounded hover:bg-red-50"
                     title="Delete Store"
                   >
@@ -431,16 +506,29 @@ export default function PurchaseAddForm() {
           </tbody>
         </table>
       </div>
-      <div className="flex justify-end mt-2">
-        <ActionButton
-          text="Save"
-          update={false}
-          loading={false}
-          loadingtext=""
-          onClick={() => AddRecord(productID)}
-          disabled={false}
-        />
-      </div>
+      {update ? (
+        <div className="flex justify-end">
+          <ActionButton
+            text="Update"
+            update={false}
+            loading={loading}
+            loadingtext="Updateing..."
+            onClick={() => CategoryModify()}
+            disabled={false}
+          />
+        </div>
+      ) : (
+        <div className="flex justify-end">
+          <ActionButton
+            text="Save"
+            update={false}
+            loading={loading}
+            loadingtext="Saving..."
+            onClick={() => CategoryAdd()}
+            disabled={false}
+          />
+        </div>
+      )}
     </>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import {
   RequestAddFurtherSub,
   RequestModifyFurtherSub,
-} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
 
 export default async function FurtherModifyApi(
   data: RequestModifyFurtherSub,

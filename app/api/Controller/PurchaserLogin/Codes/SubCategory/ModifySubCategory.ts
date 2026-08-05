@@ -1,6 +1,6 @@
 "use client";
 
-import { requestModifySubCategory } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+import { requestModifySubCategory } from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import { postRequest } from "../../../MainController/main";
 
 export default async function CategorySubModifyApi(

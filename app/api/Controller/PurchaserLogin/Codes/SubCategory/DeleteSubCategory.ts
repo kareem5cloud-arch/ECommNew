@@ -1,7 +1,7 @@
 "use client";
 
 import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 
 export default async function SubCategoryDelete(ID: String, token?: string) {
   const customHeader: Record<string, string> = {};

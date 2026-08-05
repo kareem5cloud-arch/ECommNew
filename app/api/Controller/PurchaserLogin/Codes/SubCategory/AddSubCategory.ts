@@ -1,8 +1,8 @@
 "use client";
 
-import { requestAddSubCategory } from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+import { requestAddSubCategory } from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 
 export default async function SubCategoryAddApi(
   data: requestAddSubCategory,

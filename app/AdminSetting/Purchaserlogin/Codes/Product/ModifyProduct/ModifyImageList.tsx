@@ -13,7 +13,7 @@ import {
   imagesList,
   listImage,
   productList,
-} from "@/app/api/Types/OnlineSetting/Product/Product";
+} from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import ProductDeleteImageApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/DeleteImages";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";

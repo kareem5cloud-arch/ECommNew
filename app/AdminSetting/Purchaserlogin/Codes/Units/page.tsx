@@ -7,7 +7,7 @@ import {
   storeList,
 } from "@/app/api/Types/AdminSetting/Store/Store";
 import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
-import { unitList } from "@/app/api/Types/OnlineSetting/Unit/Unit";
+import { unitList } from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
 import GetUnitList from "./GetUnitList";
 import MessagePopUp from "@/app/ui/UseFulLComponent/ResponseMessage/ResponseMessage";
 import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";

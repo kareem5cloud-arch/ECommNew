@@ -1,8 +1,8 @@
 "use client";
 
-import { RequestAddProduct } from "@/app/api/Types/OnlineSetting/Product/Product";
+import { RequestAddProduct } from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import { postRequest } from "../../../MainController/main";
-import { requestAddCategory } from "@/app/api/Types/OnlineSetting/Category/Category";
+import { requestAddCategory } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 
 export default async function ProductAddApi(
   data: RequestAddProduct,
@@ -15,7 +15,7 @@ export default async function ProductAddApi(
   }
 
   const response = await postRequest(
-    `/api/ProductManagment/OnlineSeller/AddProduct`,
+    `/api/ProductManagment/PurcahserLogin/AddProduct`,
     data,
     customHeader,
   );

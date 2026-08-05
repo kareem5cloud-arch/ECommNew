@@ -12,17 +12,17 @@ import {
 import {
   CategoryList,
   ResponseCategory,
-} from "@/app/api/Types/OnlineSetting/Category/Category";
+} from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import {
   furtherSubCategoryList,
   RespopnseFurtherListGet,
   unitListSub,
-} from "@/app/api/Types/OnlineSetting/FurtherCategory/FurtherCategory";
-import { productList } from "@/app/api/Types/OnlineSetting/Product/Product";
+} from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
+import { productList } from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import {
   ResponseSubCategory,
   subCategoryList,
-} from "@/app/api/Types/OnlineSetting/SubCategory/SubCategory";
+} from "@/app/api/Types/PurchaserLogin/Codes/SubCategory/SubCategory";
 import {
   countryList,
   GetCountryListResponse,

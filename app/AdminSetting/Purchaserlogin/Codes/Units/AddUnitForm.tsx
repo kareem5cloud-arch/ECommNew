@@ -2,7 +2,7 @@ import UnitAddApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/AddUnits"
 import UnitGetApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/GetUnit";
 import UnitModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Unit/ModifyUnit";
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
-import { unitList } from "@/app/api/Types/OnlineSetting/Unit/Unit";
+import { unitList } from "@/app/api/Types/PurchaserLogin/Codes/Unit/Unit";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";

@@ -1,7 +1,11 @@
 "use client";
-import { getRequest, postRequest } from "../../../MainController/main";
 
-export default async function ProductIDGetApi(storeID: string, token?: string) {
+import { getRequest } from "../../../../MainController/main";
+
+export default async function ProductDeleteVariantsApi(
+  varientID: string,
+  token?: string,
+) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -9,7 +13,7 @@ export default async function ProductIDGetApi(storeID: string, token?: string) {
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/PurcahserLogin/GetProductbyID?storeID=${storeID}`,
+    `/api/ProductManagment/PurcahserLogin/ModifyProduct/VariantsDelete?varientID=${varientID}`,
     null,
     customHeader,
   );
