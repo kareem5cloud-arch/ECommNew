@@ -64,18 +64,20 @@ export default function Product() {
         cartList={cart}
         wishList={wishList}
         onClickCall={onCallFunction}
-        productData={ProductData}
+        setCategoryID={() => ""}
+        setChangeMade={() => ""}
+        //productData={ProductData}
       />
       <ProductInformation
         functionCalling={onCallFunction}
         returnCategroySubID={setSubCatID}
       />
-      <YouMightLikeThis
+      {/* <YouMightLikeThis
         onClickCall={onCallFunction}
         ProductData={ProductData}
         subID={subcatID}
       />
-      <SuggestedForYou onClickCall={onCallFunction} ProductData={ProductData} />
+      <SuggestedForYou onClickCall={onCallFunction} ProductData={ProductData} /> */}
       <Footer storeInfo={storeInfo[0]} categroyMainInfo={categroyInfo} />
     </>
   );

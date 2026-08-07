@@ -27,7 +27,6 @@ interface CartItem {
   quantity: number;
   image: string;
   variant: string;
-  size: string;
   color?: string;
   inStock: boolean;
 }
@@ -52,33 +51,37 @@ export default function CartSidebar({
   const [discount, setDiscount] = useState(0);
 
   useEffect(() => {
-    if (cartData.length === 0) return;
+    if (!cartData.length || !ProductData.length) {
+      setProductValue([]);
+      return;
+    }
 
-    const productValues = ProductData.flatMap((product) => {
-      return product.variants.flatMap((variant) => {
-        return variant.variantValues
-          .filter((value) =>
-            cartData.some((cart) => cart.attributeID === value.attributeID),
-          )
-          .map((value) => {
-            const cartItem = cartData.find(
-              (cart) => cart.attributeID === value.attributeID,
-            );
+    const productValues: CartItem[] = ProductData.flatMap((product) =>
+      product.variants.flatMap((variant) => {
+        const cartItem = cartData.find(
+          (cart) => cart.attributeID === variant.varientID,
+        );
 
-            return {
-              id: value.attributeID,
-              name: product.productName,
-              price: value.salePrice ?? 0,
-              quantity: cartItem?.qty ?? 0,
-              image: product.images[0]?.url ?? "",
-              variant: variant.variantName,
-              size: value.varientValue,
-              color: "",
-              inStock: product.isStock,
-            };
-          });
-      });
-    });
+        if (!cartItem) return [];
+
+        return [
+          {
+            id: variant.varientID,
+            name: product.productName,
+            price: variant.salePrice ?? 0,
+            quantity: cartItem.qty,
+            image:
+              variant.images?.[0]?.url ||
+              "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg",
+            variant: variant.values
+              .map((item) => item.varientValue)
+              .join(" - "),
+            color: "",
+            inStock: product.isStock,
+          },
+        ];
+      }),
+    );
 
     setProductValue(productValues);
   }, [cartData, ProductData]);
@@ -240,15 +243,15 @@ export default function CartSidebar({
                       <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
                         {item.name}
                       </h4>
-                      {(item.variant || item.size) && (
+                      {item.variant && (
                         <p className="text-xs text-gray-500 mt-1">
-                          {item.size && <span>Size: {item.size}</span>}
+                          <span className="uppercase"> {item.variant}</span>
                         </p>
                       )}
                     </div>
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="opacity-0 group-hover:opacity-100 transition p-1 hover:bg-red-100 rounded-full"
+                      className="opacity-100 transition p-1 hover:bg-red-100 rounded-full"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </button>
@@ -278,11 +281,11 @@ export default function CartSidebar({
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-purple-600">
-                        ${(item.price * item.quantity).toLocaleString()}
+                        {(item.price * item.quantity).toLocaleString()}
                       </p>
                       {item.quantity > 1 && (
                         <p className="text-xs text-gray-400">
-                          ${item.price.toLocaleString()} each
+                          {item.price.toLocaleString()} each
                         </p>
                       )}
                     </div>
@@ -314,7 +317,7 @@ export default function CartSidebar({
             {discount > 0 && (
               <p className="text-green-600 text-xs mt-2 flex items-center gap-1">
                 <Tag className="w-3 h-3" />
-                Discount applied: -${discount.toFixed(2)}
+                Discount applied: -${discount.toLocaleString()}
               </p>
             )}
           </div>
@@ -326,7 +329,9 @@ export default function CartSidebar({
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-semibold">{subtotal.toFixed(2)}</span>
+                <span className="font-semibold">
+                  {subtotal.toLocaleString()}
+                </span>
               </div>
               {/* <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Shipping</span>
@@ -341,13 +346,15 @@ export default function CartSidebar({
               {discount > 0 && (
                 <div className="flex justify-between text-sm text-green-600">
                   <span>Discount</span>
-                  <span>{discount.toFixed(2)}</span>
+                  <span>{discount.toLocaleString()}</span>
                 </div>
               )}
               <div className="pt-2 border-t border-gray-200">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span className="text-purple-600">{total.toFixed(2)}</span>
+                  <span className="text-purple-600">
+                    {total.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>

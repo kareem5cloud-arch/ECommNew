@@ -4,6 +4,11 @@ export interface resposneGetHomePageCategroy {
   categoryList: categoryListHomePageCategroyImages[];
 }
 export interface categoryListHomePageCategroyImages {
+  categoryID: string;
+  categoryName: string;
+  subCategoryDetail: subCategoryDetailHomePage[];
+}
+interface subCategoryDetailHomePage {
   subCategoryID: string;
   subCategoryName: string;
   url: string;

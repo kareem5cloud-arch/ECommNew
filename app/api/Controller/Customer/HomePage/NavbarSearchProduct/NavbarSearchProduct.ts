@@ -2,10 +2,7 @@
 
 import { getRequest } from "../../../MainController/main";
 
-export default async function ProductDataByID(
-  productID: string,
-  token?: string,
-) {
+export default async function ProductDataByWord(word: string, token?: string) {
   const customHeader: Record<string, string> = {};
 
   if (token) {
@@ -13,7 +10,7 @@ export default async function ProductDataByID(
   }
 
   const response = await getRequest(
-    `/api/ProductManagment/Customer/GetProductID?productID=${productID}`,
+    `/api/ProductManagment/Customer/SearchGetProduct?word=${word}`,
     null,
     customHeader,
   );

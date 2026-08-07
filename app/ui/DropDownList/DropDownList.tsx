@@ -9,6 +9,7 @@ interface OptionType {
 interface Props {
   label?: string;
   value: string;
+  size?: boolean;
   options: OptionType[];
   placeholder?: string;
   required?: boolean;
@@ -22,6 +23,7 @@ export default function DropDownList({
   options,
   placeholder,
   required,
+  size,
   onChange,
   filedID,
 }: Props) {
@@ -130,10 +132,10 @@ export default function DropDownList({
           setHighlightIndex(-1);
         }}
         onKeyDown={handleKeyDown}
-        className="w-full px-4 py-2 border border-gray-200 shadow-sm  rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        className={`${size ? "w-[1/2]" : "w-full"} px-4 py-2 border border-gray-200 shadow-sm  rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none`}
       />
 
-      {/* DROPDOWN */}
+      {/* DROPDOWN: } */}
       {open && (
         <ul className="absolute z-50 w-full bg-white  rounded-lg mt-1 shadow max-h-52 overflow-auto">
           {filteredOptions.length === 0 ? (
@@ -146,7 +148,7 @@ export default function DropDownList({
                   itemRefs.current[index] = el;
                 }}
                 onMouseDown={() => handleSelect(option)}
-                className={`px-4 py-2 cursor-pointer transition ${
+                className={`px-4 py-2 cursor-pointer ${size ? "w-[1/2]" : "w-full"} transition ${
                   index === highlightIndex
                     ? "bg-blue-600 text-white"
                     : "hover:bg-blue-50"

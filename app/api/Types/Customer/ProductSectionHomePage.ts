@@ -5,9 +5,14 @@ export interface ResponseProductSectionHomePage {
 }
 export interface ProductSectionHomePage {
   productID: string;
-  storeID: string;
   storeName: string;
+  shortCode: string;
+  storeID: string;
+  threshold: number;
   productName: string;
+  showinCountry: boolean;
+  notShowinCountry: boolean;
+  showinAllCountry: boolean;
   categoryID: string;
   categoryName: string;
   subCategoryID: string;
@@ -16,9 +21,9 @@ export interface ProductSectionHomePage {
   furtherSubCategoryName: string;
   unitID: string;
   unitName: string;
-  shortCode: string;
   feturedProduct: boolean;
   isStock: boolean;
+  storeSale: string;
   description: string;
   discount: number;
   rating: number;
@@ -26,22 +31,30 @@ export interface ProductSectionHomePage {
   height: number;
   depth: number;
   weight: number;
-  images: ProductSectionHomePageImages[];
-  variants: ProductSectionHomePageVarient[];
+  countriesAllowedList: CustomercountriesAllowedList[];
+  countriesNotAllowedList: CustomercountriesAllowedList[];
+  variants: CustomerVariantsList[];
 }
 
-export interface ProductSectionHomePageImages {
+export interface CustomercountriesAllowedList {
+  countryID: string;
+  countryName: string;
+}
+export interface CustomerImagesList {
   urlID: string;
   url: string;
 }
-export interface ProductSectionHomePageVarient {
+export interface CustomerVariantsList {
   varientID: string;
-  variantName: string;
-  variantValues: ProductSectionHomePageAttribute[];
-}
-export interface ProductSectionHomePageAttribute {
-  attributeID: string;
-  varientValue: string;
   qty: number;
+  barcode: string;
+  costPrice: number;
   salePrice: number;
+  values: CustomerVariantValues[];
+  images: CustomerImagesList[];
+}
+export interface CustomerVariantValues {
+  attributeID: string;
+  variantName: string; //Color , Specfictiopn
+  varientValue: string; // Blue or or any other value
 }

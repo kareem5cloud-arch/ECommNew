@@ -20,10 +20,12 @@ interface WishlistItem {
   id: string;
   name: string;
   price: number;
+  quantity: number;
   image: string;
-  rating: number;
+  variant: string;
+  color?: string;
   inStock: boolean;
-  discount?: number;
+  rating: number;
 }
 
 interface WishlistSidebarProps {
@@ -49,38 +51,41 @@ export default function WishlistSidebar({
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   useEffect(() => {
-    if (wishListData.length === 0) return;
+    if (!wishListData.length || !ProductData.length) {
+      setProductValue([]);
+      return;
+    }
 
-    const productValues = ProductData.flatMap((product) => {
-      return product.variants.flatMap((variant) => {
-        return variant.variantValues
-          .filter((value) =>
-            wishListData.some((cart) => cart.attributeID === value.attributeID),
-          )
-          .map((value) => {
-            const cartItem = wishListData.find(
-              (cart) => cart.attributeID === value.attributeID,
-            );
+    const productValues: WishlistItem[] = ProductData.flatMap((product) =>
+      product.variants.flatMap((variant) => {
+        const cartItem = wishListData.find(
+          (cart) => cart.attributeID === variant.varientID,
+        );
 
-            return {
-              id: value.attributeID,
-              name: product.productName,
-              price: value.salePrice ?? 0,
-              quantity: cartItem?.qty ?? 0,
-              image: product.images[0]?.url ?? "",
-              variant: variant.variantName,
-              size: value.varientValue,
-              rating: product.rating,
-              color: "",
-              inStock: product.isStock,
-            };
-          });
-      });
-    });
-    console.log(productValue);
+        if (!cartItem) return [];
+
+        return [
+          {
+            id: variant.varientID,
+            name: product.productName,
+            price: variant.salePrice ?? 0,
+            quantity: cartItem.qty,
+            rating: product.rating,
+            image:
+              variant.images?.[0]?.url ||
+              "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg",
+            variant: variant.values
+              .map((item) => item.varientValue)
+              .join(" - "),
+            color: "",
+            inStock: product.isStock,
+          },
+        ];
+      }),
+    );
+
     setProductValue(productValues);
   }, [wishListData, ProductData]);
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -154,7 +159,7 @@ export default function WishlistSidebar({
           <div className="mx-4 mt-4 p-3 bg-green-50 border border-green-100 rounded-lg">
             <p className="text-sm text-green-700 flex items-center gap-2">
               <span className="text-lg">💸</span>
-              You're saving ${totalSavings.toFixed(2)} on your wishlist!
+              You're saving {totalSavings.toFixed(2)} on your wishlist!
             </p>
           </div>
         )}
@@ -207,11 +212,11 @@ export default function WishlistSidebar({
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
-                    {item.discount && (
+                    {/* {item. && (
                       <div className="absolute top-1 left-1 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded">
                         -{item.discount}%
                       </div>
-                    )}
+                    )} */}
                     {!item.inStock && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white text-xs font-bold">
@@ -228,63 +233,52 @@ export default function WishlistSidebar({
                         <h4 className="font-medium text-gray-900 text-sm line-clamp-2">
                           {item.name}
                         </h4>
+                        {item.variant && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            <span className="uppercase"> {item.variant}</span>
+                          </p>
+                        )}
                         {/* Rating */}
-                        <div className="flex items-center gap-1 mt-1">
+                        <div className="flex flex-col  gap-1 mt-1">
                           <div className="flex items-center">
                             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                             <span className="text-xs font-medium text-gray-700 ml-0.5">
                               {item.rating}
                             </span>
                           </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-gray-900">
+                              {item.price.toLocaleString()}
+                            </span>
+                            {/* {item.originalPrice && (
+                          <span className="text-xs text-gray-400 line-through">
+                            ${item.originalPrice.toLocaleString()}
+                          </span>
+                        )} */}
+                          </div>
                           {/* <span className="text-xs text-gray-400">
                             ({item.reviews})
                           </span> */}
                         </div>
                       </div>
-                      <button
-                        onClick={() => removeFromWishlist(item.id)}
-                        className="opacity-0 group-hover:opacity-100 transition p-1 hover:bg-red-100 rounded-full"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
-                    </div>
-
-                    {/* Price */}
-                    <div className="mt-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-gray-900">
-                          {item.price.toLocaleString()}
-                        </span>
-                        {/* {item.originalPrice && (
-                          <span className="text-xs text-gray-400 line-through">
-                            ${item.originalPrice.toLocaleString()}
-                          </span>
-                        )} */}
+                      <div className="flex flex-col gap-2">
+                        <button
+                          onClick={() => removeFromWishlist(item.id)}
+                          className="opacity-100 p-2 transition p-1  bg-red-100 hover:bg-red-200 rounded-full cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4 text-red-500" />
+                        </button>
+                        <button
+                          onClick={() => handleAddToCart(item)}
+                          className="opacity-100 p-2 transition p-1 bg-green-100 hover:bg-green-200 rounded-full cursor-pointer"
+                        >
+                          <ShoppingCart className="w-4 h-4 text-green-500" />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Add to Cart Button */}
-                    <button
-                      onClick={() => handleAddToCart(item)}
-                      disabled={!item.inStock || addingToCart === item.id}
-                      className={`mt-2 w-full py-1.5 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-1 ${
-                        item.inStock
-                          ? "bg-gray-900 text-white hover:bg-gray-800"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      }`}
-                    >
-                      {addingToCart === item.id ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Adding...
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-3.5 h-3.5" />
-                          {item.inStock ? "Add to Cart" : "Out of Stock"}
-                        </>
-                      )}
-                    </button>
+                    {/* Price */}
+                    <div className="mt-2"></div>
                   </div>
                 </div>
               ))}

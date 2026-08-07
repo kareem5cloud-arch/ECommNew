@@ -17,7 +17,8 @@ interface GetProductModifyInfomrationProps {
   setShowBasicINfoModel: (data: boolean) => void;
   initalData: (data: productList) => void;
   setShowImageListModel: (data: boolean) => void;
-  refreshevent: boolean;
+  refreshevent: number;
+  setProductID: (data: string) => void;
   setSubCategoryID: (data: string) => void;
   setFurtherSubCategoryList: (data: furtherSubCategoryList[]) => void;
   setProductVariant: (data: variantsList[]) => void;
@@ -29,6 +30,7 @@ export default function GetProductList({
   setShowImageListModel,
   setFurtherSubCategoryList,
   refreshevent,
+  setProductID,
   setSubCategoryID,
   setProductVariant,
 }: GetProductModifyInfomrationProps) {
@@ -37,9 +39,7 @@ export default function GetProductList({
   const [Searchproduct, setSearchproduct] = useState("");
 
   useEffect(() => {
-    if (refreshevent) {
-      ProductGet();
-    }
+    ProductGet();
   }, [refreshevent]);
   const ProductGet = async () => {
     try {
@@ -77,6 +77,7 @@ export default function GetProductList({
   const fetchDataVareint = (ID: string) => {
     const data = productList.find((item) => item.productID === ID);
     if (data) {
+      setProductID(ID);
       setSubCategoryID(data.subCategoryDetailID);
       FurtherSubCategoryGet(data.subCategoryID);
       setProductVariant(data.variants);

@@ -38,7 +38,7 @@ import { useEffect, useState } from "react";
 
 interface MoidifyProductBasicInfo {
   initalData?: productList;
-  refreshevent: (data: boolean) => void;
+  refreshevent: (data: number) => void;
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
 
@@ -372,7 +372,7 @@ export default function ModifyBasicInfo({
       const response = await ProductModifyApi(formData, String(token));
       if (response.status == 200) {
         onShowMessage(response.data.message, "success");
-        refreshevent(true);
+        refreshevent(1);
       } else {
         onShowMessage(response.data.message, "error");
       }

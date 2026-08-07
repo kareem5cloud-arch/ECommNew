@@ -1,5 +1,6 @@
 // components/Navbar.tsx
 "use client";
+import { useDebouncedCallback } from "use-debounce";
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
@@ -19,9 +20,13 @@ import { categoryListHomePageCustomerCategroy } from "@/app/api/Types/Customer/H
 import { ResposneStoreListHomePage } from "@/app/api/Types/Customer/HomePageStoreSetting";
 import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
 import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
-import { ProductSectionHomePage } from "@/app/api/Types/Customer/ProductSectionHomePage";
+import {
+  ProductSectionHomePage,
+  ResponseProductSectionHomePage,
+} from "@/app/api/Types/Customer/ProductSectionHomePage";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import ProductDataByWord from "@/app/api/Controller/Customer/HomePage/NavbarSearchProduct/NavbarSearchProduct";
 
 interface NavabarProps {
   categoryData: categoryListHomePageCustomerCategroy[];
@@ -29,15 +34,19 @@ interface NavabarProps {
   cartList: CartData[];
   wishList: CartData[];
   onClickCall: () => void;
-  productData: ProductSectionHomePage[];
+  setCategoryID: (data: string) => void;
+  setChangeMade: (data: string) => void;
 }
+
 export default function Navbar({
   categoryData,
   storeInfo,
   cartList,
   wishList,
   onClickCall,
-  productData,
+  setCategoryID,
+
+  setChangeMade,
 }: NavabarProps) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -49,6 +58,7 @@ export default function Navbar({
   const [tokenExist, settokenExist] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -57,6 +67,10 @@ export default function Navbar({
   const [open, setOpen] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
   const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [text, settext] = useState("");
+  const [prodsuctList, setProductList] = useState<ProductSectionHomePage[]>([]);
+  const [loading, setLoading] = useState(false);
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -66,26 +80,32 @@ export default function Navbar({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Sample categories data with 3 levels
-
-  const activeCategoryData = categoryData.find(
-    (c) => c.categoryID === activeCategory,
-  );
-
   const handleMouseLeave = () => {
-    hoverTimeoutRef.current = setTimeout(() => {
+    // Add delay before hiding dropdown
+    dropdownTimeoutRef.current = setTimeout(() => {
       setActiveCategory(null);
       setActiveSubcategory(null);
-    }, 100);
+    }, 200);
   };
 
   const handleMouseEnter = (categoryId: string) => {
-    if (hoverTimeoutRef.current) {
-      clearTimeout(hoverTimeoutRef.current);
+    // Clear any pending timeout
+    if (dropdownTimeoutRef.current) {
+      clearTimeout(dropdownTimeoutRef.current);
     }
     setActiveCategory(categoryId);
     setActiveSubcategory(null);
   };
+
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    setCategoryID(categoryId);
+    setChangeMade("somethingChanged");
+    if (mobileMenuOpen) {
+      setMobileMenuOpen(false);
+    }
+  };
+
   const handleAddToCart = (item: any) => {
     setIsCartOpen(true);
   };
@@ -99,44 +119,38 @@ export default function Navbar({
       settokenExist(false);
     }
   };
+
   useEffect(() => {
     checkAuth();
   }, []);
 
-  const filteredOptions = productData.filter((item) =>
-    item.productName.toLowerCase().includes(searchProduct.toLowerCase()),
-  );
-  // SELECT ITEM
   const handleSelect = (item: ProductSectionHomePage) => {
     setOpen(false);
     setSearchProduct(item.productName);
     router.push(`/subMenu/Product/${item.productID}`);
   };
 
-  // KEYBOARD CONTROL
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!open || filteredOptions.length === 0) return;
+    if (!open || prodsuctList.length === 0) return;
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setHighlightIndex((prev) =>
-        prev + 1 >= filteredOptions.length ? 0 : prev + 1,
+        prev + 1 >= prodsuctList.length ? 0 : prev + 1,
       );
     }
 
     if (e.key === "ArrowUp") {
       e.preventDefault();
       setHighlightIndex((prev) =>
-        prev <= 0 ? filteredOptions.length - 1 : prev - 1,
+        prev <= 0 ? prodsuctList.length - 1 : prev - 1,
       );
     }
 
     if (e.key === "Enter") {
       e.preventDefault();
-
       if (highlightIndex >= 0) {
-        const selected = filteredOptions[highlightIndex];
-
+        const selected = prodsuctList[highlightIndex];
         handleSelect(selected);
         router.push(`/subMenu/Product/${selected.productID}`);
       }
@@ -146,6 +160,37 @@ export default function Navbar({
       setOpen(false);
     }
   };
+
+  useEffect(() => {
+    setActiveSubcategory(null);
+    setActiveCategory(null);
+    if (categoryData && categoryData.length > 0) {
+      // (categoryData[0]?.categoryID);
+      setSelectedCategory(categoryData[0]?.categoryID);
+      setCategoryID(categoryData[0]?.categoryID);
+    }
+  }, [categoryData]);
+
+  const searchProductByWords = async (word: string) => {
+    try {
+      setLoading(true);
+      const response = await ProductDataByWord(word);
+      if (response.status === 200) {
+        const data = response.data as ResponseProductSectionHomePage;
+        setProductList(data.productList);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!searchProduct?.trim()) return;
+    const timer = setTimeout(() => {
+      searchProductByWords(searchProduct);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [searchProduct]);
+
   return (
     <>
       <CartSidebar
@@ -199,7 +244,6 @@ export default function Navbar({
                 )}
               </div>
             </div>
-
             {/* Search bar - Desktop */}
             <div className="hidden lg:flex flex-1 max-w-2xl mx-8 relative ">
               <div className="relative w-full">
@@ -214,7 +258,7 @@ export default function Navbar({
                         : "border-gray-300 bg-gray-50 hover:bg-white"
                     }
                   `}
-                  onFocus={() => setOpen(true)}
+                  //onFocus={() => setOpen(true)}
                   onChange={(e) => {
                     const value = e.target.value;
                     setSearchProduct(value);
@@ -228,12 +272,12 @@ export default function Navbar({
 
               {open && (
                 <ul className="absolute z-50 w-full bg-white rounded-lg mt-12 shadow-lg max-h-80 overflow-auto border border-gray-200">
-                  {filteredOptions.length === 0 ? (
+                  {prodsuctList.length === 0 ? (
                     <li className="px-4 py-8 text-center text-gray-500">
                       No products found
                     </li>
                   ) : (
-                    filteredOptions.map((option, index) => (
+                    prodsuctList.map((option, index) => (
                       <li
                         key={option.productID}
                         ref={(el) => {
@@ -244,13 +288,13 @@ export default function Navbar({
                           index === highlightIndex
                             ? "bg-purple-50"
                             : "hover:bg-gray-50"
-                        } ${index !== filteredOptions.length - 1 ? "border-b border-gray-100" : ""}`}
+                        } ${index !== prodsuctList.length - 1 ? "border-b border-gray-100" : ""}`}
                       >
                         {/* Product Image */}
 
                         <img
                           src={
-                            option.images?.[0]?.url ||
+                            option.variants[0].images[0]?.url ||
                             "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
                           }
                           alt={option.productName}
@@ -290,13 +334,7 @@ export default function Navbar({
                 </span>
               </button>
               {tokenExist ? (
-                <button
-                  // onClick={() => {
-                  //   setAuthMode("login");
-                  //   setIsAuthOpen(true);
-                  // }}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
-                >
+                <button className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors">
                   <LayoutDashboard className="h-5 w-5" />
                   <span className="hidden lg:inline text-sm font-medium">
                     Dashboard
@@ -338,15 +376,15 @@ export default function Navbar({
                   onMouseEnter={() => handleMouseEnter(category.categoryID)}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <Link
-                    href="/subMenu/Shop"
+                  <button
+                    onClick={() => handleCategoryClick(category.categoryID)}
                     className={`px-4 xl:px-6 py-4 text-sm font-medium transition-all duration-200 flex items-center space-x-1 relative whitespace-nowrap
-                    ${
-                      activeCategory === category.categoryID
-                        ? "text-purple-600"
-                        : "text-gray-700 hover:text-purple-600"
-                    }
-                  `}
+                      ${
+                        selectedCategory === category.categoryID
+                          ? "text-purple-600"
+                          : "text-gray-700 hover:text-purple-600"
+                      }
+                    `}
                   >
                     <span>{category.categoryName}</span>
                     <ChevronDown
@@ -354,14 +392,24 @@ export default function Navbar({
                       ${activeCategory === category.categoryID ? "rotate-180" : ""}
                     `}
                     />
-                    {activeCategory === category.categoryID && (
+                    {(selectedCategory === category.categoryID ||
+                      activeCategory === category.categoryID) && (
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-600 rounded-full"></div>
                     )}
-                  </Link>
+                  </button>
 
-                  {/* Dropdown menu - Full width from category position */}
+                  {/* Dropdown menu - Only shows on hover */}
                   {activeCategory === category.categoryID && (
-                    <div className="fixed left-0 right-0 w-full bg-white   border-t lg:border border-gray-100 overflow-hidden z-50 animate-fadeIn">
+                    <div
+                      className="fixed left-0 right-0 w-full bg-white border-t lg:border border-gray-100 overflow-hidden z-50 animate-fadeIn"
+                      onMouseEnter={() => {
+                        // Keep dropdown open when mouse enters the dropdown
+                        if (dropdownTimeoutRef.current) {
+                          clearTimeout(dropdownTimeoutRef.current);
+                        }
+                      }}
+                      onMouseLeave={handleMouseLeave}
+                    >
                       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-col lg:flex-row">
                           {/* Level 1 & 2 - Subcategories */}
@@ -474,19 +522,19 @@ export default function Navbar({
                 </button>
               </div>
               <div className="px-4 py-4 space-y-4">
-                <div className="relative ">
+                <div className="relative">
                   <div className="relative w-full">
                     <input
                       type="text"
                       value={searchProduct}
                       placeholder="Search products, brands, categories..."
                       className={`w-full px-5 py-2.5 border rounded-full focus:outline-none focus:ring-2 transition-all duration-200
-                    ${
-                      searchFocused
-                        ? "border-purple-500 ring-2 ring-purple-200 bg-white"
-                        : "border-gray-300 bg-gray-50 hover:bg-white"
-                    }
-                  `}
+                        ${
+                          searchFocused
+                            ? "border-purple-500 ring-2 ring-purple-200 bg-white"
+                            : "border-gray-300 bg-gray-50 hover:bg-white"
+                        }
+                      `}
                       onFocus={() => setOpen(true)}
                       onChange={(e) => {
                         const value = e.target.value;
@@ -498,78 +546,35 @@ export default function Navbar({
                     />
                     <Search className="absolute bg-white right-4 top-3 h-5 w-5 text-gray-400" />
                   </div>
-
-                  {open && (
-                    <ul className="absolute z-50 w-full bg-white rounded-lg mt-12 shadow-lg max-h-80 overflow-auto border border-gray-200">
-                      {filteredOptions.length === 0 ? (
-                        <li className="px-4 py-8 text-center text-gray-500">
-                          No products found
-                        </li>
-                      ) : (
-                        filteredOptions.map((option, index) => (
-                          <li
-                            key={option.productID}
-                            ref={(el) => {
-                              itemRefs.current[index] = el;
-                            }}
-                            onMouseDown={() => handleSelect(option)}
-                            className={`px-3 py-2 cursor-pointer transition-colors flex items-center gap-3 ${
-                              index === highlightIndex
-                                ? "bg-purple-50"
-                                : "hover:bg-gray-50"
-                            } ${index !== filteredOptions.length - 1 ? "border-b border-gray-100" : ""}`}
-                          >
-                            {/* Product Image */}
-                            <img
-                              src={
-                                option.images?.[0]?.url ||
-                                "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
-                              }
-                              alt={option.productName}
-                              className="w-10 h-10 object-cover rounded-md"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src =
-                                  "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg";
-                              }}
-                            />
-
-                            {/* Product Name */}
-                            <span
-                              className={`text-sm flex-1 ${
-                                index === highlightIndex
-                                  ? "text-purple-600 font-medium"
-                                  : "text-gray-700"
-                              }`}
-                            >
-                              {option.productName}
-                            </span>
-                          </li>
-                        ))
-                      )}
-                    </ul>
-                  )}
                 </div>
 
                 {/* Mobile categories with 3 levels */}
                 {categoryData.map((category) => (
                   <div key={category.categoryID} className="space-y-2">
                     <button
-                      onClick={() =>
+                      onClick={() => {
                         setActiveCategory(
                           activeCategory === category.categoryID
                             ? null
                             : category.categoryID,
-                        )
-                      }
-                      className="w-full flex items-center justify-between px-3 py-3 text-gray-700 hover:bg-purple-50 rounded-lg transition-colors"
+                        );
+                        handleCategoryClick(category.categoryID);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-3 rounded-lg transition-colors
+                        ${
+                          selectedCategory === category.categoryID
+                            ? "bg-purple-50 text-purple-600"
+                            : "text-gray-700 hover:bg-purple-50"
+                        }
+                      `}
                     >
                       <span className="font-semibold">
                         {category.categoryName}
                       </span>
                       <ChevronDown
                         className={`h-5 w-5 transition-transform duration-200
-                    ${activeCategory === category.categoryID ? "rotate-180" : ""}
-                  `}
+                          ${activeCategory === category.categoryID ? "rotate-180" : ""}
+                        `}
                       />
                     </button>
 
@@ -579,24 +584,15 @@ export default function Navbar({
                           <div key={sub.subCategoryID} className="space-y-2">
                             <div className="flex items-center justify-between">
                               <a
-                                href=""
+                                href="#"
                                 className="flex items-center space-x-3 px-3 py-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 rounded-lg flex-1"
                               >
-                                {/* {sub.image && (
-                                <div className="w-8 h-8 rounded overflow-hidden">
-                                  <img
-                                    src={sub.image}
-                                    alt={sub.name}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
-                              )} */}
                                 <span>{sub.subCategoryName}</span>
                               </a>
                               {sub.subCategoryDetailList &&
                                 sub.subCategoryDetailList.length > 0 && (
                                   <Link
-                                    href="/subMenu/Shop"
+                                    href="#"
                                     onClick={() =>
                                       setActiveSubcategory(
                                         activeSubcategory === sub.subCategoryID
@@ -608,8 +604,8 @@ export default function Navbar({
                                   >
                                     <ChevronRight
                                       className={`h-4 w-4 transition-transform duration-200
-                                ${activeSubcategory === sub.subCategoryID ? "rotate-90" : ""}
-                              `}
+                                        ${activeSubcategory === sub.subCategoryID ? "rotate-90" : ""}
+                                      `}
                                     />
                                   </Link>
                                 )}
@@ -622,7 +618,7 @@ export default function Navbar({
                                   {sub.subCategoryDetailList.map((subsub) => (
                                     <a
                                       key={subsub.subCategoryDetailID}
-                                      href=""
+                                      href="#"
                                       className="block px-3 py-2 text-xs text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-lg"
                                     >
                                       {subsub.name}

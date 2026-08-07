@@ -14,10 +14,15 @@ interface listVarient {
   costPrice: number;
   salePrice: number;
   barcode: string;
-  imageUrl: imageUrl[];
+  attributeList: attributeList[];
+  imageUrl: listImage[];
 }
-interface imageUrl {
+export interface listImage {
   url: string;
+  urlID?: string;
+}
+export interface attributeList {
+  attributeID: string;
 }
 export default async function ProductAddVariantsApi(
   data: AddVaraints,

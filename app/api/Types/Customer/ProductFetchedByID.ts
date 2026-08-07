@@ -27,7 +27,6 @@ export interface ProductSectionHomePageByID {
   depth: number;
   weight: number;
   review: ProductSectionHomePageReviewByID[];
-  images: ProductSectionHomePageImagesByID[];
   variants: ProductSectionHomePageVarientByID[];
 }
 export interface ProductSectionHomePageReviewByID {
@@ -47,12 +46,14 @@ export interface ProductSectionHomePageImagesByID {
 }
 export interface ProductSectionHomePageVarientByID {
   varientID: string;
-  variantName: string;
-  variantValues: ProductSectionHomePageAttributeByID[];
+  qty: number;
+  costPrice: number;
+  salePrice: number;
+  images: ProductSectionHomePageImagesByID[];
+  values: ProductSectionHomePageAttributeByID[];
 }
 export interface ProductSectionHomePageAttributeByID {
   attributeID: string;
+  variantName: string;
   varientValue: string;
-  qty: number;
-  salePrice: number;
 }

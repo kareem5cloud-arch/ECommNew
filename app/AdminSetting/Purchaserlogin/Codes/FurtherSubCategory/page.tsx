@@ -21,6 +21,7 @@ import {
   storeList,
 } from "@/app/api/Types/AdminSetting/Store/Store";
 import { furtherSubCategoryList } from "@/app/api/Types/PurchaserLogin/Codes/FurtherCategory/FurtherCategory";
+import FurtherDeleteApi from "@/app/api/Controller/PurchaserLogin/Codes/FurtherSubCategory/DeleteFurtehrCategroy";
 
 export default function FurtherSubCategoryMain() {
   const [update, setUpdate] = useState(false);
@@ -64,7 +65,19 @@ export default function FurtherSubCategoryMain() {
     getStores();
   }, []);
 
-  const DeleteFurther = (ID: string) => {};
+  const DeleteFurther = async (ID: string) => {
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const response = await FurtherDeleteApi(ID, String(token));
+    if (response.status == 200) {
+      const data = FurtherSubCategoryList.filter(
+        (item) => item.subCategoryDetailID !== ID,
+      );
+      setFurtherSubCategoryList(data);
+      setDelete(false);
+    } else {
+      setFurtherSubCategoryList(FurtherSubCategoryList);
+    }
+  };
   return (
     <>
       {showMessage && (
