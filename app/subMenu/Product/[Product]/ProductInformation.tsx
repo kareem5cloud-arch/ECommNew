@@ -35,16 +35,20 @@ import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod"
 import AddReviewApi from "@/app/api/Controller/Customer/ReviewandReply/ReviewAndReplay";
 import { AddReviewRequest } from "@/app/api/Types/Customer/AddReviewRating";
 
-interface mainVarintList {
-  varintList: varintList[];
-}
-interface varintList {
-  heading: string;
-  subList: subList[];
-}
-interface subList {
-  values: string;
-}
+type VariantValue = {
+  attributeID: string;
+  variantName: string;
+  varientValue: string;
+};
+
+type GroupedVariant = {
+  headerText: string;
+  values: values[];
+};
+type values = {
+  attributeID: string;
+  attributeName: string;
+};
 
 interface getPorodcutprops {
   functionCalling: () => void;
@@ -75,8 +79,8 @@ export default function ProductInformation({
   const [ID, setID] = useState("");
   const [variantID, setVaraintID] = useState("");
   const [variantValue, setVaraintValue] = useState("");
-  const [varintList, setVarintList] = useState([]);
-
+  const [selectedVariants, setSelectedVariants] = useState<string[]>([]);
+  const [varintList, setVarintList] = useState<GroupedVariant[]>([]);
   const getProductInfo = async (ID: string) => {
     try {
       setLoading(true);
@@ -119,17 +123,7 @@ export default function ProductInformation({
       setLoading(false);
     }
   };
-  // useEffect(() => {
-  //   if (selectedImage) {
-  //     const data = ProductData?.variants.find((item) =>
-  //       item.images.find((item2) => (item2.urlID = selectedImage)),
-  //     );
-  //     if (data) {
-  //       setVaraintID(data.varientID);
-  //       console.log
-  //     }
-  //   }
-  // }, [selectedImage]);
+
   useEffect(() => {
     if (ProductData) {
       returnCategroySubID(ProductData.subCategoryID);
@@ -143,37 +137,11 @@ export default function ProductInformation({
     }
   }, [param]);
 
-  // Get current variant and its values
-
-  // Get current price from selected variant value
   const currentPrice = ProductData?.variants[0].salePrice || 0;
   const discountedPrice =
     ProductData?.discount && ProductData.discount > 0
       ? currentPrice * (1 - ProductData.discount / 100)
       : currentPrice;
-  // // Get current stock from selected variant value
-  // const currentStock =
-  //   currentVariantValue?.qty || currentVariant?.variantValues?.[0]?.qty || 0;
-
-  // // Check if low stock
-  // const isLowStock = currentStock > 0 && currentStock <= 5;
-
-  // // Check if in stock
-  // const isInStock = ProductData?.isStock && currentStock > 0;
-
-  // Get current image URL with proper null checks
-  const currentImageUrl =
-    ProductData?.variants[0].images[0].url &&
-    ProductData?.variants[0].images[0].url.length > 0
-      ? ProductData?.variants[0]?.images[0]?.url
-      : "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg";
-
-  const handleQuantityChange = (change: number) => {
-    const newQuantity = quantity + change;
-    // if (newQuantity >= 1 && newQuantity <= currentStock) {
-    //   setQuantity(newQuantity);
-    // }
-  };
 
   const handleAddToCart = async (attrId: string, qty: number) => {
     if (attrId) {
@@ -199,23 +167,6 @@ export default function ProductInformation({
       functionCalling();
     }
   };
-  // Calculate discounted price if any
-
-  // Handle variant selection
-  // const handleVariantSelect = (
-  //   variant: ProductSectionHomePageVarientByID,
-  //   attrID: string,
-  //   variantValue?: any,
-  // ) => {
-  //   setSelectedVariant(variant);
-  //   if (variantValue) {
-  //     setSelectedVariantValue(variantValue);
-  //     setAttributeID(attrID);
-  //   } else if (variant.variantValues && variant.variantValues[0]) {
-  //     setSelectedVariantValue(variant.variantValues[0]);
-  //   }
-  //   setQuantity(1);
-  // };
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -277,41 +228,52 @@ export default function ProductInformation({
       {} as Record<string, { urlID: string; url: string }[]>,
     ) ?? {};
 
-  // const vareintGroup = ProductData?.variants.filter(
-  //   (item) => item.varientID === variantID
-  // );
   const selectedVariant = ProductData?.variants.find(
     (item) => item.varientID === variantID,
   );
 
-  const vareintGroup =
-    ProductData?.variants?.filter((item) => {
-      const selectedColor = selectedVariant?.values.find(
-        (v) => v.varientValue === variantValue,
-      )?.varientValue;
-
-      const itemColor = item.values.find(
-        (v) => v.varientValue === variantValue,
-      )?.varientValue;
-
-      return itemColor === selectedColor;
-    }) ?? [];
+  const variants = ProductData?.variants ?? [];
 
   useEffect(() => {
-    const first = ProductData?.variants;
-    const blueValues = first?.filter((varinat) =>
-      varinat.values.some((value) => value.varientValue === variantValue),
+    const filteredVariants = variants.filter((variant) =>
+      variant.values.some((v) => v.varientValue === variantValue),
     );
-    const data = blueValues?.map((item) =>
-      item.values.find(
-        (item, index, self) =>
-          index === self.findIndex((u) => u.varientValue === item.varientValue),
-      ),
+    console.log(filteredVariants);
+    const grouped = filteredVariants.reduce<Record<string, GroupedVariant>>(
+      (acc, variant) => {
+        variant.values.forEach((value: VariantValue) => {
+          if (!acc[value.variantName]) {
+            acc[value.variantName] = {
+              headerText: value.variantName,
+              values: [],
+            };
+          }
+
+          if (
+            !acc[value.variantName].values.some(
+              (v) => v.attributeID === value.attributeID,
+            )
+          ) {
+            acc[value.variantName].values.push({
+              attributeID: value.attributeID,
+              attributeName: value.varientValue,
+            });
+          }
+        });
+
+        return acc;
+      },
+      {},
+    );
+    const formData = Object.values(grouped);
+    console.log(formData);
+    setVarintList(formData);
+    const defaultSelected = formData.map(
+      (group) => group.values[0].attributeID,
     );
 
-    console.log("Value1", blueValues);
-    console.log("Value2", data);
-  }, [ProductData, variantValue]);
+    setSelectedVariants(defaultSelected);
+  }, [variants, variantValue]);
 
   const filterVarientLabel = ProductData?.variants.find(
     (item) => item.varientID === variantID,
@@ -467,6 +429,10 @@ export default function ProductInformation({
                             key={color}
                             onClick={() => {
                               setSelectedImage(firstImage.urlID);
+                              setVaraintValue(
+                                filterVarientLabel?.values[0].varientValue ||
+                                  "",
+                              );
                             }}
                             className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition ${
                               selectedImage === firstImage.urlID
@@ -486,22 +452,41 @@ export default function ProductInformation({
                   </div>
                 </div>
                 <div className="p-4 border-t border-gray-100">
-                  {vareintGroup?.map((item, index) => (
-                    <>
-                      {item.values.map(
-                        (label, index) =>
-                          index !== 0 && (
-                            <>
-                              <h3 className="text-sm font-medium text-gray-900 mb-2 uppercase">
-                                {label.variantName || ""}
-                              </h3>
-                              <button className="px-2 py-2 ml-2 border border-gray-300 rounded-md hover:bg-gray-100">
-                                {label.varientValue}
-                              </button>
-                            </>
-                          ),
+                  {varintList?.map((item, index) => (
+                    <div key={item.headerText}>
+                      {index !== 0 && (
+                        <>
+                          <h4>{item.headerText}</h4>
+
+                          {item.values.map((val, valueIndex) => (
+                            <button
+                              key={val.attributeID}
+                              onClick={() => {
+                                setSelectedVariants((prev) => {
+                                  const filtered = prev.filter(
+                                    (id) =>
+                                      !item.values.some(
+                                        (groupVal) =>
+                                          groupVal.attributeID === id,
+                                      ),
+                                  );
+
+                                  // Add newly selected value
+                                  return [...filtered, val.attributeID];
+                                });
+                              }}
+                              className={`px-2 py-2 ml-2 border rounded-md hover:bg-gray-100 ${
+                                selectedVariants.includes(val.attributeID)
+                                  ? "border-gray-900"
+                                  : "border-gray-200"
+                              }`}
+                            >
+                              {val.attributeName}
+                            </button>
+                          ))}
+                        </>
                       )}
-                    </>
+                    </div>
                   ))}
                 </div>
               </div>
