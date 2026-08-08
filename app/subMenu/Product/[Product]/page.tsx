@@ -68,16 +68,18 @@ export default function Product() {
         setChangeMade={() => ""}
         //productData={ProductData}
       />
-      <ProductInformation
-        functionCalling={onCallFunction}
-        returnCategroySubID={setSubCatID}
-      />
-      {/* <YouMightLikeThis
+      <div className="">
+        <ProductInformation
+          functionCalling={onCallFunction}
+          returnCategroySubID={setSubCatID}
+        />
+      </div>
+      <SuggestedForYou onClickCall={onCallFunction} ProductData={ProductData} />
+      <YouMightLikeThis
         onClickCall={onCallFunction}
         ProductData={ProductData}
         subID={subcatID}
       />
-      <SuggestedForYou onClickCall={onCallFunction} ProductData={ProductData} /> */}
       <Footer storeInfo={storeInfo[0]} categroyMainInfo={categroyInfo} />
     </>
   );

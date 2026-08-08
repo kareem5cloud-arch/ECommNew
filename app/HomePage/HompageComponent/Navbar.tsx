@@ -45,7 +45,6 @@ export default function Navbar({
   wishList,
   onClickCall,
   setCategoryID,
-
   setChangeMade,
 }: NavabarProps) {
   const router = useRouter();

@@ -61,7 +61,8 @@ export default function ShopMainComponent() {
         cartList={cart}
         wishList={wishList}
         onClickCall={onCallFunction}
-        productData={ProductData}
+        setCategoryID={() => ""}
+        setChangeMade={() => ""}
       />
       <ShopPage functionCalling={onCallFunction} />
       <Footer storeInfo={storeInfo[0]} categroyMainInfo={categroyInfo} />

@@ -19,6 +19,7 @@ import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
 import { useAppContext } from "@/app/useContext";
 import { removeItemFromServerCart } from "@/app/api/Controller/Customer/CookiesController/Cart/DeleteCart";
 import { modifyCartServer } from "@/app/api/Controller/Customer/CookiesController/Cart/ModifyCart";
+import GenericCheckbox from "@/app/ui/CheckBox/CheckBox";
 
 interface CartItem {
   id: string;
@@ -46,9 +47,11 @@ export default function CartSidebar({
 }: CartSidebarProps) {
   const { ProductData } = useAppContext();
   const [productValue, setProductValue] = useState<CartItem[]>([]);
+  const [checkedList, setCheckedList] = useState<string[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     if (!cartData.length || !ProductData.length) {
@@ -114,11 +117,11 @@ export default function CartSidebar({
     setProductValue((items) => items.filter((item) => item.id !== id));
   };
 
-  const subtotal = productValue.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const shipping = subtotal > 500 ? 0 : 9.99;
+  const subtotal = productValue
+    .filter((item) => checkedList.includes(item.id) && item.inStock)
+    .reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const shipping = subtotal > 500 ? 0 : 0;
   const tax = 0; // 10% tax
   const total = subtotal + shipping + tax - discount;
 
@@ -132,6 +135,14 @@ export default function CartSidebar({
 
   const handleCheckout = () => {
     setIsCheckingOut(true);
+    const formData = productValue.filter((item) =>
+      checkedList.includes(item.id),
+    );
+    const data = formData.map((item) => ({
+      varintID: item.id,
+      qty: item.quantity,
+    }));
+    console.log(data);
     setTimeout(() => {
       setIsCheckingOut(false);
       onClose();
@@ -213,81 +224,99 @@ export default function CartSidebar({
             </div>
           ) : (
             productValue.map((item) => (
-              <div
-                key={item.id}
-                className="flex gap-3 p-3 bg-gray-50 rounded-xl hover:shadow-md transition-all group"
-              >
-                {/* Product Image */}
-                <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
-                  <img
-                    src={
-                      item.image ||
-                      "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+              <div className="flex gap-2 items-center">
+                <input
+                  type="checkbox"
+                  checked={checkedList.includes(item.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setCheckedList((prev) => [...prev, item.id]);
+                    } else {
+                      setCheckedList((prev) =>
+                        prev.filter((id) => id !== item.id),
+                      );
                     }
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {!item.inStock && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">
-                        Out of stock
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Details */}
-                <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
-                        {item.name}
-                      </h4>
-                      {item.variant && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          <span className="uppercase"> {item.variant}</span>
-                        </p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="opacity-100 transition p-1 hover:bg-red-100 rounded-full"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
+                  }}
+                  disabled={!item.inStock}
+                  className="w-4 h-4 accent-purple-500"
+                />
+                <div
+                  key={item.id}
+                  className="w-full flex gap-3 p-3 bg-gray-100 rounded-xl hover:shadow-md transition-all group"
+                >
+                  {/* Product Image */}
+                  <div className="relative w-20 h-20 bg-white rounded-lg overflow-hidden flex-shrink-0">
+                    <img
+                      src={
+                        item.image ||
+                        "https://t4.ftcdn.net/jpg/06/57/37/01/360_F_657370150_pdNeG5pjI976ZasVbKN9VqH1rfoykdYU.jpg"
+                      }
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {!item.inStock && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">
+                          Out of stock
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex justify-between items-end mt-2">
-                    <div className="flex items-center gap-2">
+                  {/* Product Details */}
+
+                  <div className="flex-1">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold text-gray-900 text-sm line-clamp-2">
+                          {item.name}
+                        </h4>
+                        {item.variant && (
+                          <p className="text-xs text-gray-500 mt-1">
+                            <span className="uppercase"> {item.variant}</span>
+                          </p>
+                        )}
+                      </div>
                       <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
-                        }
-                        className="w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-purple-600 hover:border-purple-600 hover:text-white transition"
+                        onClick={() => removeItem(item.id)}
+                        className="opacity-100 transition p-1 hover:bg-red-100 rounded-full"
                       >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-sm font-semibold w-8 text-center">
-                        {item.quantity}
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
-                        }
-                        className="w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-purple-600 hover:border-purple-600 hover:text-white transition"
-                      >
-                        <Plus className="w-3 h-3" />
+                        <Trash2 className="w-4 h-4 text-red-500" />
                       </button>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold text-purple-600">
-                        {(item.price * item.quantity).toLocaleString()}
-                      </p>
-                      {item.quantity > 1 && (
-                        <p className="text-xs text-gray-400">
-                          {item.price.toLocaleString()} each
+
+                    <div className="flex justify-between items-end mt-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                          className="w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-purple-600 hover:border-purple-600 hover:text-white transition"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="text-sm font-semibold w-8 text-center">
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() =>
+                            updateQuantity(item.id, item.quantity + 1)
+                          }
+                          className="w-6 h-6 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-purple-600 hover:border-purple-600 hover:text-white transition"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-purple-600">
+                          {(item.price * item.quantity).toLocaleString()}
                         </p>
-                      )}
+                        {item.quantity > 1 && (
+                          <p className="text-xs text-gray-400">
+                            {item.price.toLocaleString()} each
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

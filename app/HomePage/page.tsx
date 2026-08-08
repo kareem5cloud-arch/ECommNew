@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAppContext } from "../useContext";
-import CheckoutPage from "./CheckOut/page";
 import BannerSlider from "./HompageComponent/CarasoulBanner";
 import CategoryShowcaseMinimal from "./HompageComponent/CategroyShowCase";
 import FeaturesSection from "./HompageComponent/PlatformFeatured";
@@ -133,7 +132,6 @@ export default function HomePage() {
           wishList={wishList}
           setChangeMade={setChangeMade}
           onClickCall={onCallFunction}
-          productData={ProductData}
         />
         {/* <CheckoutPage /> */}
         {/* <ProductDetailPage /> */}
