@@ -2,6 +2,7 @@
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import {
+  Box,
   CheckCheck,
   Clock,
   CreditCard,
@@ -11,8 +12,21 @@ import {
   User,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import OnlineSellerGetOrder from "@/app/api/Controller/OnlineManager/OrderConfirmation/GetOrderDetail";
+import StoreSellerGetApi from "@/app/api/Controller/AdminController/Store/GetStoreSeller";
+import {
+  ResponseGetStore,
+  storeList,
+} from "@/app/api/Types/AdminSetting/Store/Store";
+import {
+  orderDetailOnlineSeller,
+  orderOnlineSeller,
+  ResponseOrderConfiramtion,
+} from "@/app/api/Types/OnlineSeller/OrderConfiramtion";
+import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
+import OnlineSellerModifyOrderStatus from "@/app/api/Controller/OnlineManager/OrderConfirmation/OrderStatus";
 
 // Type Definitions
 interface OrderItem {
@@ -43,8 +57,13 @@ export default function OrderConfirmation() {
   const [DateTo, setDateTo] = useState("");
   const [statusValue, setStatusValue] = useState("");
   const status = ["Delivered", "Completed", "Cancelled"];
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<orderOnlineSeller>();
   const [bags, setBags] = useState<Record<string, number>>({});
+  const [storeID, setStoreID] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [storeName, setStoreName] = useState("");
+  const [StoreList, setStoreList] = useState<storeList[]>([]);
+  const [orderList, setorderList] = useState<orderOnlineSeller[]>([]);
 
   const initialOrders: Order[] = [
     {
@@ -126,42 +145,34 @@ export default function OrderConfirmation() {
   ];
 
   const fetchData = (orderID: string) => {
-    const data = initialOrders.find((item) => item.id === orderID);
+    const data = orderList.find((item) => item.ledgerID === orderID);
     if (data) {
       setSelectedOrder(data);
-      // Initialize bags state for this order's pending items
-      const initialBags: Record<string, number> = {};
-      data.items.forEach((item) => {
-        if (item.status === "pending") {
-          initialBags[item.id] = item.bags || 0;
-        }
-      });
-      setBags(initialBags);
     }
   };
 
-  const orderStatusChange = (
-    itemId: string,
-    newStatus: "approved" | "rejected",
-  ) => {
-    if (!selectedOrder) return;
+  // const orderStatusChange = (
+  //   itemId: string,
+  //   newStatus: "approved" | "rejected",
+  // ) => {
+  //   if (!selectedOrder) return;
 
-    const updatedItems = selectedOrder.items.map((item) => {
-      if (item.id === itemId) {
-        return {
-          ...item,
-          status: newStatus,
-          bags: newStatus === "approved" ? bags[itemId] || item.quantity : 0,
-        };
-      }
-      return item;
-    });
+  //   const updatedItems = selectedOrder.items.map((item) => {
+  //     if (item.id === itemId) {
+  //       return {
+  //         ...item,
+  //         status: newStatus,
+  //         bags: newStatus === "approved" ? bags[itemId] || item.quantity : 0,
+  //       };
+  //     }
+  //     return item;
+  //   });
 
-    setSelectedOrder({
-      ...selectedOrder,
-      items: updatedItems,
-    });
-  };
+  //   setSelectedOrder({
+  //     ...selectedOrder,
+  //     items: updatedItems,
+  //   });
+  // };
 
   const statusStyle = (status: string) => {
     switch (status) {
@@ -175,24 +186,89 @@ export default function OrderConfirmation() {
   };
 
   // Filter orders based on date and status
-  const filteredOrders = initialOrders.filter((order) => {
+
+  const getOrderDetail = async (ID: string) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await OnlineSellerGetOrder(ID, String(token));
+      if (response.status === 200) {
+        const data = response.data as ResponseOrderConfiramtion;
+        setorderList(data.order);
+      } else {
+        setorderList([]);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getStores = async () => {
+    const token = localStorage.getItem("OnlineSellerToken");
+    const response = await StoreSellerGetApi(String(token));
+    if (response.status == 200) {
+      const data = response.data as ResponseGetStore;
+      setStoreList(data.storeList);
+      setStoreID(data.storeList[0].storeID);
+      setStoreName(data.storeList[0].storeName);
+    } else {
+      setStoreList([]);
+    }
+  };
+  const orderStatusModify = async (ID: string, status: string) => {
+    try {
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await OnlineSellerModifyOrderStatus(
+        ID,
+        status,
+        String(token),
+      );
+      if (response.status === 200) {
+      }
+    } finally {
+    }
+  };
+  const filteredOrders = orderList.filter((order) => {
     if (DateFrom) {
       const fromDate = new Date(DateFrom);
-      if (order.orderDate < fromDate) return false;
+      if (new Date(order.postingDate) < fromDate) return false;
     }
     if (DateTo) {
       const toDate = new Date(DateTo);
       toDate.setHours(23, 59, 59);
-      if (order.orderDate > toDate) return false;
+      if (new Date(order.postingDate) > toDate) return false;
     }
-    if (statusValue && statusValue !== "all" && order.status !== statusValue)
+    if (
+      statusValue &&
+      statusValue !== "all" &&
+      order.orderStatus !== statusValue
+    )
       return false;
     return true;
   });
-
+  useEffect(() => {
+    getStores();
+  }, []);
+  useEffect(() => {
+    if (storeID) {
+      getOrderDetail(storeID);
+    }
+  }, [storeID]);
   return (
     <>
       <div className="flex gap-2">
+        <DropDownList
+          label="Store"
+          placeholder="Select Store"
+          required={true}
+          value={storeName}
+          onChange={setStoreName}
+          filedID={setStoreID}
+          options={StoreList.map((item) => ({
+            label: item.storeName,
+            value: item.storeName,
+            id: item.storeID,
+          }))}
+        />
         <div className="w-full">
           <InputFieldGeneric
             label="Date From"
@@ -230,61 +306,68 @@ export default function OrderConfirmation() {
         </div> */}
       </div>
       <div className="rounded-3xl bg-white/70 backdrop-blur-xl p-6 shadow-[0_20px_40px_rgba(0,0,0,0.07)] transition-all mt-5">
-        <div className="space-y-4">
-          {filteredOrders.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 hover:shadow-xl transition relative"
-            >
-              {/* Left: Customer Info */}
-              <div className="flex flex-col">
-                <span className="text-lg font-semibold text-gray-800">
-                  {item.customerName}
-                </span>
-                <span className="text-md text-gray-800">
-                  {item.customerEmail}
-                </span>
-              </div>
-              <div className="flex gap-2 items-end">
-                <span className="text-lg font-semibold text-gray-800">
-                  {new Date(item.orderDate).toISOString().split("T")[0]}
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    item.status === "Delivered"
-                      ? "bg-green-100 text-green-800"
-                      : item.status === "Completed"
-                        ? "bg-blue-100 text-blue-800"
-                        : item.status === "Cancelled"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-gray-100 text-gray-800"
-                  }`}
-                >
-                  {item.status}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <div>
-                  <button
-                    onClick={() => fetchData(item.id)}
-                    className="px-2 py-2 rounded-md text-white bg-black hover:bg-gray-900"
-                    title="View Detail"
+        {loading ? (
+          <Spinner />
+        ) : (
+          <div className="space-y-4">
+            {filteredOrders.map((item) => (
+              <div
+                key={item.ledgerID}
+                className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 hover:shadow-xl transition relative"
+              >
+                {/* Left: Customer Info */}
+                <div className="flex gap-2">
+                  <div className="bg-gray-50 shadow-md px-3 py-3 rounded-md ">
+                    <Box size={30} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold text-gray-800">
+                      {item.name}
+                    </span>
+                    <span className="text-md text-gray-800">{item.email}</span>
+                  </div>
+                </div>
+                <div className="flex gap-2 items-end">
+                  <span className="text-lg font-semibold text-gray-800">
+                    {new Date(item.postingDate).toISOString().split("T")[0]}
+                  </span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      item.orderStatus === "delivered"
+                        ? "bg-green-100 text-green-800"
+                        : item.orderStatus === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : item.orderStatus === "cancelled"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                    }`}
                   >
-                    <Eye />
-                  </button>
+                    {item.orderStatus}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div>
+                    <button
+                      onClick={() => fetchData(item.ledgerID)}
+                      className="px-2 py-2 rounded-md text-white bg-black hover:bg-gray-900"
+                      title="View Detail"
+                    >
+                      <Eye />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {selectedOrder && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh]">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-6xl p-6 relative overflow-y-auto max-h-[90vh]">
             <button
               onClick={() => {
-                setSelectedOrder(null);
+                setSelectedOrder(undefined);
               }}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
             >
@@ -297,7 +380,7 @@ export default function OrderConfirmation() {
                 Order Details
               </h2>
               <p className="text-sm text-gray-500">
-                Order ID: {selectedOrder.id}
+                Order ID: {selectedOrder.orderNo}
               </p>
             </div>
 
@@ -306,11 +389,9 @@ export default function OrderConfirmation() {
               <User className="w-5 h-5 text-gray-700" />
               <div>
                 <h4 className="font-semibold text-gray-900">
-                  {selectedOrder.customerName}
+                  {selectedOrder.name}
                 </h4>
-                <p className="text-sm text-gray-500">
-                  {selectedOrder.customerEmail}
-                </p>
+                <p className="text-sm text-gray-500">{selectedOrder.email}</p>
               </div>
             </div>
 
@@ -327,7 +408,6 @@ export default function OrderConfirmation() {
                       <th className="p-3">Product</th>
                       <th className="p-3 text-center">Quantity</th>
                       <th className="p-3 text-right">Item Price</th>
-                      <th className="p-3 text-right">Total</th>
                       <th className="p-3 text-center">Status</th>
                       <th className="p-3 text-center">Bags</th>
                       <th className="p-3 text-center">Actions</th>
@@ -335,39 +415,37 @@ export default function OrderConfirmation() {
                   </thead>
 
                   <tbody className="divide-y divide-gray-100">
-                    {selectedOrder.items.map((item) => (
-                      <tr key={item.id} className="hover:bg-gray-50">
+                    {selectedOrder.orderDetail.map((item) => (
+                      <tr key={item.varientID} className="hover:bg-gray-50">
                         {/* Product */}
                         <td className="p-3">
                           <div className="flex items-center gap-3">
                             <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-gray-100">
-                              <Image
-                                src="/collection3.jpg"
-                                alt={item.productName}
+                              <img
+                                src={item.url}
+                                alt={item.url}
                                 width={56}
                                 height={56}
                                 className="object-cover"
                               />
                             </div>
-                            <p className="font-medium text-gray-900 text-sm">
-                              {item.productName}
+                            <p className="font-medium text-gray-900 w-60 text-sm uppercase">
+                              {item.productName} -
+                              {item.varintValue
+                                .map((item2) => item2.value)
+                                .join(" - ")}
                             </p>
                           </div>
                         </td>
 
                         {/* Quantity */}
                         <td className="p-3 text-center text-gray-600 font-medium">
-                          Qty: {item.quantity}
+                          Qty: {item.qty}
                         </td>
 
                         {/* Item Price */}
                         <td className="p-3 text-right font-medium text-gray-900">
-                          ${item.price.toFixed(2)}
-                        </td>
-
-                        {/* Total */}
-                        <td className="p-3 text-right font-medium text-gray-900">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          {item.rate.toLocaleString()}
                         </td>
 
                         {/* Status */}
@@ -386,21 +464,19 @@ export default function OrderConfirmation() {
                           {item.status === "pending" ? (
                             <input
                               type="number"
-                              value={bags[item.id] || ""}
-                              onChange={(e) =>
-                                setBags((prev) => ({
-                                  ...prev,
-                                  [item.id]: Number(e.target.value),
-                                }))
-                              }
-                              className="w-20 p-2 border rounded-md text-center"
+                              // value={bags[item.id] || ""}
+                              // onChange={(e) =>
+                              //   setBags((prev) => ({
+                              //     ...prev,
+                              //     [item.id]: Number(e.target.value),
+                              //   }))
+                              // }
+                              className="w-50 p-2 border rounded-md text-center"
                               min="0"
-                              max={item.quantity}
+                              max={item.qty}
                             />
                           ) : (
-                            <span className="font-medium">
-                              {item.bags || item.quantity}
-                            </span>
+                            <span className="font-medium">{item.qty}</span>
                           )}
                         </td>
 
@@ -410,7 +486,7 @@ export default function OrderConfirmation() {
                             <div className="flex justify-center gap-2">
                               <button
                                 onClick={() =>
-                                  orderStatusChange(item.id, "approved")
+                                  orderStatusModify(item.detailID, "approved")
                                 }
                                 className="bg-green-600 hover:bg-green-700 rounded-md text-white px-2 py-1"
                               >
@@ -418,7 +494,7 @@ export default function OrderConfirmation() {
                               </button>
                               <button
                                 onClick={() =>
-                                  orderStatusChange(item.id, "rejected")
+                                  orderStatusModify(item.detailID, "rejected")
                                 }
                                 className="bg-red-600 hover:bg-red-700 rounded-md text-white px-2 py-1"
                               >
@@ -445,7 +521,13 @@ export default function OrderConfirmation() {
                     Shipping Address
                   </h4>
                   <p className="text-gray-600 text-sm">
-                    {selectedOrder.shippingAddress}
+                    {selectedOrder.address.split("/n")[0] +
+                      " , " +
+                      selectedOrder.address.split("/n")[1] +
+                      " , " +
+                      selectedOrder.address.split("/n")[2] +
+                      " , " +
+                      selectedOrder.address.split("/n")[3]}
                   </p>
                 </div>
               </div>
@@ -456,14 +538,12 @@ export default function OrderConfirmation() {
                   <h4 className="font-semibold text-gray-900">
                     Courier Service
                   </h4>
-                  <p className="text-gray-600 text-sm">
-                    {selectedOrder.courierService}
-                  </p>
-                  {selectedOrder.trackingNumber && (
+                  <p className="text-gray-600 text-sm">{"N/A"}</p>
+                  {/* {selectedOrder.trackingNumber && (
                     <p className="text-gray-500 text-xs mt-1">
                       Tracking: {selectedOrder.trackingNumber}
                     </p>
-                  )}
+                  )} */}
                 </div>
               </div>
 
@@ -484,7 +564,7 @@ export default function OrderConfirmation() {
                 <div>
                   <h4 className="font-semibold text-gray-900">Order Date</h4>
                   <p className="text-gray-600 text-sm">
-                    {new Date(selectedOrder.orderDate).toLocaleDateString()}
+                    {new Date(selectedOrder.postingDate).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -495,13 +575,13 @@ export default function OrderConfirmation() {
               <div className="flex font-semibold justify-between mb-2">
                 <span className="text-sm">Sub-Total</span>
                 <span className="text-gray-900 text-sm">
-                  {(selectedOrder.totalAmount - 0).toFixed(2)}
+                  {(selectedOrder.shippingCharges - 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex font-semibold justify-between mb-2">
                 <span className="text-sm">Total Amount:</span>
                 <span className="text-gray-900 text-sm font-bold">
-                  {selectedOrder.totalAmount.toFixed(2)}
+                  {selectedOrder.totalBill.toFixed(2)}
                 </span>
               </div>
             </div>

@@ -92,12 +92,25 @@ export default function GetPaymentList({
                   <span className="text-lg font-semibold text-gray-800">
                     {item.bankName}
                   </span>
-                  <span className="text-sm text-gray-500">
-                    Account Title : {item.accountTitle}
-                  </span>
-                  <span className="text-sm text-gray-500">
-                    Account Number : {item.accountNumber}
-                  </span>
+                  {item.paymentOption[0].iconUrl !== "" && (
+                    <div className="flex flex-wrap items-center gap-3">
+                      {item.paymentOption.map((option, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center gap-1.5 px-2 py-1 bg-gray-50 rounded-md"
+                        >
+                          <img
+                            src={option.iconUrl}
+                            alt={option.optionName}
+                            className="w-6 h-6 object-contain"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {option.optionName}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

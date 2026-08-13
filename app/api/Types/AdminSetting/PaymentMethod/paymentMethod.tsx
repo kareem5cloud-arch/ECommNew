@@ -1,15 +1,11 @@
 export interface AddrequestPaymentMethod {
   bankName: string;
-  accountTitle: string;
-  accountNumber: string;
-  showCustomer: string;
+  paymentOption: RequestPaymetnOptions[];
 }
 export interface ModifyrequestPaymentMethod {
   paymentID: string;
   bankName: string;
-  accountTitle: string;
-  accountNumber: string;
-  showCustomer: string;
+  paymentOption: RequestPaymetnOptions[];
 }
 
 export interface ResposnepaymentMethod {
@@ -20,7 +16,13 @@ export interface ResposnepaymentMethod {
 export interface PaymentMethod {
   paymentID: string;
   bankName: string;
-  accountTitle: string;
-  accountNumber: string;
-  showCustomer: string;
+  paymentOption: RequestPaymetnOptions[];
+}
+
+export interface RequestPaymetnOptions {
+  optionID?: string;
+  optionName: string;
+  iconUrl: string;
+  maxThreshold: number;
+  percentage: number;
 }

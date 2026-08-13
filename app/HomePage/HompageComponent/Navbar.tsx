@@ -33,6 +33,7 @@ interface NavabarProps {
   storeInfo?: ResposneStoreListHomePage;
   cartList: CartData[];
   wishList: CartData[];
+  authOn?: boolean;
   onClickCall: () => void;
   setCategoryID: (data: string) => void;
   setChangeMade: (data: string) => void;
@@ -46,6 +47,7 @@ export default function Navbar({
   onClickCall,
   setCategoryID,
   setChangeMade,
+  authOn,
 }: NavabarProps) {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -182,6 +184,11 @@ export default function Navbar({
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (authOn) {
+      setIsAuthOpen(authOn);
+    }
+  }, [authOn]);
   useEffect(() => {
     if (!searchProduct?.trim()) return;
     const timer = setTimeout(() => {

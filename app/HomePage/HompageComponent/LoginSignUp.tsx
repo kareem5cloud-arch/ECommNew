@@ -108,7 +108,6 @@ export default function AuthModal({
         setUser(response.data?.status);
         const token = response.data?.token;
         localStorage.setItem("customerToken", token as string);
-        window.location.href = "/";
         onclose;
       } else {
         setPassword("");

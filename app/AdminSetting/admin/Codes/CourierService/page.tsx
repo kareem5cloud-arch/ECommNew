@@ -19,9 +19,9 @@ export default function CourierServiceManagement() {
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [showMessage, setShowMessage] = useState<string | null>(null);
   const [ID, setID] = useState("");
   const [Delete, setDelete] = useState(false);
-  const [showMessage, setShowMessage] = useState<string | null>(null);
 
   const [CouriereServiceModify, setCouriereServiceModify] =
     useState<courierList>();

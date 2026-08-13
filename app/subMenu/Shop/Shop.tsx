@@ -24,6 +24,7 @@ import { addToServerWishList } from "@/app/api/Controller/Customer/CookiesContro
 import { addToServerCart } from "@/app/api/Controller/Customer/CookiesController/Cart/AddCart";
 
 const sortOptions = [
+  { value: "all", label: "All" },
   { value: "featured", label: "Featured" },
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
@@ -42,7 +43,7 @@ export default function ShopPage({ functionCalling }: ShopPageProps) {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const [loading, setloading] = useState(false);
@@ -92,6 +93,9 @@ export default function ShopPage({ functionCalling }: ShopPageProps) {
 
     // Sort
     switch (sortBy) {
+      case "all":
+        filtered = filtered.filter((item) => item);
+        break;
       case "featured":
         filtered = filtered.filter((item) => item.feturedProduct);
         break;

@@ -139,10 +139,11 @@ export default function CartSidebar({
       checkedList.includes(item.id),
     );
     const data = formData.map((item) => ({
-      varintID: item.id,
+      attributeID: item.id,
       qty: item.quantity,
     }));
-    console.log(data);
+    localStorage.setItem("checkoutItems", JSON.stringify(data));
+    window.location.href = "/subMenu/CheckOut";
     setTimeout(() => {
       setIsCheckingOut(false);
       onClose();
@@ -326,7 +327,7 @@ export default function CartSidebar({
         </div>
 
         {/* Promo Code */}
-        {productValue.length > 0 && (
+        {/* {productValue.length > 0 && (
           <div className="p-4 border-t border-gray-100">
             <div className="flex gap-2">
               <input
@@ -350,7 +351,7 @@ export default function CartSidebar({
               </p>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Cart Summary */}
         {productValue.length > 0 && (

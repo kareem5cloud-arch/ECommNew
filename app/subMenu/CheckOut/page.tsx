@@ -5,7 +5,7 @@ import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
 import Footer from "@/app/HomePage/HompageComponent/Footer";
 import Navbar from "@/app/HomePage/HompageComponent/Navbar";
 import { useAppContext } from "@/app/useContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MainContentPage from "./MainContentPage";
 
 export default function CheckoutPageComponent() {
@@ -19,6 +19,7 @@ export default function CheckoutPageComponent() {
 
   const [cart, setCart] = useState<CartData[]>([]);
   const [wishList, setWishList] = useState<CartData[]>([]);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   const getCartValue = async () => {
     const data = await getServerCart();
@@ -42,6 +43,9 @@ export default function CheckoutPageComponent() {
     await getCartValue();
     await getWishListValue();
   };
+  useEffect(() => {
+    onCallFunction();
+  }, []);
   return (
     <>
       <div>
@@ -52,9 +56,10 @@ export default function CheckoutPageComponent() {
           setCategoryID={() => {}}
           wishList={wishList}
           setChangeMade={() => {}}
+          authOn={loggedIn}
           onClickCall={onCallFunction}
         />
-        <MainContentPage />
+        <MainContentPage setLoggedIn={setLoggedIn} />
         <Footer storeInfo={storeInfo[0]} categroyMainInfo={categroyInfo} />
       </div>
     </>
