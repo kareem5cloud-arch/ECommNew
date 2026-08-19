@@ -1,10 +1,9 @@
 "use client";
+import { ApproveOrderStatus } from "@/app/api/Types/OnlineSeller/OrderConfiramtion";
+import { postRequest } from "../../MainController/main";
 
-import { getRequest } from "../../MainController/main";
-
-export default async function OnlineSellerModifyOrderStatus(
-  detailID: string,
-  status: string,
+export default async function OnlineSellerApproveOrder(
+  data: ApproveOrderStatus,
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
@@ -13,9 +12,9 @@ export default async function OnlineSellerModifyOrderStatus(
     customHeader.Authorization = `Bearer ${token}`;
   }
 
-  const response = await getRequest(
-    `/api/OrderManagement/OnlineSeller/GetOrders?detailID=${detailID}&status=${status}`,
-    null,
+  const response = await postRequest(
+    `/api/OrderManagement/OnlineSeller/UpdateOrderStatus`,
+    data,
     customHeader,
   );
 

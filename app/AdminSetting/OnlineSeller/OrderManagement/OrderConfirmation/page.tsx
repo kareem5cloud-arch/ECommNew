@@ -6,8 +6,12 @@ import {
   CheckCheck,
   Clock,
   CreditCard,
+  Divide,
   Eye,
   MapPin,
+  Plus,
+  Split,
+  Trash,
   Truck,
   User,
   X,
@@ -26,7 +30,8 @@ import {
   ResponseOrderConfiramtion,
 } from "@/app/api/Types/OnlineSeller/OrderConfiramtion";
 import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
-import OnlineSellerModifyOrderStatus from "@/app/api/Controller/OnlineManager/OrderConfirmation/OrderStatus";
+import OnlineSellerRejectOrder from "@/app/api/Controller/OnlineManager/OrderConfirmation/OrderRejectStatus";
+import OnlineSellerApproveOrder from "@/app/api/Controller/OnlineManager/OrderConfirmation/OrderApproveApi";
 
 // Type Definitions
 interface OrderItem {
@@ -51,129 +56,72 @@ interface Order {
   trackingNumber?: string;
   totalAmount: number;
 }
-
+interface OrderBags {
+  bagNo: number;
+}
+interface AssigningBags {
+  detailID: string;
+  productName: string;
+  qty?: number;
+  bagNo?: string;
+  division: AllowSubDivision[];
+}
+interface AllowSubDivision {
+  qty: number;
+  bagNo: string;
+}
+interface SubDivsionDetail {
+  index: number;
+  qty: number;
+  bagNo: string;
+}
+interface bagNoSelection {
+  detailID: string;
+  description: string;
+}
 export default function OrderConfirmation() {
   const [DateFrom, setDateFrom] = useState("");
   const [DateTo, setDateTo] = useState("");
   const [statusValue, setStatusValue] = useState("");
-  const status = ["Delivered", "Completed", "Cancelled"];
   const [selectedOrder, setSelectedOrder] = useState<orderOnlineSeller>();
-  const [bags, setBags] = useState<Record<string, number>>({});
+
   const [storeID, setStoreID] = useState("");
   const [loading, setLoading] = useState(false);
   const [storeName, setStoreName] = useState("");
   const [StoreList, setStoreList] = useState<storeList[]>([]);
   const [orderList, setorderList] = useState<orderOnlineSeller[]>([]);
-
-  const initialOrders: Order[] = [
-    {
-      id: "ORD-001",
-      customerName: "John Doe",
-      customerEmail: "john@example.com",
-      orderDate: new Date(2024, 2, 15),
-      status: "Delivered",
-      paymentMethod: "Credit Card (VISA)",
-      shippingAddress: "123 Main St, New York, NY 10001",
-      courierService: "FedEx Express",
-      trackingNumber: "FX-92837465",
-      totalAmount: 189.99,
-      items: [
-        {
-          id: "i1",
-          productName: "Wireless Headphones",
-          quantity: 1,
-          price: 79.99,
-          status: "pending",
-        },
-        {
-          id: "i2",
-          productName: "USB-C Hub",
-          quantity: 2,
-          price: 29.99,
-          status: "pending",
-        },
-      ],
-    },
-    {
-      id: "ORD-002",
-      customerName: "Jane Smith",
-      customerEmail: "jane@smith.com",
-      orderDate: new Date(2024, 2, 18),
-      status: "Completed",
-      paymentMethod: "PayPal",
-      shippingAddress: "456 Oak Ave, Los Angeles, CA 90001",
-      courierService: "UPS Ground",
-      trackingNumber: "UPS-1Z999AA1",
-      totalAmount: 349.5,
-      items: [
-        {
-          id: "i3",
-          productName: "Mechanical Keyboard",
-          quantity: 1,
-          price: 129.99,
-          status: "pending",
-        },
-        {
-          id: "i4",
-          productName: "Gaming Mouse",
-          quantity: 1,
-          price: 59.99,
-          status: "pending",
-        },
-      ],
-    },
-    {
-      id: "ORD-003",
-      customerName: "Bob Johnson",
-      customerEmail: "bob@company.com",
-      orderDate: new Date(2024, 2, 20),
-      status: "Cancelled",
-      paymentMethod: "Debit Card",
-      shippingAddress: "789 Pine Ln, Chicago, IL 60607",
-      courierService: "DHL Express",
-      totalAmount: 45.99,
-      items: [
-        {
-          id: "i5",
-          productName: "Screen Protector",
-          quantity: 3,
-          price: 12.99,
-          status: "pending",
-        },
-      ],
-    },
-  ];
-
+  const [orderBags, setOrderBags] = useState(1);
+  const [listofOrderBags, setListofOrderBags] = useState<OrderBags[]>([]);
+  const [storeItemBags, setStoreItemBags] = useState<AssigningBags[]>([]);
+  const [showDivision, setShowDivision] = useState(false);
+  const [bagsAsssign, setBagsAssign] = useState<orderDetailOnlineSeller>();
+  const [bagNoSelection, setBagNoSelection] = useState<bagNoSelection[]>([]);
+  const [subDivisionDetail, setSubDivisionDetail] = useState<
+    SubDivsionDetail[]
+  >([]);
   const fetchData = (orderID: string) => {
     const data = orderList.find((item) => item.ledgerID === orderID);
     if (data) {
       setSelectedOrder(data);
+      setStoreItemBags(
+        data.orderDetail.map((item) => ({
+          detailID: item.detailID,
+          productName:
+            item.productName +
+            "-" +
+            item.varintValue.map((item) => item.value).join(" - "),
+          qty: item.qty,
+          bagNo: "0",
+          division: [
+            {
+              qty: 0,
+              bagNo: "",
+            },
+          ],
+        })),
+      );
     }
   };
-
-  // const orderStatusChange = (
-  //   itemId: string,
-  //   newStatus: "approved" | "rejected",
-  // ) => {
-  //   if (!selectedOrder) return;
-
-  //   const updatedItems = selectedOrder.items.map((item) => {
-  //     if (item.id === itemId) {
-  //       return {
-  //         ...item,
-  //         status: newStatus,
-  //         bags: newStatus === "approved" ? bags[itemId] || item.quantity : 0,
-  //       };
-  //     }
-  //     return item;
-  //   });
-
-  //   setSelectedOrder({
-  //     ...selectedOrder,
-  //     items: updatedItems,
-  //   });
-  // };
-
   const statusStyle = (status: string) => {
     switch (status) {
       case "approved":
@@ -184,8 +132,6 @@ export default function OrderConfirmation() {
         return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
   };
-
-  // Filter orders based on date and status
 
   const getOrderDetail = async (ID: string) => {
     try {
@@ -214,15 +160,13 @@ export default function OrderConfirmation() {
       setStoreList([]);
     }
   };
-  const orderStatusModify = async (ID: string, status: string) => {
+  const orderRejectFuntion = async (ID: string) => {
     try {
       const token = localStorage.getItem("OnlineSellerToken");
-      const response = await OnlineSellerModifyOrderStatus(
-        ID,
-        status,
-        String(token),
-      );
+      const response = await OnlineSellerRejectOrder(ID, String(token));
       if (response.status === 200) {
+        getOrderDetail(storeID);
+        setSelectedOrder(undefined);
       }
     } finally {
     }
@@ -253,6 +197,84 @@ export default function OrderConfirmation() {
       getOrderDetail(storeID);
     }
   }, [storeID]);
+
+  const totalBill = selectedOrder?.orderDetail
+    .filter((item) => item.status === "approved")
+    .reduce((sum, value) => {
+      return sum + value.qty * value.rate;
+    }, 0);
+
+  useEffect(() => {
+    var array: any = [];
+    for (let i = 1; i <= orderBags; i++) {
+      array.push(i);
+    }
+    setListofOrderBags(
+      array.map((item: any) => ({
+        bagNo: item,
+      })),
+    );
+  }, [orderBags]);
+
+  const functionFetchData = (ID: string) => {
+    const data = selectedOrder?.orderDetail.find(
+      (item) => item.detailID === ID,
+    );
+    if (data) {
+      setBagsAssign(data);
+      const existingItem = storeItemBags.find((item) => item.detailID === ID);
+
+      const newValue =
+        existingItem?.division.map((item3, index) => ({
+          index: index + 1,
+          qty: Number(item3.qty),
+          bagNo: String(item3.bagNo),
+        })) ?? [];
+
+      setSubDivisionDetail(newValue);
+    }
+  };
+  const ApproveClick = async () => {
+    try {
+      setLoading(true);
+      const formData = {
+        ledgerID: selectedOrder?.ledgerID || "",
+        orderNo: selectedOrder?.orderNo || "",
+        status: "approved",
+        shippingCharges: selectedOrder?.shippingCharges || 0,
+        bags: orderBags,
+        assignBags: storeItemBags.map((item) => ({
+          detailID: item.detailID,
+
+          getQtyBag:
+            item.bagNo === "0"
+              ? item.division.map((item2) => ({
+                  qty: item2.qty || 0,
+                  bagNo: item2.bagNo || "",
+                }))
+              : [
+                  {
+                    qty: item.qty || 0,
+                    bagNo: item.bagNo || "",
+                  },
+                ],
+        })),
+      };
+      console.log(formData);
+      const token = localStorage.getItem("OnlineSellerToken");
+      const response = await OnlineSellerApproveOrder(formData, String(token));
+      if (response.status === 200) {
+        getOrderDetail(storeID);
+        setSelectedOrder(undefined);
+        setSubDivisionDetail([]);
+        setOrderBags(1);
+        setBagsAssign(undefined);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="flex gap-2">
@@ -394,7 +416,16 @@ export default function OrderConfirmation() {
                 <p className="text-sm text-gray-500">{selectedOrder.email}</p>
               </div>
             </div>
-
+            <div className="flex flex-col  p-2">
+              <label className="text-gray-900">Number Bags</label>
+              <input
+                type="number"
+                value={orderBags || "1"}
+                onChange={(e) => setOrderBags(Number(e.target.value))}
+                className="w-50 p-2 border border-gray-500 rounded-md "
+                min="1"
+              />
+            </div>
             {/* Items Table */}
             <div className="mb-6">
               <h3 className="font-semibold text-gray-900 mb-3">
@@ -409,14 +440,15 @@ export default function OrderConfirmation() {
                       <th className="p-3 text-center">Quantity</th>
                       <th className="p-3 text-right">Item Price</th>
                       <th className="p-3 text-center">Status</th>
-                      <th className="p-3 text-center">Bags</th>
+                      <th className="p-3 text-center">Bag No</th>
+                      <th className="p-3 text-center">Sub-Division</th>
                       <th className="p-3 text-center">Actions</th>
                     </tr>
                   </thead>
 
                   <tbody className="divide-y divide-gray-100">
                     {selectedOrder.orderDetail.map((item) => (
-                      <tr key={item.varientID} className="hover:bg-gray-50">
+                      <tr key={item.detailID} className="hover:bg-gray-50">
                         {/* Product */}
                         <td className="p-3">
                           <div className="flex items-center gap-3">
@@ -436,6 +468,13 @@ export default function OrderConfirmation() {
                                 .join(" - ")}
                             </p>
                           </div>
+                          <p className="text-gray-700 ml-10">
+                            {bagNoSelection
+                              .filter(
+                                (item2) => item2.detailID === item.detailID,
+                              )
+                              .map((item3) => item3.description)}
+                          </p>
                         </td>
 
                         {/* Quantity */}
@@ -460,42 +499,112 @@ export default function OrderConfirmation() {
                         </td>
 
                         {/* Bags */}
+                        {item.status === "pending" ? (
+                          <td className="p-3 text-center">
+                            {bagNoSelection.some(
+                              (item2) =>
+                                item2.detailID === item.detailID &&
+                                item2.description !== "",
+                            ) ? (
+                              <span className="font-semibold text-gray-500">
+                                -
+                              </span>
+                            ) : (
+                              <select
+                                className="p-2 w-35 border rounded-md"
+                                value={item.bags || ""}
+                                onChange={(e) => {
+                                  setSelectedOrder((prev) => {
+                                    if (!prev) return prev;
+
+                                    return {
+                                      ...prev,
+                                      orderDetail: prev.orderDetail.map(
+                                        (detail) =>
+                                          detail.detailID === item.detailID
+                                            ? {
+                                                ...detail,
+                                                bags: Number(e.target.value),
+                                              }
+                                            : detail,
+                                      ),
+                                    };
+                                  });
+
+                                  setStoreItemBags((prev) =>
+                                    prev.map((item2) =>
+                                      item2.detailID === item.detailID
+                                        ? {
+                                            ...item2,
+                                            detailID: item.detailID,
+                                            productName:
+                                              item.productName +
+                                              "-" +
+                                              item.varintValue
+                                                .map((val) => val.value)
+                                                .join(" - "),
+                                            qty: item.qty,
+                                            bagNo: e.target.value,
+                                            division: [],
+                                          }
+                                        : item2,
+                                    ),
+                                  );
+                                }}
+                              >
+                                <option value="">Select Bag No</option>
+
+                                {listofOrderBags.map((bag, index) => (
+                                  <option key={index} value={bag.bagNo}>
+                                    {bag.bagNo}
+                                  </option>
+                                ))}
+                              </select>
+                            )}
+                          </td>
+                        ) : (
+                          <td className="p-3 text-center">-</td>
+                        )}
                         <td className="p-3 text-center">
-                          {item.status === "pending" ? (
-                            <input
-                              type="number"
-                              // value={bags[item.id] || ""}
-                              // onChange={(e) =>
-                              //   setBags((prev) => ({
-                              //     ...prev,
-                              //     [item.id]: Number(e.target.value),
-                              //   }))
-                              // }
-                              className="w-50 p-2 border rounded-md text-center"
-                              min="0"
-                              max={item.qty}
-                            />
+                          {item.status !== "pending" ? (
+                            "-"
                           ) : (
-                            <span className="font-medium">{item.qty}</span>
+                            <button
+                              onClick={() => {
+                                functionFetchData(item.detailID);
+                                setShowDivision(true);
+                              }}
+                              title="Divide"
+                              className="bg-blue-600 hover:bg-blue-700 rounded-md text-white px-2 py-1"
+                            >
+                              <Split />
+                            </button>
                           )}
                         </td>
-
                         {/* Actions */}
                         <td className="p-3 text-center">
                           {item.status === "pending" ? (
                             <div className="flex justify-center gap-2">
-                              <button
+                              {/* <button
                                 onClick={() =>
-                                  orderStatusModify(item.detailID, "approved")
+                                  orderStatusModify(
+                                    selectedOrder.orderNo,
+                                    item.detailID,
+                                    "approved",
+                                    selectedOrder.shippingCharges,
+                                    item.bags,
+                                  )
                                 }
+                                title="Confirm"
                                 className="bg-green-600 hover:bg-green-700 rounded-md text-white px-2 py-1"
                               >
                                 <CheckCheck />
-                              </button>
+                              </button> */}
                               <button
                                 onClick={() =>
-                                  orderStatusModify(item.detailID, "rejected")
+                                  orderRejectFuntion(item.detailID)
                                 }
+                                title="Reject"
                                 className="bg-red-600 hover:bg-red-700 rounded-md text-white px-2 py-1"
                               >
                                 <X />
@@ -571,22 +680,188 @@ export default function OrderConfirmation() {
             </div>
 
             {/* Summary */}
-            <div className="border-t pt-4">
+            <div className="border-t pt-4 border-gray-300">
               <div className="flex font-semibold justify-between mb-2">
-                <span className="text-sm">Sub-Total</span>
+                <span className="text-sm">Shipping Charges:</span>
                 <span className="text-gray-900 text-sm">
-                  {(selectedOrder.shippingCharges - 0).toFixed(2)}
+                  {selectedOrder.shippingCharges.toFixed(2)}
                 </span>
               </div>
               <div className="flex font-semibold justify-between mb-2">
                 <span className="text-sm">Total Amount:</span>
                 <span className="text-gray-900 text-sm font-bold">
-                  {selectedOrder.totalBill.toFixed(2)}
+                  {totalBill?.toFixed(2)}
                 </span>
               </div>
             </div>
+            {selectedOrder.orderDetail[0].status === "pending" && (
+              <div className="flex justify-end border-t pt-4 border-gray-300">
+                <button
+                  onClick={() => ApproveClick()}
+                  className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md "
+                >
+                  {loading ? "Approving..." : "Approve"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
+      )}
+      {showDivision && (
+        <>
+          <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-80 p-4">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-4xl p-6 relative overflow-y-auto max-h-[90vh]">
+              <button
+                onClick={() => {
+                  setShowDivision(false);
+                }}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <h1 className="text-xl font-bold text-gray-900 mb-1 w-[50%] uppercase">
+                {bagsAsssign?.productName +
+                  "- " +
+                  bagsAsssign?.varintValue.map((item) => item.value).join("-")}
+              </h1>
+              <div className="overflow-x-auto">
+                <div className="w-full flex justify-end p-1">
+                  <button
+                    onClick={() => {
+                      const data = {
+                        index: subDivisionDetail.length + 1,
+                        qty: 0,
+                        bagNo: String(listofOrderBags[0].bagNo),
+                      };
+                      setSubDivisionDetail([...subDivisionDetail, data]);
+                    }}
+                    title="Add Row"
+                    className=" text-sm px-2 py-2 border border-gray-500 hover:border-gray-600  hover:bg-gray-50 shadow-md rounded-md cursor-pointer"
+                  >
+                    + Add Row
+                  </button>
+                </div>
+                <table className="w-full border border-gray-200 rounded-xl overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr className="text-sm font-semibold text-gray-700">
+                      <th className="px-3 py-3 text-center w-16">#</th>
+
+                      <th className="px-3 py-3 text-center">
+                        Quantity{" "}
+                        <span className="text-xs font-normal">
+                          ({bagsAsssign?.qty})
+                        </span>
+                      </th>
+
+                      <th className="px-3 py-3 text-center">Bag No</th>
+
+                      <th className="px-3 py-3 text-center w-24">Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-100">
+                    {subDivisionDetail.map((item, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="p-3 text-center">{index + 1}</td>
+
+                        <td className="p-3">
+                          <input
+                            value={item.qty}
+                            onChange={(e) => {
+                              const value = Number(e.target.value);
+                              if (value > (bagsAsssign?.qty || 0))
+                                return alert(`You Have Reached Max Qty Limit`);
+                              setSubDivisionDetail((prev) =>
+                                prev.map((row, i) =>
+                                  i === index ? { ...row, qty: value } : row,
+                                ),
+                              );
+                            }}
+                            min={1}
+                            type="number"
+                            className="w-full px-2 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+                            placeholder="Qty"
+                          />
+                        </td>
+
+                        <td className="p-3">
+                          <select
+                            value={item.bagNo}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setSubDivisionDetail((prev) =>
+                                prev.map((row, i) =>
+                                  i === index ? { ...row, bagNo: value } : row,
+                                ),
+                              );
+                            }}
+                            className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
+                          >
+                            {listofOrderBags.map((item, index) => (
+                              <option key={index} value={item.bagNo}>
+                                {item.bagNo}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+
+                        <td className="p-3 text-center">
+                          <button
+                            onClick={() => {
+                              setSubDivisionDetail((prev) =>
+                                prev.filter((_, i) => i !== index),
+                              );
+                            }}
+                            className="inline-flex items-center justify-center p-2 bg-red-500 hover:bg-red-600 shadow-md rounded-md text-white"
+                          >
+                            <Trash size={18} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="flex justify-end border-t pt-4 border-gray-300">
+                  <button
+                    onClick={() => {
+                      if (!bagsAsssign?.detailID) return;
+
+                      setStoreItemBags((prev) =>
+                        prev.map((item) =>
+                          item.detailID === bagsAsssign.detailID
+                            ? {
+                                ...item,
+                                division: subDivisionDetail.map((subItem) => ({
+                                  qty: Number(subItem.qty),
+                                  bagNo: String(subItem.bagNo),
+                                })),
+                              }
+                            : item,
+                        ),
+                      );
+                      const data = [
+                        {
+                          detailID: bagsAsssign.detailID,
+                          description: subDivisionDetail
+                            .map(
+                              (division) =>
+                                `Qty: ${division.qty} Bag: ${division.bagNo}`,
+                            )
+                            .join(", "),
+                        },
+                      ];
+                      setBagNoSelection(data);
+                      setShowDivision(false);
+                    }}
+                    className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md "
+                  >
+                    Confirm Division
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </>
   );

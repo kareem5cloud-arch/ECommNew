@@ -19,7 +19,6 @@ import { CartData } from "@/app/api/Types/Customer/Cookies/Cart";
 import { useAppContext } from "@/app/useContext";
 import { removeItemFromServerCart } from "@/app/api/Controller/Customer/CookiesController/Cart/DeleteCart";
 import { modifyCartServer } from "@/app/api/Controller/Customer/CookiesController/Cart/ModifyCart";
-import GenericCheckbox from "@/app/ui/CheckBox/CheckBox";
 
 interface CartItem {
   id: string;

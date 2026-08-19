@@ -46,6 +46,10 @@ export default function LoginPage() {
           localStorage.setItem("PurchaserLoginToken", token as string);
           window.location.href = "/AdminSetting/Purchaserlogin/Dashboard";
         }
+        if (response.data?.status === "WareHouseSeller") {
+          localStorage.setItem("WareHouseSellerToken", token as string);
+          window.location.href = "/AdminSetting/WareHouseSeller/Dashboard";
+        }
       } else {
         setPassword("");
         setShowMessage(true);

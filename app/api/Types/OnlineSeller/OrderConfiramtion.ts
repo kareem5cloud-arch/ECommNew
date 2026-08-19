@@ -24,6 +24,7 @@ export interface orderDetailOnlineSeller {
   productName: string;
   varientID: string;
   rate: number;
+  bags: number;
   qty: number;
   status: string;
   url: string;
@@ -31,4 +32,29 @@ export interface orderDetailOnlineSeller {
 }
 interface varintValue {
   value: string;
+}
+
+export interface OnlineOrderApproveAddRequest {
+  orderNo: string;
+  detailID: string;
+  status: string;
+  shippingCharges: number;
+  bags: number;
+}
+
+export interface ApproveOrderStatus {
+  ledgerID: string;
+  orderNo: string;
+  status: string;
+  shippingCharges: number;
+  bags: number;
+  assignBags: assignBags[];
+}
+interface assignBags {
+  detailID: string;
+  getQtyBag: getQtyBag[];
+}
+interface getQtyBag {
+  qty: number;
+  bagNo: string;
 }
