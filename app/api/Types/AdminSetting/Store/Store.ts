@@ -1,9 +1,12 @@
 export interface RequestAddStore {
   storeName: string;
   logoUrl: string;
+  returnThreshold: number;
   zoneID: string;
+  email: string;
+  phoneNo: string;
   defaultStore: boolean;
-  description: string;
+  address: string;
 }
 export interface ResponseGetStore {
   message: string;
@@ -13,5 +16,7 @@ export interface ResponseGetStore {
 export interface storeList {
   storeID: string;
   storeName: string;
+  email: string;
+  phoneNo: string;
   defaultStore?: boolean;
 }

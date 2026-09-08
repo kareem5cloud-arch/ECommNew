@@ -149,8 +149,10 @@ export default function ProductInformation({
       getProductInfo(String(param.Product));
     }
   }, [param]);
-
-  const currentPrice = ProductData?.variants[0].salePrice || 0;
+  const data = ProductData?.variants.find(
+    (item) => item.varientID === variantID,
+  );
+  const currentPrice = data?.salePrice || 0;
   const discountedPrice =
     ProductData?.discount && ProductData.discount > 0
       ? currentPrice * (1 - ProductData.discount / 100)
@@ -180,45 +182,7 @@ export default function ProductInformation({
       functionCalling();
     }
   };
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const files = Array.from(e.target.files);
-      setReviewImages([...reviewImages, ...files]);
-    }
-  };
 
-  const removeImage = (index: number) => {
-    setReviewImages(reviewImages.filter((_, i) => i !== index));
-  };
-
-  const AddReview = async () => {
-    const token = localStorage.getItem("customerToken");
-    if (!token) return alert("No Token Found");
-    else {
-      try {
-        setLoading(true);
-        const imageUrl = await Promise.all(
-          reviewImages.map((item) => SendDataToApi(item)),
-        );
-        const formData = {
-          productID: ID,
-          rating: reviewRating,
-          messagentext: reviewText,
-          dataList: imageUrl.map((url) => ({
-            data: url.data,
-          })),
-        };
-        const response = await AddReviewApi(formData, String(token));
-        if (response.status == 200) {
-          window.location.reload();
-        } else {
-          alert("Could Not Add Review");
-        }
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
   const groupedImages =
     ProductData?.variants?.reduce(
       (acc, variant) => {
@@ -452,7 +416,9 @@ export default function ProductInformation({
                       {ProductData?.shortCode || "N/A"}
                     </span>
                   </span>
-                  {ProductData?.isStock ? (
+                  {ProductData?.variants.find(
+                    (item) => item.varientID === variantID && item.qty > 0,
+                  ) ? (
                     <span className="ml-auto text-sm text-green-600 font-medium bg-green-50 px-3 py-1 rounded-full">
                       ● In Stock
                     </span>
@@ -700,6 +666,20 @@ export default function ProductInformation({
                       <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></div>
                     )}
                   </button>
+                  <button
+                    onClick={() => setActiveTab("reviews")}
+                    className={`py-4 text-sm font-medium transition relative ${
+                      activeTab === "reviews"
+                        ? "text-gray-900"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
+                  >
+                    Reviews
+                    {activeTab === "reviews" && (
+                      <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-900"></div>
+                    )}
+                  </button>
+
                   {/* <button
                     onClick={() => setActiveTab("reviews")}
                     className={`py-4 text-sm font-medium transition relative ${
@@ -723,9 +703,14 @@ export default function ProductInformation({
                 {activeTab === "description" && (
                   <div className="space-y-6">
                     <div className="prose max-w-none">
-                      <p className="text-gray-600 leading-relaxed whitespace-pre-line">
-                        {ProductData?.description || "No description available"}
-                      </p>
+                      <div
+                        className="text-gray-600 leading-relaxed"
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            ProductData?.description ||
+                            "<p>No description available</p>",
+                        }}
+                      />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
@@ -823,124 +808,6 @@ export default function ProductInformation({
 
                 {activeTab === "reviews" && (
                   <div className="space-y-6">
-                    {/* Review Summary */}
-                    <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-xl">
-                      <div className="text-center">
-                        {/* <div className="text-4xl font-bold text-gray-900">
-                          {averageRating.toFixed(1)}
-                        </div> */}
-                        <div className="flex text-yellow-400 mt-1">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className={`w-4 h-4 `} />
-                          ))}
-                        </div>
-                        {/* <div className="text-sm text-gray-500 mt-1">
-                          {allReviews.length} reviews
-                        </div> */}
-                      </div>
-                      <div className="flex-1">
-                        <button
-                          onClick={() => setShowReviewForm(!showReviewForm)}
-                          className="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition"
-                        >
-                          Write a Review
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Review Form */}
-                    {showReviewForm && (
-                      <div className="bg-white border border-gray-200 rounded-xl p-6">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            Write a Review
-                          </h3>
-                          <button
-                            onClick={() => setShowReviewForm(false)}
-                            className="text-gray-400 hover:text-gray-600"
-                          >
-                            <X className="w-5 h-5" />
-                          </button>
-                        </div>
-                        <form className="space-y-4">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Rating
-                            </label>
-                            <div className="flex gap-2">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <button
-                                  key={star}
-                                  type="button"
-                                  onClick={() => setReviewRating(star)}
-                                  className="focus:outline-none"
-                                >
-                                  <Star
-                                    className={`w-8 h-8 ${star <= reviewRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                                  />
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Your Review
-                            </label>
-                            <textarea
-                              required
-                              rows={4}
-                              value={reviewText}
-                              onChange={(e) => setReviewText(e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                              placeholder="Share your experience with this product..."
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              Upload Images (Optional)
-                            </label>
-                            <div className="flex items-center gap-4 flex-wrap">
-                              <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg flex items-center gap-2">
-                                <Upload className="w-4 h-4" />
-                                <span className="text-sm">Upload</span>
-                                <input
-                                  type="file"
-                                  multiple
-                                  accept="image/*"
-                                  onChange={handleImageUpload}
-                                  className="hidden"
-                                />
-                              </label>
-                              {reviewImages.map((file, idx) => (
-                                <div key={idx} className="relative">
-                                  <img
-                                    src={URL.createObjectURL(file)}
-                                    alt={`Preview ${idx}`}
-                                    className="w-16 h-16 object-cover rounded"
-                                  />
-                                  <button
-                                    type="button"
-                                    onClick={() => removeImage(idx)}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={AddReview}
-                            //disabled={isSubmittingReview}
-                            className="w-full py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition disabled:opacity-50"
-                          >
-                            Submit Review
-                          </button>
-                        </form>
-                      </div>
-                    )}
-
                     {/* Reviews List */}
                     <div className="space-y-6">
                       {ProductData?.review && ProductData.review.length > 0 ? (

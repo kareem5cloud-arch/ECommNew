@@ -25,6 +25,7 @@ export interface orderDetailOnlineSeller {
   varientID: string;
   rate: number;
   bags: number;
+  bagNo: string;
   qty: number;
   status: string;
   url: string;

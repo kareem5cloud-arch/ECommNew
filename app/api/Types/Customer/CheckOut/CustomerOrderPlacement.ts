@@ -7,7 +7,9 @@ export interface AddOrderRequest {
   shippingCharges: number;
   orderDate: string;
   totalBill: number;
+  promoID: string;
   amountPaid: number;
+  description?: string;
 
   orderDetail: orderDetailCustomer[];
 }

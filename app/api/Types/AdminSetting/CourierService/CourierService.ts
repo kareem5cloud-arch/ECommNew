@@ -3,6 +3,7 @@ export interface requestAddCourierService {
   phoneNo: string;
   deliveryTypeID: string;
   email: string;
+  openingBalance: number;
   description: string;
 }
 
@@ -11,6 +12,7 @@ export interface requestUpdateCourierService {
   serviceName: string;
   phoneNo: string;
   deliveryTypeID: string;
+  openingBalance: number;
   email: string;
   description: string;
 }
@@ -23,6 +25,7 @@ export interface responseCourierService {
 export interface courierList {
   courierID: string;
   serviceName: string;
+  openingBalance: number;
   phoneNo: string;
   email: string;
   description: string;

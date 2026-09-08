@@ -46,6 +46,7 @@ export default function AddCourierServiceForm({
           phoneNo: PhionNo,
           deliveryTypeID: standardID,
           email: Email,
+          openingBalance: Number(OpeningBalance),
           description: Description,
         };
         // console.log(formData);
@@ -73,6 +74,7 @@ export default function AddCourierServiceForm({
           phoneNo: PhionNo,
           deliveryTypeID: standardID,
           email: Email,
+          openingBalance: Number(OpeningBalance),
           description: Description,
         };
         const token = localStorage.getItem("adminToken");
@@ -94,10 +96,10 @@ export default function AddCourierServiceForm({
       setDescription(initalData.description);
       setPhionNo(initalData.phoneNo);
       setID(initalData.courierID);
+      setOpeningBalance(String(initalData.openingBalance));
       setStandardID(initalData.deliveryTypeID);
       setStandardName(initalData.typeName);
       setEmail(initalData.email);
-      setOpeningBalance("");
     } else {
       setServiceName("");
       setDescription("");
@@ -139,6 +141,15 @@ export default function AddCourierServiceForm({
             placeholder="Enter Phone No"
             SateChange={PhionNo}
             setSateChange={setPhionNo}
+            disabled={false}
+          />
+          <InputFieldGeneric
+            label="Opening Balance"
+            type="text"
+            required={true}
+            placeholder="Enter Opening Balance"
+            SateChange={OpeningBalance}
+            setSateChange={setOpeningBalance}
             disabled={false}
           />
           {/* <InputFieldGeneric

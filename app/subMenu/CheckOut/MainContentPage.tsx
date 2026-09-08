@@ -2,6 +2,7 @@ import FreeGetCityApi from "@/app/api/Controller/AdminController/FreeApis/CityLi
 import FreeGetStateApi from "@/app/api/Controller/AdminController/FreeApis/GetStateListApi";
 import GetCountryApi from "@/app/api/Controller/AdminController/Shipment/Country/CountryGet";
 import CustomerShippingDetailAdd from "@/app/api/Controller/Customer/CheckOut/AddShippingDetail";
+import ApplyPromoCodeApi from "@/app/api/Controller/Customer/CheckOut/ApplyPromoCode";
 import CustomerDeliveryStandardGet from "@/app/api/Controller/Customer/CheckOut/DelieverySatandrd";
 import CustomerShippingDetailGet from "@/app/api/Controller/Customer/CheckOut/GetShippingDetail";
 import CustomerOrderAdd from "@/app/api/Controller/Customer/CheckOut/OrderPlacementCustomer";
@@ -83,6 +84,13 @@ interface GetProductFromCookies {
 interface MainCointentPageProps {
   setLoggedIn: (data: boolean) => void;
 }
+interface ResponsePromo {
+  message: string;
+  error: string;
+  amount: number;
+  method: string;
+  promoID: string;
+}
 export default function MainContentPage({
   setLoggedIn,
 }: MainCointentPageProps) {
@@ -98,6 +106,8 @@ export default function MainContentPage({
   const [StateID, setStateID] = useState("");
   const [StateName, setStateName] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
+  const [promoDiscount, setpromoDiscount] = useState("");
+  const [dicountType, setdicountType] = useState("");
   const [countryData, setCountryData] = useState<countryList[]>([]);
   const [StateData, setStateData] = useState<states[]>([]);
   const [PaymentMethod, setPaymentMethod] = useState<PaymentMethod[]>([]);
@@ -116,6 +126,8 @@ export default function MainContentPage({
   const [messageType, setMessageType] = useState<"success" | "error">(
     "success",
   );
+  const [promoCode, setPromoCode] = useState("");
+  const [PromoID, setPromoID] = useState("");
   const [showMessage, setShowMessage] = useState<string | null>(null);
   const [orderDate, setOrderDate] = useState("");
   const [PurcahseAdd, setPurcahseAdd] = useState("Home");
@@ -132,6 +144,8 @@ export default function MainContentPage({
   const [loading, setLoading] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState("");
   const [orderType, setOrderType] = useState("now");
+  const [PromoMessage, setPromoMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const resetFunction = () => {
     setFullName("");
     setCityID("");
@@ -144,6 +158,7 @@ export default function MainContentPage({
     setZipCode("");
     setEmail("");
     setPhoneNo("");
+    setPromoID("");
   };
 
   const handleAddNewAddress = () => {
@@ -162,12 +177,6 @@ export default function MainContentPage({
     }
   };
 
-  const subtotal = productItem2.reduce(
-    (sum, item) =>
-      sum +
-      (item.price * item.qty - (item.price * item.qty * item.discount) / 100),
-    0,
-  );
   useEffect(() => {
     const storedItems = localStorage.getItem("checkoutItems");
     if (storedItems) {
@@ -220,6 +229,14 @@ export default function MainContentPage({
     });
     return result;
   };
+
+  const subtotal = productItem2.reduce(
+    (sum, item) =>
+      sum +
+      (item.price * item.qty - (item.price * item.qty * item.discount) / 100),
+    0,
+  );
+
   const shipping = subtotal > 500 ? 0 : 9.99;
   const tax = subtotal * 0.1;
   const discount = 0;
@@ -233,7 +250,28 @@ export default function MainContentPage({
     }
     return data;
   }, 0);
+
+  useEffect(() => {
+    const data = productItem2.map((item) => ({
+      ...item,
+      discount:
+        item.discount === 0
+          ? dicountType === "Percentage"
+            ? Number(promoDiscount)
+            : (Number(promoDiscount) / subtotal) * 100
+          : item.discount,
+    }));
+    if (data) {
+      setProductItem2(data);
+    }
+  }, [promoDiscount]);
+  const promoDiscountGet =
+    dicountType === "Percentage"
+      ? (Number(promoDiscount) * subtotal) / 100
+      : Number(promoDiscount);
+
   const total = subtotal + extraCharges;
+
   const getCountries = async () => {
     const token = localStorage.getItem("adminToken");
     const response = await GetCountryApi(String(token));
@@ -377,6 +415,7 @@ export default function MainContentPage({
         paymentStatus: "unPaid",
         paymentMethod: selected,
         additionalCharges: extraCharges,
+        promoID: PromoID || "",
         shippingCharges: 250,
         orderDate:
           orderType === "now"
@@ -416,6 +455,35 @@ export default function MainContentPage({
       }
     }
   }, [PaymentID]);
+
+  const ApplyPromoCOde = async () => {
+    try {
+      if (!promoCode) return setPromoMessage("Please enter a Code");
+      setIsLoading(true);
+      const token = localStorage.getItem("customerToken");
+      const formData = {
+        code: promoCode,
+      };
+      const response = await ApplyPromoCodeApi(formData, String(token));
+      const data = response.data as ResponsePromo;
+      if (response.status === 200) {
+        setdicountType(data.method);
+        setPromoCode("");
+        setPromoID(data.promoID);
+        setpromoDiscount(String(data.amount));
+      } else {
+        setPromoMessage(data.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setTimeout(() => {
+      setPromoMessage("");
+    }, 2000);
+  }, [PromoMessage]);
 
   useEffect(() => {
     getCountries();
@@ -1064,7 +1132,7 @@ export default function MainContentPage({
                     <Link href={`/subMenu/Product/${item.productID}`}>
                       <div
                         key={item.attributeID}
-                        className=" relative bg-gray-50 border border-gray-100 flex gap-4 p-3 rounded-xl  hover:bg-gray-100 transition-all duration-300 cursor-pointer hover:border-gray-200"
+                        className=" relative mb-2 bg-gray-50 border border-gray-100 flex gap-4 p-3 rounded-xl  hover:bg-gray-100 transition-all duration-300 cursor-pointer hover:border-gray-200"
                       >
                         {/* Product Image */}
                         <div className="relative w-20 h-20 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-all duration-300">
@@ -1087,11 +1155,11 @@ export default function MainContentPage({
                           )}
 
                           {/* Quantity Badge */}
-                          <div className="absolute -bottom-1 -left-1 bg-white shadow-md rounded-full w-5 h-5 flex items-center justify-center border border-gray-200">
+                          {/* <div className="absolute -bottom-1 -left-1 bg-white shadow-md rounded-full w-5 h-5 flex items-center justify-center border border-gray-200">
                             <span className="text-[10px] font-bold text-gray-600">
                               {item.qty}
                             </span>
-                          </div>
+                          </div> */}
                         </div>
 
                         {/* Product Details */}
@@ -1110,14 +1178,6 @@ export default function MainContentPage({
                                 </div>
                               )}
                             </div>
-
-                            {/* Remove Button - on hover */}
-                            {/* <button
-                              onClick={() => handleRemoveItem(item.attributeID)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button> */}
                           </div>
 
                           {/* Price and Details */}
@@ -1211,6 +1271,32 @@ export default function MainContentPage({
                     />
                   )}
                 </div>
+                {/* Promo Code */}
+                {productItem2.length > 0 && (
+                  <div className="py-1 border-t border-gray-100">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="Enter promo code"
+                        className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 text-sm"
+                      />
+                      <button
+                        onClick={() => ApplyPromoCOde()}
+                        className="px-4 py-2 bg-gray-900 text-white  bg-gradient-to-r from-purple-600 to-pink-600  hover:bg-purple-700 transition text-sm font-semibold rounded-lg"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {PromoMessage && (
+                      <p className="text-red-600 text-xs mt-2 flex items-center gap-1">
+                        <Tag className="w-3 h-3" />
+                        {PromoMessage}
+                      </p>
+                    )}
+                  </div>
+                )}
                 {/* Price Breakdown */}
                 <div className="border-t border-gray-100 pt-4 space-y-2">
                   <div className="flex justify-between text-sm">

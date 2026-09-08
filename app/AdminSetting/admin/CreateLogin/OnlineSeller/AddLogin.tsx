@@ -137,12 +137,12 @@ export default function AddOnlineLogin({
       setUserName(initalData.userName);
       setID(initalData.sellerID);
       setAddress(initalData.address);
-      setStoreTable(
-        initalData.stores.map((item) => ({
-          storeID: item.storeID,
-          storeName: item.storeName,
-        })),
-      );
+      // setStoreTable(
+      //   initalData.stores.map((item) => ({
+      //     storeID: item.storeID,
+      //     storeName: item.storeName,
+      //   })),
+      // );
     } else {
       setEmail("");
       setPhoneNo("");

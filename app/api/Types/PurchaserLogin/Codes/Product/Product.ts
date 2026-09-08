@@ -98,6 +98,7 @@ export interface productList {
   unitName: string;
   feturedProduct: boolean;
   isStock: boolean;
+  disCountinue: boolean;
   storeSale: string;
   description: string;
   discount: number;

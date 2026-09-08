@@ -100,7 +100,7 @@ export default function YouMightLikeThis({
                   >
                     {/* Image Section */}
                     <div className="relative overflow-hidden bg-gray-50 aspect-square">
-                      <Link href={`/Customer/Product/${product.productID}`}>
+                      <Link href={`/subMenu/Product/${product.productID}`}>
                         <img
                           src={
                             product.variants[0].images[0].url ||
@@ -109,7 +109,7 @@ export default function YouMightLikeThis({
                           alt={product.productName || "Product image"}
                           // onClick={() =>
                           //   router.push(
-                          //     `/Customer/Product/${product.productID}`,
+                          //     `/subMenu/Product/${product.productID}`,
                           //   )
                           // }
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 cursor-pointer"

@@ -27,8 +27,11 @@ interface ProductBasicInfoProps {
   setDescription: (value: string) => void;
   storeSale: string;
   setStoreSale: (value: string) => void;
+  setShowDescription: (value: boolean) => void;
   checked: boolean;
   setChecked: (value: boolean) => void;
+  Discountinue: boolean;
+  setDiscontinue: (value: boolean) => void;
 }
 
 export default function ProductBasicInfo({
@@ -55,7 +58,10 @@ export default function ProductBasicInfo({
   storeSale,
   setStoreSale,
   checked,
+  setShowDescription,
   setChecked,
+  Discountinue,
+  setDiscontinue,
 }: ProductBasicInfoProps) {
   return (
     <>
@@ -188,8 +194,13 @@ export default function ProductBasicInfo({
 
           <TextAreaFieldGeneric
             label="Description"
-            required={false}
+            readonly={true}
+            required={true}
             placeholder="Enter Description"
+            onClick={() => {
+              setShowDescription(true);
+              setDescription(description);
+            }}
             SateChange={description}
             setSateChange={setDescription}
             disabled={false}
@@ -198,6 +209,11 @@ export default function ProductBasicInfo({
             label="Show Stock"
             checked={checked}
             onChange={setChecked}
+          />
+          <GenericCheckbox
+            label="Dis-Continue"
+            checked={Discountinue}
+            onChange={setDiscontinue}
           />
         </div>
       </div>

@@ -4,7 +4,7 @@ import { postRequest } from "../MainController/main";
 interface Data {
   bagsNo: string;
   description: string;
-  lists: lists[];
+  lists?: lists[];
 }
 interface lists {
   detailID: string;

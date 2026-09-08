@@ -17,11 +17,15 @@ interface GetProductModifyInfomrationProps {
   setShowBasicINfoModel: (data: boolean) => void;
   initalData: (data: productList) => void;
   setShowImageListModel: (data: boolean) => void;
+  setDelete: (data: boolean) => void;
   refreshevent: number;
   setProductID: (data: string) => void;
   setSubCategoryID: (data: string) => void;
   setFurtherSubCategoryList: (data: furtherSubCategoryList[]) => void;
   setProductVariant: (data: variantsList[]) => void;
+  setDeleteProductID: (data: string) => void;
+  setDeleteProductList: (data: productList[]) => void;
+  DeleteProductList: productList[];
 }
 
 export default function GetProductList({
@@ -33,10 +37,20 @@ export default function GetProductList({
   setProductID,
   setSubCategoryID,
   setProductVariant,
+  setDeleteProductID,
+  setDeleteProductList,
+  setDelete,
+  DeleteProductList,
 }: GetProductModifyInfomrationProps) {
   const [isloading, setisLoading] = useState(false);
   const [productList, setProductList] = useState<productList[]>([]);
   const [Searchproduct, setSearchproduct] = useState("");
+
+  useEffect(() => {
+    if (DeleteProductList) {
+      setProductList(DeleteProductList);
+    }
+  }, [DeleteProductList]);
 
   useEffect(() => {
     ProductGet();
@@ -229,6 +243,16 @@ export default function GetProductList({
                     className="flex-shrink-0 text-xs border border-yellow-500 p-1 rounded-md text-yellow-600 hover:text-yellow-800 self-center"
                   >
                     <Pencil />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setDeleteProductList(productList);
+                      setDeleteProductID(item.productID);
+                      setDelete(true);
+                    }}
+                    className="flex-shrink-0 text-xs border border-red-500 p-1 rounded-md text-red-600 hover:text-red-800 self-center"
+                  >
+                    <Trash />
                   </button>
                 </div>
               </div>

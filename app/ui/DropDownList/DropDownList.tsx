@@ -10,6 +10,7 @@ interface Props {
   label?: string;
   value: string;
   size?: boolean;
+  readonly?: boolean;
   options: OptionType[];
   placeholder?: string;
   required?: boolean;
@@ -24,6 +25,7 @@ export default function DropDownList({
   placeholder,
   required,
   size,
+  readonly,
   onChange,
   filedID,
 }: Props) {
@@ -120,6 +122,7 @@ export default function DropDownList({
         type="text"
         value={value}
         placeholder={placeholder}
+        readOnly={readonly}
         onFocus={() => setOpen(true)}
         onChange={(e) => {
           const value = e.target.value;
@@ -136,7 +139,7 @@ export default function DropDownList({
       />
 
       {/* DROPDOWN: } */}
-      {open && (
+      {!readonly && open && (
         <ul className="absolute z-50 w-full bg-white  rounded-lg mt-1 shadow max-h-52 overflow-auto">
           {filteredOptions.length === 0 ? (
             <li className="px-4 py-2 text-gray-500">No Record Found</li>

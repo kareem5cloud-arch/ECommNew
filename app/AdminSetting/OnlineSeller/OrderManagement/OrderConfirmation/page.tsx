@@ -567,7 +567,7 @@ export default function OrderConfirmation() {
                         )}
                         <td className="p-3 text-center">
                           {item.status !== "pending" ? (
-                            "-"
+                            item.bagNo
                           ) : (
                             <button
                               onClick={() => {
@@ -797,6 +797,7 @@ export default function OrderConfirmation() {
                             }}
                             className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
                           >
+                            <option>Select Bag No</option>
                             {listofOrderBags.map((item, index) => (
                               <option key={index} value={item.bagNo}>
                                 {item.bagNo}

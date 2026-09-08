@@ -13,7 +13,7 @@ import GenericCheckbox from "@/app/ui/CheckBox/CheckBox";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import TextAreaFieldGeneric from "@/app/ui/TextArea/textArea";
-import { Store } from "lucide-react";
+import { Phone, Store } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface propsForAddRegion {
@@ -41,6 +41,8 @@ export default function AddStoreForm({
   const [countryName, setCountryName] = useState("");
   const [loading, setLoading] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [PhoneNo, setPhoneNo] = useState("");
+  const [ReturnThreshold, setReturnThreshold] = useState("");
   const [ID, setID] = useState("");
 
   const RegionGet = async () => {
@@ -85,15 +87,26 @@ export default function AddStoreForm({
   const StoreAdd = async () => {
     try {
       setLoading(true);
-      if (!StoreName || !ZoneID || !countryID || !RegionID)
+      if (
+        !StoreName ||
+        !ZoneID ||
+        !countryID ||
+        !RegionID ||
+        !Email ||
+        !description ||
+        !PhoneNo
+      )
         return alert("Please Fill in Filed with *");
       else {
         const formData = {
           storeName: StoreName,
           logoUrl: "",
           zoneID: ZoneID,
+          returnThreshold: Number(ReturnThreshold),
+          email: Email,
+          phoneNo: PhoneNo,
           defaultStore: checked,
-          description: description,
+          address: description,
         };
         // console.log(formData);
         const token = localStorage.getItem("adminToken");
@@ -120,6 +133,33 @@ export default function AddStoreForm({
             placeholder="Enter Store Name"
             SateChange={StoreName}
             setSateChange={setStoreName}
+            disabled={false}
+          />
+          <InputFieldGeneric
+            label="Email"
+            type="email"
+            required={true}
+            placeholder="Enter Email"
+            SateChange={Email}
+            setSateChange={setEmail}
+            disabled={false}
+          />
+          <InputFieldGeneric
+            label="Return Threshold"
+            type="number"
+            required={true}
+            placeholder="Enter Return Threshold"
+            SateChange={ReturnThreshold}
+            setSateChange={setReturnThreshold}
+            disabled={false}
+          />
+          <InputFieldGeneric
+            label="PhoneNo"
+            type="text"
+            required={true}
+            placeholder="Enter PhoneNo"
+            SateChange={PhoneNo}
+            setSateChange={setPhoneNo}
             disabled={false}
           />
           {/* <InputFieldGeneric
@@ -176,9 +216,9 @@ export default function AddStoreForm({
             onChange={setChecked}
           />
           <TextAreaFieldGeneric
-            label="Description"
+            label="Address"
             required={false}
-            placeholder="Enter Description"
+            placeholder="Enter Address"
             SateChange={description}
             setSateChange={setDescription}
             disabled={false}

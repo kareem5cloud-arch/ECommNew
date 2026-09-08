@@ -1,4 +1,3 @@
-import CourierServiceGet from "@/app/api/Controller/AdminController/CourierService/GetCourier";
 import Packagesget from "@/app/api/Controller/AdminController/Packages/GetPackage";
 import {
   courierList,

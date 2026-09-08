@@ -7,6 +7,8 @@ interface GenericInputProps {
   required: boolean;
   disabled?: boolean;
   readonly?: boolean;
+  max?: number;
+  min?: number | string;
 }
 
 export default function InputFieldGeneric({
@@ -18,6 +20,8 @@ export default function InputFieldGeneric({
   SateChange,
   disabled = false,
   readonly,
+  max,
+  min,
 }: GenericInputProps) {
   return (
     <>
@@ -33,6 +37,8 @@ export default function InputFieldGeneric({
           onChange={(e) => setSateChange(e.target.value)}
           className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
           placeholder={placeholder}
+          min={min}
+          max={max}
         />
       </div>
     </>

@@ -1,6 +1,10 @@
 export interface requestAddCategory {
   categoryName: string;
   description: string;
+  startDate: string;
+  endDate: string;
+  discount: number;
+  isDiscount: boolean;
 }
 
 export interface requestModifyCategory {
@@ -19,5 +23,9 @@ export interface CategoryList {
   storeID: string;
   storeName: string;
   categoryName: string;
+  startDate: string;
+  endDate: string;
+  discount: number;
+  isDiscount: boolean;
   description: string;
 }

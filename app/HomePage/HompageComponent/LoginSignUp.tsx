@@ -59,7 +59,7 @@ export default function AuthModal({
 
   const StoreAdd = async () => {
     try {
-      setloading(true);
+      setIsLoading(true);
       if (!email || !password || !phoneNo)
         return alert("Please Fill in Filed with *");
       else {
@@ -91,12 +91,12 @@ export default function AuthModal({
         }
       }
     } finally {
-      setloading(false);
+      setIsLoading(false);
     }
   };
   const Login = async () => {
     try {
-      setloading(true);
+      setIsLoading(true);
       const formData = { email: email, password: password };
       const response = await LoginApi(formData);
       if (response.status === 200) {
@@ -108,7 +108,7 @@ export default function AuthModal({
         setUser(response.data?.status);
         const token = response.data?.token;
         localStorage.setItem("customerToken", token as string);
-        onclose;
+        onClose();
       } else {
         setPassword("");
         setShowMessage(true);
@@ -116,10 +116,16 @@ export default function AuthModal({
         setResponseMessage(response.data?.message);
       }
     } finally {
-      setloading(false);
+      setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => {
+      setShowMessage(false);
+      setResponseMessage("");
+    }, 1500);
+  }, [ShowMessage, responseMessage]);
   return (
     <>
       <div
@@ -130,7 +136,7 @@ export default function AuthModal({
         {/* Backdrop */}
         <div
           className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
+          //onClick={onClose}
         />
 
         {/* Modal */}
@@ -353,17 +359,16 @@ export default function AuthModal({
                   onClick={mode === "login" ? Login : StoreAdd}
                   className="w-full py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {isLoading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {loading ? "Signing in..." : "Creating account..."}
-                    </>
-                  ) : (
-                    <>
-                      {loading ? "Sign in" : "Create account"}
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
+                  <>
+                    {mode === "login"
+                      ? isLoading
+                        ? "Signing in..."
+                        : "Sign in"
+                      : isLoading
+                        ? "Creating account... "
+                        : "Create account"}
+                    <ArrowRight className="w-4 h-4" />
+                  </>
                 </button>
               </div>
 

@@ -41,6 +41,7 @@ export default function AddFormVarient({
           variantsName: CategoryName,
           description: description,
           varientList: valueList.map((item) => ({
+            attributeID: item.ID,
             value: item.value,
           })),
         };
@@ -67,9 +68,11 @@ export default function AddFormVarient({
           description: description,
           sortingOrder: Number(SortingOrder),
           varientList: valueList.map((item) => ({
+            attributeID: item.ID,
             value: item.value,
           })),
         };
+        console.log(formData);
         const token = localStorage.getItem("PurchaserLoginToken");
         const response = await VarientsModifyApi(formData, String(token));
         if (response.status == 200) {
@@ -105,12 +108,12 @@ export default function AddFormVarient({
         setCategoryName(initalData.variantsName);
         setDescription(initalData.description);
         setSortingOrder(String(initalData.sortingOrder));
-        setValueList(
-          initalData.varientList.map((item, index) => ({
-            ID: String(index + 1),
-            value: item.value,
-          })),
-        );
+        // setValueList(
+        //   initalData.varientList.map((item, index) => ({
+        //     ID: item.attributeID,
+        //     value: item.value,
+        //   })),
+        // );
       }
     } else {
       setCategoryName("");

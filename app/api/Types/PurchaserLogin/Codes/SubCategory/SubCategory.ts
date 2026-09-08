@@ -2,6 +2,10 @@ export interface requestAddSubCategory {
   categoryID: string;
   subCategoryName: string;
   description: string;
+  startDate: string;
+  endDate: string;
+  discount: number;
+  isDiscount: boolean;
 }
 
 export interface requestModifySubCategory {
@@ -21,5 +25,9 @@ export interface subCategoryList {
   subCategoryID: string;
   subCategoryName: string;
   categoryName: string;
+  startDate: string;
+  endDate: string;
+  discount: number;
+  isDiscount: boolean;
   description: string;
 }

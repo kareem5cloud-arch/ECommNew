@@ -123,12 +123,12 @@ export default function Navbar({
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [isAuthOpen]);
 
   const handleSelect = (item: ProductSectionHomePage) => {
     setOpen(false);
     setSearchProduct(item.productName);
-    router.push(`/subMenu/Product/${item.productID}`);
+    window.location.href = `/subMenu/Product/${item.productID}`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -207,7 +207,9 @@ export default function Navbar({
       />
       <AuthModal
         isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
+        onClose={() => {
+          setIsAuthOpen(false);
+        }}
         defaultMode={authMode}
       />
       <WishlistSidebar
@@ -340,7 +342,10 @@ export default function Navbar({
                 </span>
               </button>
               {tokenExist ? (
-                <button className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors">
+                <button
+                  onClick={() => (window.location.href = "/Customer/Dashboard")}
+                  className=" flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors cursor-pointer"
+                >
                   <LayoutDashboard className="h-5 w-5" />
                   <span className="hidden lg:inline text-sm font-medium">
                     Dashboard

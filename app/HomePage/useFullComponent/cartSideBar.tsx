@@ -48,7 +48,7 @@ export default function CartSidebar({
   const [productValue, setProductValue] = useState<CartItem[]>([]);
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [promoCode, setPromoCode] = useState("");
+
   const [discount, setDiscount] = useState(0);
   const [checked, setChecked] = useState(false);
 
@@ -124,15 +124,8 @@ export default function CartSidebar({
   const tax = 0; // 10% tax
   const total = subtotal + shipping + tax - discount;
 
-  const handleApplyPromo = () => {
-    if (promoCode === "SAVE20") {
-      setDiscount(subtotal * 0.2);
-    } else if (promoCode === "SAVE10") {
-      setDiscount(subtotal * 0.1);
-    }
-  };
-
   const handleCheckout = () => {
+    if (checkedList.length === 0) return;
     setIsCheckingOut(true);
     const formData = productValue.filter((item) =>
       checkedList.includes(item.id),
@@ -185,7 +178,7 @@ export default function CartSidebar({
         </div>
 
         {/* Free Shipping Progress Bar */}
-        {subtotal < 500 && (
+        {/* {subtotal < 500 && (
           <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
             <div className="flex items-center gap-2 text-sm text-gray-700 mb-2">
               <Truck className="w-4 h-4 text-purple-600" />
@@ -200,7 +193,7 @@ export default function CartSidebar({
               />
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -325,33 +318,6 @@ export default function CartSidebar({
           )}
         </div>
 
-        {/* Promo Code */}
-        {/* {productValue.length > 0 && (
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                placeholder="Enter promo code"
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:border-purple-500 text-sm"
-              />
-              <button
-                onClick={handleApplyPromo}
-                className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-purple-600 transition text-sm font-semibold"
-              >
-                Apply
-              </button>
-            </div>
-            {discount > 0 && (
-              <p className="text-green-600 text-xs mt-2 flex items-center gap-1">
-                <Tag className="w-3 h-3" />
-                Discount applied: -${discount.toLocaleString()}
-              </p>
-            )}
-          </div>
-        )} */}
-
         {/* Cart Summary */}
         {productValue.length > 0 && (
           <div className="p-4 border-t border-gray-100 bg-gray-50">
@@ -362,6 +328,10 @@ export default function CartSidebar({
                   {subtotal.toLocaleString()}
                 </span>
               </div>
+              {/* <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Promo Discount</span>
+                <span className="font-semibold">0</span>
+              </div> */}
               {/* <div className="flex justify-between text-sm">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-semibold">
@@ -391,7 +361,7 @@ export default function CartSidebar({
             {/* Checkout Buttons */}
             <button
               onClick={handleCheckout}
-              disabled={isCheckingOut}
+              disabled={isCheckingOut || checkedList.length === 0}
               className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-semibold hover:shadow-lg transition-all transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isCheckingOut ? (
@@ -399,6 +369,8 @@ export default function CartSidebar({
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   Processing...
                 </>
+              ) : checkedList.length === 0 ? (
+                "Select items to checkout"
               ) : (
                 <>
                   Proceed to Checkout

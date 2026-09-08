@@ -9,7 +9,7 @@ import {
   variantsList,
 } from "@/app/api/Types/PurchaserLogin/Codes/Product/Product";
 import ModifyBasicInfo from "./ModifyProduct/ModifyBasicInfo";
-import { Check, Eye, Trash, X } from "lucide-react";
+import { Check, Delete, Eye, Trash, X } from "lucide-react";
 import ModifyProductImage from "./ModifyProduct/ModifyImageList";
 import AddProductImage from "./AddProduct/ProductImageInfo";
 import { imagesData, RowData } from "./AddProduct/VarientInformation";
@@ -33,6 +33,9 @@ import ProductMOdifyVariantsApi from "@/app/api/Controller/PurchaserLogin/Codes/
 import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
 import ProductAddVariantsApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/ModifyProduct/AddVariants";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
+import ProductDeleteApi from "@/app/api/Controller/PurchaserLogin/Codes/Product/DeleteProduct";
+import DeleteComponent from "@/app/ui/UseFulLComponent/DeleteComponent/DeleteComponent";
+import DescriptionTextArea from "./DescriptionSection/page";
 export default function ProductManagement() {
   const [update, setUpdate] = useState(false);
   const [view, setView] = useState<"list" | "form">("list");
@@ -69,7 +72,12 @@ export default function ProductManagement() {
   const [vareintList2, setVareintList2] = useState<varients[]>([]);
   const [vareintList, setVareintList] = useState<varients[]>([]);
   const [productVariant, setProductVariant] = useState<variantsList[]>([]);
+  const [productListDelete, setProductListDelete] = useState<productList[]>([]);
   const [variantID, setVariantID] = useState("");
+  const [Description, setDescription] = useState("");
+  const [DeleteProductID, setDeleteProductID] = useState("");
+  const [Delete, setDelete] = useState(false);
+  const [ShowDescription, setShowDescription] = useState(false);
 
   const updateRow2 = (rowIndex: string, field: keyof RowData, value: any) => {
     setCombinationList2((prev) =>
@@ -275,6 +283,22 @@ export default function ProductManagement() {
     setTotalBill(String(calculatedTotalBill2));
     setAmountPaid(String(calculatedTotalBill2));
   }, [updateRow]);
+
+  const DeleteRegion = async (ID: string) => {
+    const token = localStorage.getItem("PurchaserLoginToken");
+    const formData = {
+      productID: ID,
+    };
+    const response = await ProductDeleteApi(formData, String(token));
+    if (response.status == 200) {
+      const data = productListDelete.filter((item) => item.productID !== ID);
+      setProductListDelete(data);
+      setDelete(false);
+    } else {
+      setProductListDelete(productListDelete);
+    }
+  };
+
   return (
     <>
       {showMessage && (
@@ -283,6 +307,15 @@ export default function ProductManagement() {
           type={messageType}
           duration={3000}
           onClose={() => setShowMessage(null)}
+        />
+      )}
+      {Delete && (
+        <DeleteComponent
+          onCancel={() => {
+            setDelete(false);
+            setDeleteProductID("");
+          }}
+          onConfirm={() => DeleteRegion(DeleteProductID)}
         />
       )}
       {showBasicINfoModel && (
@@ -318,6 +351,9 @@ export default function ProductManagement() {
                   setShowBasicINfoModel(false);
                 }
               }}
+              setShowDescription={setShowDescription}
+              setDescription={setDescription}
+              Description={Description}
             />
           </div>
         </div>
@@ -905,6 +941,35 @@ export default function ProductManagement() {
           </div>
         </div>
       )}
+      {ShowDescription && (
+        <>
+          <div
+            className="fixed inset-0 z-100 flex items-center justify-center"
+            //onClick={() => setShowBasicINfoModel(false)}
+            style={{ marginBottom: "0px" }}
+          >
+            <div className="absolute inset-0 bg-black/40" />
+            <div
+              //onClick={(e) => e.stopPropagation()}
+              className="relative bg-white p-6 rounded-lg shadow-xl z-10 max-w-2xl"
+            >
+              <div className="w-full flex justify-end">
+                <button
+                  onClick={() => setShowDescription(false)}
+                  className="text-gray-800 hover:text-red-500 cursor-pointer"
+                >
+                  <X />
+                </button>
+              </div>
+              <DescriptionTextArea
+                setDescription={setDescription}
+                Description={Description}
+                setDescriptionShow={setShowDescription}
+              />
+            </div>
+          </div>
+        </>
+      )}
       <div>
         <ShowAddFile
           update={setUpdate}
@@ -928,6 +993,9 @@ export default function ProductManagement() {
                     setView("list");
                   }
                 }}
+                setShowDescription={setShowDescription}
+                setDescription={setDescription}
+                Description={Description}
                 images={imagesList}
                 setImages={setImages}
                 showPopupModel={setShowPopupModel}
@@ -946,6 +1014,10 @@ export default function ProductManagement() {
                 setSubCategoryID={setSubCategoryID}
                 setFurtherSubCategoryList={setFurtherSubCategoryList}
                 setProductVariant={setProductVariant}
+                setDeleteProductID={setDeleteProductID}
+                setDeleteProductList={setProductListDelete}
+                DeleteProductList={productListDelete}
+                setDelete={setDelete}
               />
             </>
           )}

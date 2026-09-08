@@ -40,12 +40,18 @@ interface MoidifyProductBasicInfo {
   initalData?: productList;
   refreshevent: (data: number) => void;
   onShowMessage: (message: string, type: "success" | "error") => void;
+  setShowDescription: (data: boolean) => void;
+  setDescription: (data: string) => void;
+  Description: string;
 }
 
 export default function ModifyBasicInfo({
   initalData,
   onShowMessage,
   refreshevent,
+  setShowDescription,
+  setDescription,
+  Description,
 }: MoidifyProductBasicInfo) {
   const [ProductName, setProductName] = useState("");
   const [ShortCode, setShortCode] = useState("");
@@ -57,8 +63,8 @@ export default function ModifyBasicInfo({
   const [Threshold, setThreshold] = useState("");
   const [FeaturedProduct, setFeaturedProduct] = useState("Yes");
   const [FeaturedProduct2, setFeaturedProduct2] = useState("ShowAllCountry");
-  const [description, setDescription] = useState("");
   const [checked, setChecked] = useState(false);
+  const [Discountinue, setDiscontinue] = useState(false);
   const [storeSale, setStoreSale] = useState("Both");
   //CategoryStates
   const [conuntryDataListShowCountry, setConuntryDataListShowCountry] =
@@ -108,6 +114,7 @@ export default function ModifyBasicInfo({
 
       setDescription(initalData.description ?? "");
       setChecked(initalData.isStock);
+      setDiscontinue(initalData.disCountinue);
       setStoreSale(initalData.storeSale ?? "Both");
 
       // Country Display Mode
@@ -329,6 +336,7 @@ export default function ModifyBasicInfo({
         isStock: checked,
         supplierID: "",
         invoiceNo: "",
+        disCountinue: Discountinue,
         purchaseDate: new Date().toISOString().split("T")[0],
         totalBill: 0,
         amountPaid: 0,
@@ -346,7 +354,7 @@ export default function ModifyBasicInfo({
         feturedProduct: FeaturedProduct === "Yes" ? true : false,
         showinCountry: FeaturedProduct2 === "ShowCountry" ? "true" : "false",
         notShowinCountry: FeaturedProduct2 === "HideCountry" ? "true" : "false",
-        description: description,
+        description: Description,
         width: Number(Width),
         height: Number(Height),
         depth: Number(Depth),
@@ -511,8 +519,12 @@ export default function ModifyBasicInfo({
             <TextAreaFieldGeneric
               label="Description"
               required={false}
+              onClick={() => {
+                setShowDescription(true);
+                setDescription(Description);
+              }}
               placeholder="Enter Description"
-              SateChange={description}
+              SateChange={Description}
               setSateChange={setDescription}
               disabled={false}
             />
@@ -520,6 +532,11 @@ export default function ModifyBasicInfo({
               label="Show Stock"
               checked={checked}
               onChange={setChecked}
+            />
+            <GenericCheckbox
+              label="Dis-Continue"
+              checked={Discountinue}
+              onChange={setDiscontinue}
             />
           </div>
 
@@ -658,6 +675,7 @@ export default function ModifyBasicInfo({
                 label="Store "
                 placeholder="Enter Store"
                 required={true}
+                readonly={true}
                 filedID={setStoreID}
                 value={StoreName}
                 onChange={setStoreName}
@@ -673,6 +691,7 @@ export default function ModifyBasicInfo({
                 label="Category "
                 placeholder="Enter Category"
                 required={true}
+                readonly={true}
                 filedID={setCategoryID}
                 value={CategoryName}
                 onChange={setCategoryName}
@@ -688,6 +707,7 @@ export default function ModifyBasicInfo({
                 label="Sub Category "
                 placeholder="Enter Sub Category"
                 required={true}
+                readonly={true}
                 filedID={setSubCategoryID}
                 value={SubCategoryName}
                 onChange={setSubCategoryName}
@@ -703,6 +723,7 @@ export default function ModifyBasicInfo({
                 label="Further Sub-Category "
                 placeholder="Enter Further Sub-Category "
                 required={true}
+                readonly={true}
                 filedID={setfurtherSubCategoryID}
                 value={furtherSubCategoryName}
                 onChange={setfurtherSubCategoryName}
@@ -718,6 +739,7 @@ export default function ModifyBasicInfo({
                 label="Unit "
                 placeholder="Enter Unit"
                 required={true}
+                readonly={true}
                 filedID={setUnitID}
                 value={UnitName}
                 onChange={setUnitName}

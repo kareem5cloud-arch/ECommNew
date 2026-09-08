@@ -23,7 +23,7 @@ export default function SupplierLedger() {
   const [supplierList, setSupplierList] = useState<SupplierListReponse[]>([]);
 
   const GetSupplier = async () => {
-    const token = localStorage.getItem("WareHouseSeller");
+    const token = localStorage.getItem("PurchaserLoginToken");
     const response = await SuppliergetApi(String(token));
     if (response.status === 200) {
       const data = response.data as ResponseGetSupplpierlist;

@@ -50,10 +50,14 @@ import {
   CreditCard,
   DollarSignIcon,
   Store,
+  NotebookTabs,
+  NotebookPen,
+  TicketPercent,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import CheckAuth from "@/app/api/Controller/Authentication/CheckAuth/CheckAuth";
+import { RiCoupon2Fill } from "react-icons/ri";
 
 export default function AdminSidebar() {
   const router = useRouter();
@@ -113,34 +117,40 @@ export default function AdminSidebar() {
 
     {
       id: "shipping",
-      label: "Shipping",
-      icon: Truck,
+      label: "Other",
+      icon: ListChecksIcon,
       type: "dropdown",
       items: [
         {
           id: "Delivery",
           label: "Delivery Standard",
           icon: Truck,
-          href: "/AdminSetting/admin/Shipment/DelievryStandard",
+          href: "/AdminSetting/admin/Other/DelievryStandard",
         },
         {
-          id: "regions",
-          label: "Regions",
-          icon: Globe,
-          href: "/AdminSetting/admin/Shipment/Region",
+          id: "Promotion",
+          label: "Promotion ",
+          icon: TicketPercent,
+          href: "/AdminSetting/admin/Other/Promotion",
         },
-        {
-          id: "zones",
-          label: "Zones",
-          icon: Map,
-          href: "/AdminSetting/admin/Shipment/Zone",
-        },
-        {
-          id: "rates",
-          label: "Shipping Rates",
-          icon: Coins,
-          href: "/AdminSetting/admin/Shipment/ShippingRates",
-        },
+        // {
+        //   id: "regions",
+        //   label: "Regions",
+        //   icon: Globe,
+        //   href: "/AdminSetting/admin/Other/Region",
+        // },
+        // {
+        //   id: "zones",
+        //   label: "Zones",
+        //   icon: Map,
+        //   href: "/AdminSetting/admin/Other/Zone",
+        // },
+        // {
+        //   id: "rates",
+        //   label: "Shipping Rates",
+        //   icon: Coins,
+        //   href: "/AdminSetting/admin/Other/ShippingRates",
+        // },
       ],
     },
     {
@@ -172,6 +182,20 @@ export default function AdminSidebar() {
           label: "Purchaser Login",
           icon: UserLock,
           href: "/AdminSetting/admin/CreateLogin/PurcahseLogin",
+        },
+      ],
+    },
+    {
+      id: "ledger",
+      label: "Ledger",
+      icon: NotebookTabs,
+      type: "dropdown",
+      items: [
+        {
+          id: "Courier",
+          label: "Courier Ledger",
+          icon: Package,
+          href: "/AdminSetting/admin/Ledger/CourierLedger",
         },
       ],
     },

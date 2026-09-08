@@ -29,6 +29,9 @@ interface propsForAddRegion {
   imageRowID: (data: string) => void;
   setImages: (data: File[]) => void;
   showPopupModel: (data: boolean) => void;
+  setShowDescription: (data: boolean) => void;
+  setDescription: (data: string) => void;
+  Description: string;
   onShowMessage: (message: string, type: "success" | "error") => void;
 }
 export default function AddProductForm({
@@ -37,6 +40,9 @@ export default function AddProductForm({
   images,
   setImages,
   onShowMessage,
+  setShowDescription,
+  setDescription,
+  Description,
 }: propsForAddRegion) {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -53,8 +59,9 @@ export default function AddProductForm({
   const [Height, setHeight] = useState("");
   const [Threshold, setThreshold] = useState("");
   const [FeaturedProduct, setFeaturedProduct] = useState("Yes");
-  const [description, setDescription] = useState("");
-  const [checked, setChecked] = useState(false);
+  // const [description, setDescription] = useState("");
+  const [checked, setChecked] = useState(true);
+  const [Discountinue, setDiscontinue] = useState(false);
   const [storeSale, setStoreSale] = useState("Both");
 
   //CategoryStates
@@ -157,6 +164,7 @@ export default function AddProductForm({
         isStock: checked,
         supplierID: SupplierID,
         invoiceNo: "",
+        disCountinue: Discountinue,
         purchaseDate: new Date().toISOString().split("T")[0],
         totalBill: PurcahseAdd === "Yes" ? Number(TotalBill) : 0,
         amountPaid: PurcahseAdd === "Yes" ? Number(AmountPaid) : 0,
@@ -173,7 +181,7 @@ export default function AddProductForm({
         feturedProduct: FeaturedProduct === "Yes" ? true : false,
         showinCountry: ShowCountry === "ShowCountry" ? "true" : "false",
         notShowinCountry: ShowCountry === "HideCountry" ? "true" : "false",
-        description: description,
+        description: Description,
         width: Number(Width),
         height: Number(Height),
         depth: Number(Depth),
@@ -289,11 +297,14 @@ export default function AddProductForm({
                     setThreshold={setThreshold}
                     FeaturedProduct={FeaturedProduct}
                     setFeaturedProduct={setFeaturedProduct}
-                    description={description}
+                    description={Description}
                     setDescription={setDescription}
                     checked={checked}
                     setChecked={setChecked}
+                    setDiscontinue={setDiscontinue}
+                    Discountinue={Discountinue}
                     storeSale={storeSale}
+                    setShowDescription={setShowDescription}
                     setStoreSale={setStoreSale}
                   />
 

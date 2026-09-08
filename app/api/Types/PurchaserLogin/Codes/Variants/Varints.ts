@@ -17,6 +17,6 @@ export interface VariantsList {
   varientList: varientList[];
 }
 interface varientList {
-  ID?: string;
+  attributeID: string;
   value: string;
 }

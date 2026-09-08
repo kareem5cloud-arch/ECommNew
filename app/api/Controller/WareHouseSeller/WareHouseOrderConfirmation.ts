@@ -2,8 +2,17 @@
 import { postRequest } from "../MainController/main";
 import { UpdateOrderStratusWareHouse } from "../../Types/WareHouse/OrderConfimration";
 
+interface Data {
+  details: details[];
+}
+interface details {
+  bagsNo: string;
+  status: string;
+  detailID: string;
+  videoUrl: string;
+}
 export default async function WareHouseOrderConfirmation(
-  data: UpdateOrderStratusWareHouse,
+  data: Data,
   token?: string,
 ) {
   const customHeader: Record<string, string> = {};
@@ -13,7 +22,7 @@ export default async function WareHouseOrderConfirmation(
   }
 
   const response = await postRequest(
-    `/api/OrderManagement/WareHouseSeller/UpdateOrderStatus`,
+    `/api/OrderManagement/WareHouseSeller/Approvebag`,
     data,
     customHeader,
   );

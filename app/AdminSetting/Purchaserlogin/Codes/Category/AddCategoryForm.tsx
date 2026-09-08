@@ -4,6 +4,7 @@ import CategoryModifyApi from "@/app/api/Controller/PurchaserLogin/Codes/Categor
 import { storeList } from "@/app/api/Types/AdminSetting/Store/Store";
 import { CategoryList } from "@/app/api/Types/PurchaserLogin/Codes/Category/Category";
 import ActionButton from "@/app/ui/ActionButton/ActionButton";
+import GenericCheckbox from "@/app/ui/CheckBox/CheckBox";
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 import TextAreaFieldGeneric from "@/app/ui/TextArea/textArea";
@@ -27,6 +28,10 @@ export default function AddCategoryForm({
   const [StoreID, setStoreID] = useState("");
   const [description, setDescription] = useState("");
   const [ID, setID] = useState("");
+  const [Amount, setAmount] = useState("");
+  const [StartDate, setStartDate] = useState("");
+  const [EndDate, setEndDate] = useState("");
+  const [Checked, setChecked] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const CategoryAdd = async () => {
@@ -39,6 +44,10 @@ export default function AddCategoryForm({
           categoryName: CategoryName,
           description: description,
           storeID: StoreID,
+          startDate: Checked ? StartDate : "",
+          endDate: Checked ? EndDate : "",
+          discount: Checked ? Number(Amount) : 0,
+          isDiscount: Checked,
         };
         const token = localStorage.getItem("PurchaserLoginToken");
         const response = await CategoryAddApi(formData, String(token));
@@ -63,6 +72,10 @@ export default function AddCategoryForm({
           categoryName: CategoryName,
           description: description,
           storeID: StoreID,
+          startDate: Checked ? StartDate : "",
+          endDate: Checked ? EndDate : "",
+          discount: Checked ? Number(Amount) : 0,
+          isDiscount: Checked,
         };
         const token = localStorage.getItem("PurchaserLoginToken");
         const response = await CategoryModifyApi(formData, String(token));
@@ -84,6 +97,18 @@ export default function AddCategoryForm({
         setDescription(initalData.description);
         setStoreName(initalData.storeName);
         setStoreID(initalData.storeID);
+        setChecked(initalData.isDiscount);
+        setAmount(String(initalData.discount));
+        setStartDate(
+          initalData.isDiscount
+            ? new Date(initalData.startDate).toISOString().split("T")[0]
+            : "",
+        );
+        setEndDate(
+          initalData.isDiscount
+            ? new Date(initalData.endDate).toISOString().split("T")[0]
+            : "",
+        );
       }
     } else {
       setCategoryName("");
@@ -91,6 +116,10 @@ export default function AddCategoryForm({
       setID("");
       setStoreName("");
       setStoreID("");
+      setChecked(false);
+      setAmount("");
+      setStartDate("");
+      setEndDate("");
     }
   }, [initalData, update]);
   return (
@@ -119,6 +148,42 @@ export default function AddCategoryForm({
             setSateChange={setCategoryName}
             disabled={false}
           />
+          <GenericCheckbox
+            label="Add Discount"
+            checked={Checked}
+            onChange={setChecked}
+          />
+          {Checked && (
+            <>
+              <InputFieldGeneric
+                label="Amount"
+                type="number"
+                required={true}
+                placeholder="Enter Amount"
+                SateChange={Amount}
+                setSateChange={setAmount}
+                disabled={false}
+              />
+              <InputFieldGeneric
+                label="Start Date"
+                type="date"
+                required={true}
+                placeholder="Enter Start Date"
+                SateChange={StartDate}
+                setSateChange={setStartDate}
+                disabled={false}
+              />
+              <InputFieldGeneric
+                label="End Date"
+                type="date"
+                required={true}
+                placeholder="Enter End Date"
+                SateChange={EndDate}
+                setSateChange={setEndDate}
+                disabled={false}
+              />
+            </>
+          )}
           <TextAreaFieldGeneric
             label="Description"
             required={false}

@@ -245,6 +245,7 @@ export default function AddStoreDefaultSetting({
             SateChange={Email}
             setSateChange={setEmail}
             disabled={false}
+            readonly={true}
           />
           <InputFieldGeneric
             label="Phone No"
@@ -254,6 +255,7 @@ export default function AddStoreDefaultSetting({
             SateChange={PhoneNo}
             setSateChange={setPhoneNo}
             disabled={false}
+            readonly={true}
           />
           <InputFieldGeneric
             label="Address"
@@ -263,6 +265,7 @@ export default function AddStoreDefaultSetting({
             SateChange={Address}
             setSateChange={setAddress}
             disabled={false}
+            readonly={true}
           />
           <InputFieldGeneric
             label="Twitter"

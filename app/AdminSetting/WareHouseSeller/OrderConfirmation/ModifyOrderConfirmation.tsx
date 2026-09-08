@@ -1,4 +1,4 @@
-import { SendDataToApi } from "@/app/api/Controller/MiddleWare/CloudinaryUplaod";
+import { SendDataToApiVideo } from "@/app/api/Controller/MiddleWare/VideoUplaodCloudinary";
 import WareHouseOrderApproveGet from "@/app/api/Controller/WareHouseSeller/OrderApproveGet";
 import WareHouseRejectItem from "@/app/api/Controller/WareHouseSeller/RejectItem";
 import WareHouseRejectBag from "@/app/api/Controller/WareHouseSeller/RejectOrderBag";
@@ -12,11 +12,13 @@ import {
 import DropDownList from "@/app/ui/DropDownList/DropDownList";
 
 import FileVideoInputGeneric from "@/app/ui/inputFiled/VideoInputfield";
+import Spinner from "@/app/ui/UseFulLComponent/Spinner/Spinner";
 
 import {
   CheckCheck,
   ChevronDown,
   ChevronUp,
+  Ellipsis,
   Minus,
   Pencil,
   Plus,
@@ -26,29 +28,41 @@ import { useEffect, useState } from "react";
 
 interface propsForAddRegion {
   //update: boolean;
-  StoreList: storeList[];
+  StoreID: string;
   onShowMessage: (message: string, type: "success" | "error") => void;
   showMenu: (data: boolean) => void;
   description: string;
   setLoading: (data: boolean) => void;
   setCallFunction: number;
   setDescription: (data: string) => void;
+  activeTab: string;
 }
+interface VideoUrlData {
+  bagNo: string;
+  detailID: string;
+  file: File;
+}
+
 export default function ModifyOrderConfirmation({
-  StoreList,
+  StoreID,
   onShowMessage,
   showMenu,
   setLoading,
   description,
   setCallFunction,
   setDescription,
+  activeTab,
 }: propsForAddRegion) {
-  const [StoreName, setStoreName] = useState("");
-  const [StoreID, setStoreID] = useState("");
   const [OrderName, setOrderName] = useState("");
   const [OrderID, setOrderID] = useState("");
   const [orderList, setOrderList] = useState<dataWhole[]>([]);
-  const [logoUrl, setLogoUrl] = useState<File | null>(null);
+  const [isLoading, setisLoading] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<{
+    bagNo: string;
+    file: File | null;
+    detailID: string;
+  } | null>(null);
+  const [forVideo, setForVideo] = useState<VideoUrlData[]>([]);
   const [rejectItem, setRejectItem] = useState<{
     bagID: string;
     detailID: string;
@@ -61,46 +75,28 @@ export default function ModifyOrderConfirmation({
 
   const [open, setOpen] = useState("");
   const [subOpen, setSubOpen] = useState("");
-  const CategoryAdd = async (status: string) => {
-    try {
-      setLoading(true);
-      if (!StoreID) return alert("Please Fill in Filed with *");
-      else {
-        if (!logoUrl) return;
-        const data = await SendDataToApi(logoUrl);
-        const url = data.data;
-        const formData = {
-          bagsID: StoreID,
-          videoUrl: url,
-          description: description,
-          status: status,
-        };
-        const token = localStorage.getItem("WareHouseSellerToken");
-        const response = await WareHouseOrderConfirmation(
-          formData,
-          String(token),
-        );
-        if (response.status == 200) {
-          onShowMessage(response.data.message, "success");
-        } else {
-          onShowMessage(response.data.message, "error");
-        }
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+
   const getOrder = async (ID: string) => {
     const token = localStorage.getItem("WareHouseSellerToken");
     const response = await WareHouseOrderApproveGet(ID, String(token));
     if (response.status == 200) {
       const data = response.data as GetResponseWareHouse;
-      setOrderList(data.order);
+      const filteredData = data.order
+        .map((item) => ({
+          ...item,
+          bags: item.bags.filter(
+            (bags) => bags.status === "approved" && bags.orderType === "Sale",
+          ),
+        }))
+        .filter((order) => order.bags.length > 0);
+      setOrderList(filteredData);
     } else {
       setOrderList([]);
     }
   };
-
+  useEffect(() => {
+    getOrder(StoreID);
+  }, [StoreID]);
   const RejetcItem = async (bagID: string, detailID: string, qty: number) => {
     try {
       setLoading(true);
@@ -167,6 +163,88 @@ export default function ModifyOrderConfirmation({
       setLoading(false);
     }
   };
+
+  const ApproveBag = async (bagNo: string, orderNo: string) => {
+    try {
+      setisLoading(true);
+      const token = localStorage.getItem("WareHouseSellerToken");
+      const data = orderList.find((item) => item.orderNo === orderNo);
+      if (!data) {
+        onShowMessage("Order not found", "error");
+        return;
+      }
+      const bag = data.bags.find((item) => item.bagNo === bagNo);
+      if (!bag) {
+        onShowMessage("Bag not found", "error");
+        return;
+      }
+
+      const missingVideo = forVideo.find((item) => !item.file);
+
+      if (missingVideo) {
+        alert(`Please add a video file for bag ${missingVideo.bagNo}`);
+        return;
+      }
+      if (forVideo.length === 0) return alert(`Please add a video file`);
+      const value = await Promise.all(
+        forVideo.map(async (item) => {
+          const response2 = await SendDataToApiVideo(item.file);
+          return {
+            bagsNo: item.bagNo,
+            detailID: item.detailID,
+            status: "packed",
+            videoUrl: String(response2.data),
+          };
+        }),
+      );
+      const formData = {
+        details: value,
+      };
+      const response = await WareHouseOrderConfirmation(
+        formData,
+        String(token),
+      );
+      if (response.status === 200) {
+        onShowMessage(response.data.message, "success");
+        getOrder(StoreID);
+        setDescription("");
+      } else {
+        onShowMessage(response.data.message, "error");
+      }
+    } finally {
+      setisLoading(false);
+    }
+  };
+  useEffect(() => {
+    if (!logoUrl?.file) return;
+
+    setForVideo((prev) => {
+      const existingIndex = prev.findIndex(
+        (item) =>
+          item.bagNo === logoUrl.bagNo && item.detailID === logoUrl.detailID,
+      );
+
+      if (existingIndex !== -1) {
+        return prev.map((item, index) =>
+          index === existingIndex
+            ? {
+                bagNo: logoUrl.bagNo,
+                file: logoUrl.file!,
+                detailID: logoUrl.detailID,
+              }
+            : item,
+        );
+      }
+      return [
+        ...prev,
+        {
+          bagNo: logoUrl.bagNo,
+          file: logoUrl.file!,
+          detailID: logoUrl.detailID,
+        },
+      ];
+    });
+  }, [logoUrl]);
   useEffect(() => {
     if (setCallFunction > 0 && rejectOrder) {
       RejetcBags(rejectOrder?.bagID || "", rejectOrder?.orderNo || "");
@@ -181,26 +259,10 @@ export default function ModifyOrderConfirmation({
       setRejectItem(null);
     }
   }, [setCallFunction]);
-  useEffect(() => {
-    getOrder(StoreID);
-  }, [StoreID]);
+
   return (
     <>
       <div className="w-full flex flex-col gap-8">
-        <DropDownList
-          label="Store"
-          placeholder="Select Store"
-          required={true}
-          filedID={setStoreID}
-          value={StoreName}
-          onChange={setStoreName}
-          options={StoreList.map((item) => ({
-            label: item.storeName,
-            value: item.storeName,
-            id: item.storeID,
-          }))}
-        />
-
         <div className="space-y-8">
           {orderList.map((order) => (
             <div
@@ -285,21 +347,40 @@ export default function ModifyOrderConfirmation({
                                     {bag.status}
                                   </span>
                                 </div>
-                                <button
-                                  onClick={() => {
-                                    setRejectOrder({
-                                      bagID: bag.bagsID,
-                                      orderNo: order.orderNo,
-                                    });
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => {
+                                      if (isLoading) {
+                                        return;
+                                      } else {
+                                        ApproveBag(bag.bagNo, order.orderNo);
+                                      }
+                                    }}
+                                    className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 hover:text-green-800"
+                                    title="Approve Order"
+                                  >
+                                    {isLoading && bag.bagNo ? (
+                                      <Ellipsis className="mx-auto h-5 w-5" />
+                                    ) : (
+                                      <CheckCheck className="mx-auto h-5 w-5" />
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setRejectOrder({
+                                        bagID: bag.bagsID,
+                                        orderNo: order.orderNo,
+                                      });
 
-                                    showMenu(true);
-                                  }}
-                                  type="button"
-                                  className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 hover:text-red-800"
-                                  title="Delete Product"
-                                >
-                                  <Trash className="mx-auto h-5 w-5" />
-                                </button>
+                                      showMenu(true);
+                                    }}
+                                    type="button"
+                                    className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 hover:text-red-800"
+                                    title="Reject Order"
+                                  >
+                                    <Trash className="mx-auto h-5 w-5" />
+                                  </button>
+                                </div>
                               </div>
                             </td>
                           </tr>
@@ -398,15 +479,56 @@ export default function ModifyOrderConfirmation({
 
                                   {/* Video */}
                                   <td className="px-4 py-4 align-middle">
-                                    <FileVideoInputGeneric
+                                    <input
+                                      type="file"
+                                      className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm"
+                                      onChange={(e) => {
+                                        const value =
+                                          e.target.files?.[0] ?? null;
+                                        if ((value?.size || 0) / 1048576 >= 15)
+                                          return alert(
+                                            "Max File Size is 15 MB",
+                                          );
+                                        else {
+                                          setLogoUrl({
+                                            bagNo: bag.bagNo,
+                                            file: value,
+                                            detailID: product.detailID,
+                                          });
+                                        }
+                                      }}
+                                    />
+
+                                    {forVideo.find(
+                                      (item) =>
+                                        item.bagNo === bag.bagNo &&
+                                        item.detailID === product.detailID,
+                                    )?.file && (
+                                      <p className="mt-2 text-xs text-neutral-600">
+                                        {
+                                          forVideo.find(
+                                            (item) =>
+                                              item.bagNo === bag.bagNo &&
+                                              item.detailID ===
+                                                product.detailID,
+                                          )?.file.name
+                                        }
+                                      </p>
+                                    )}
+                                    {/* <FileVideoInputGeneric
                                       required={false}
                                       label=""
                                       accept="video/*"
                                       maxSizeMB={50}
                                       maxDurationSeconds={60}
                                       minDurationSeconds={5}
-                                      onFileChange={setLogoUrl}
-                                    />
+                                      onFileChange={(e)=>{
+                                        setLogoUrl({
+                                          bagNo:bag.bagNo,
+                                          file:e
+                                        })
+                                      }}
+                                    /> */}
                                   </td>
                                   <td className="px-4 py-4 text-center align-middle">
                                     {" "}
@@ -533,27 +655,49 @@ export default function ModifyOrderConfirmation({
 
                                       {/* Video */}
                                       <td className="px-4 py-4 align-middle">
-                                        <FileVideoInputGeneric
-                                          required={false}
-                                          label=""
-                                          accept="video/*"
-                                          maxSizeMB={50}
-                                          maxDurationSeconds={60}
-                                          minDurationSeconds={5}
-                                          onFileChange={setLogoUrl}
+                                        <input
+                                          type="file"
+                                          className="w-full px-4 py-2 rounded-lg border border-neutral-200 shadow-sm"
+                                          onChange={(e) => {
+                                            const value =
+                                              e.target.files?.[0] ?? null;
+                                            if (
+                                              (value?.size || 0) / 1048576 >=
+                                              15
+                                            )
+                                              return alert(
+                                                "Max File Size is 15 MB",
+                                              );
+                                            else {
+                                              setLogoUrl({
+                                                bagNo: bag.bagNo,
+                                                file: value,
+                                                detailID: product.detailID,
+                                              });
+                                            }
+                                          }}
                                         />
+                                        {forVideo.find(
+                                          (item) =>
+                                            item.bagNo === bag.bagNo &&
+                                            item.detailID === product.detailID,
+                                        )?.file && (
+                                          <p className="mt-2 text-sm text-neutral-600">
+                                            {
+                                              forVideo.find(
+                                                (item) =>
+                                                  item.bagNo === bag.bagNo &&
+                                                  item.detailID ===
+                                                    product.detailID,
+                                              )?.file.name
+                                            }
+                                          </p>
+                                        )}
                                       </td>
 
                                       {/* Actions */}
                                       <td className="px-4 py-4 text-center align-middle">
                                         -
-                                        {/* <button
-                                          type="button"
-                                          className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 hover:text-green-800"
-                                          title="Approve Order"
-                                        >
-                                          <CheckCheck className="mx-auto h-5 w-5" />
-                                        </button> */}
                                       </td>
                                       <td className="px-4 py-4 text-center align-middle">
                                         <button
