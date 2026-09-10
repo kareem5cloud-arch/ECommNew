@@ -21,6 +21,7 @@ import {
 } from "@/app/api/Types/WareHouse/OrderConfimration";
 import WareHouseShipOrder from "@/app/api/Controller/WareHouseSeller/ShippedOrder";
 import ReceiptPrintModal from "./GetSickerData/ReciptPrintPreviewModel";
+import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 
 export default function OrderCoinfirmation() {
   const [messageType, setMessageType] = useState<"success" | "error">(
@@ -39,6 +40,8 @@ export default function OrderCoinfirmation() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("approved");
   const [callFunction, setCallFunction] = useState(0);
+  const [RejetcQty, setRejetcQty] = useState<string>("");
+  const [OriginalQty, setOriginalQty] = useState<string>("");
   const [showCOnfirmShipping, setShowCOnfirmShipping] = useState(false);
   const [ledgerID, setLedgerID] = useState("");
   const [TotalBill, setTotalBill] = useState("");
@@ -78,6 +81,7 @@ export default function OrderCoinfirmation() {
         totalBill: 0,
         paymentStatus: PaymentStatus,
         paymentMethod: PaymentMethod,
+        orderStatus: "",
       };
       //console.log(formData);
       const response = await WareHouseShipOrder(formData, String(token));
@@ -116,11 +120,27 @@ export default function OrderCoinfirmation() {
             <button
               onClick={() => {
                 setShowMenu(false);
+                setOriginalQty("");
+                setRejetcQty("");
+                setDescription("");
               }}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
             >
               <X className="w-5 h-5" />
             </button>
+            {OriginalQty !== "" && (
+              <InputFieldGeneric
+                label="Reject Qty "
+                type="number"
+                required={false}
+                max={Number(OriginalQty)}
+                min={1}
+                placeholder="Enter Reject Qty "
+                SateChange={RejetcQty}
+                setSateChange={setRejetcQty}
+                disabled={false}
+              />
+            )}
             <TextAreaFieldGeneric
               label="Reason"
               required={false}
@@ -256,6 +276,8 @@ export default function OrderCoinfirmation() {
             <ModifyOrderConfirmation
               StoreID={StoreID}
               setLoading={setLoading}
+              setOriginalQty={setOriginalQty}
+              rejectQty={RejetcQty}
               showMenu={setShowMenu}
               activeTab={activeTab}
               setDescription={setDescription}
@@ -266,6 +288,9 @@ export default function OrderCoinfirmation() {
                 setMessageType(type);
                 if (type === "success") {
                   setView("list");
+                  setOriginalQty("");
+                  setRejetcQty("");
+                  setDescription("");
                 }
               }}
             />

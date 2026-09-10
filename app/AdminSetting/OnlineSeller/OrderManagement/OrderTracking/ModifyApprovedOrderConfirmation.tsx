@@ -28,6 +28,8 @@ import { useEffect, useState } from "react";
 
 interface propsForAddRegion {
   //update: boolean;
+  setOriginalQty: (data: string) => void;
+  rejectQty: String;
   StoreID: string;
   onShowMessage: (message: string, type: "success" | "error") => void;
   showMenu: (data: boolean) => void;
@@ -47,10 +49,12 @@ export default function ModifyApprovedOrderConfirmation({
   StoreID,
   onShowMessage,
   showMenu,
+  rejectQty,
   setLoading,
   description,
   setCallFunction,
   setDescription,
+  setOriginalQty,
   activeTab,
 }: propsForAddRegion) {
   const [OrderName, setOrderName] = useState("");
@@ -97,7 +101,7 @@ export default function ModifyApprovedOrderConfirmation({
   useEffect(() => {
     getOrder(StoreID);
   }, [StoreID]);
-  const RejetcItem = async (bagID: string, detailID: string, qty: number) => {
+  const RejetcItem = async (bagID: string, detailID: string) => {
     try {
       setLoading(true);
 
@@ -105,11 +109,10 @@ export default function ModifyApprovedOrderConfirmation({
 
       const formData = {
         bagsID: bagID,
-        qty: qty,
+        qty: Number(rejectQty),
         detailID: detailID,
         description: description,
       };
-
       const response = await WareHouseRejectItem(formData, String(token));
 
       if (response.status === 200) {
@@ -149,7 +152,6 @@ export default function ModifyApprovedOrderConfirmation({
           qty: product.qty,
         })),
       };
-
       const response = await WareHouseRejectBag(formData, String(token));
 
       if (response.status === 200) {
@@ -253,7 +255,7 @@ export default function ModifyApprovedOrderConfirmation({
       showMenu(false);
     }
     if (setCallFunction > 0 && rejectItem) {
-      RejetcItem(rejectItem.bagID, rejectItem.detailID, rejectItem.qty);
+      RejetcItem(rejectItem.bagID, rejectItem.detailID);
       showMenu(false);
       setRejectOrder(null);
       setRejectItem(null);
@@ -372,7 +374,7 @@ export default function ModifyApprovedOrderConfirmation({
                                           bagID: bag.bagsID,
                                           orderNo: order.orderNo,
                                         });
-
+                                        setOriginalQty("");
                                         showMenu(true);
                                       }}
                                       type="button"
@@ -459,45 +461,9 @@ export default function ModifyApprovedOrderConfirmation({
 
                                   {/* Quantity */}
                                   <td className="px-4 py-4 text-center align-middle">
-                                    <input
-                                      className="w-40 px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
-                                      type="number"
-                                      value={product.qty}
-                                      onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (value > (product?.qty || 0))
-                                          return alert(
-                                            `You Have Reached Max Qty Limit`,
-                                          );
-                                        setOrderList((prev) =>
-                                          prev.map((orderItem) => ({
-                                            ...orderItem,
-                                            bags: orderItem.bags.map(
-                                              (bagItem) => ({
-                                                ...bagItem,
-                                                product: bagItem.product.map(
-                                                  (productItem) =>
-                                                    productItem.detailID ===
-                                                      product.detailID &&
-                                                    bagItem.bagsID ===
-                                                      bag.bagsID &&
-                                                    orderItem.orderNo ===
-                                                      order.orderNo
-                                                      ? {
-                                                          ...productItem,
-                                                          qty: value,
-                                                        }
-                                                      : productItem,
-                                                ),
-                                              }),
-                                            ),
-                                          })),
-                                        );
-                                      }}
-                                    />
-                                    {/* <span className="inline-flex min-w-10 items-center justify-center rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+                                    <span className="inline-flex min-w-10 items-center justify-center rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
                                       {product.qty}
-                                    </span> */}
+                                    </span>
                                   </td>
 
                                   {/* Video */}
@@ -566,7 +532,7 @@ export default function ModifyApprovedOrderConfirmation({
                                           detailID: product.detailID,
                                           qty: product.qty,
                                         });
-
+                                        setOriginalQty(String(product.qty));
                                         showMenu(true);
                                       }}
                                       type="button"

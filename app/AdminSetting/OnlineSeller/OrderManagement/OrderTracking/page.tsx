@@ -24,6 +24,7 @@ import ModifyPackedOrderShipped from "./ModifyPackedOrderShipped";
 import ModifyReturnOrderConfirmation from "./ModifyReturnOrderConfirmation";
 import WareHouseRejectBag from "@/app/api/Controller/WareHouseSeller/RejectOrderBag";
 import ReturnManagement from "./ReturnManagement/page";
+import InputFieldGeneric from "@/app/ui/inputFiled/inputField";
 
 export default function OrderCoinfirmation() {
   const [messageType, setMessageType] = useState<"success" | "error">(
@@ -55,6 +56,8 @@ export default function OrderCoinfirmation() {
   const [sellerID, setSellerID] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [qty, setQty] = useState<string>("");
+  const [RejetcQty, setRejetcQty] = useState<string>("");
+  const [OriginalQty, setOriginalQty] = useState<string>("");
   const [rate, setRate] = useState<string>("");
   const [varaientValue, setVaraientValue] = useState("");
 
@@ -130,11 +133,27 @@ export default function OrderCoinfirmation() {
             <button
               onClick={() => {
                 setShowMenu(false);
+                setOriginalQty("");
+                setRejetcQty("");
+                setDescription("");
               }}
               className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
             >
               <X className="w-5 h-5" />
             </button>
+            {OriginalQty !== "" && (
+              <InputFieldGeneric
+                label="Reject Qty "
+                type="number"
+                required={false}
+                max={Number(OriginalQty)}
+                min={1}
+                placeholder="Enter Reject Qty "
+                SateChange={RejetcQty}
+                setSateChange={setRejetcQty}
+                disabled={false}
+              />
+            )}
             <TextAreaFieldGeneric
               label="Reason"
               required={false}
@@ -150,7 +169,9 @@ export default function OrderCoinfirmation() {
                 loading={loading}
                 loadingtext="Processing..."
                 size={true}
-                onClick={() => setCallFunction((prev) => prev + 1)}
+                onClick={() => {
+                  setCallFunction((prev) => prev + 1);
+                }}
                 disabled={false}
               />
             </div>
@@ -322,6 +343,8 @@ export default function OrderCoinfirmation() {
             <ModifyApprovedOrderConfirmation
               StoreID={StoreID}
               setLoading={setLoading}
+              setOriginalQty={setOriginalQty}
+              rejectQty={RejetcQty}
               showMenu={setShowMenu}
               activeTab={activeTab}
               setDescription={setDescription}
@@ -332,6 +355,9 @@ export default function OrderCoinfirmation() {
                 setMessageType(type);
                 if (type === "success") {
                   setView("list");
+                  setOriginalQty("");
+                  setRejetcQty("");
+                  setDescription("");
                 }
               }}
             />

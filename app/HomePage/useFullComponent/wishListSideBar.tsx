@@ -107,6 +107,7 @@ export default function WishlistSidebar({
       {
         attributeID: item.id,
         qty: 1,
+        aQty: item.quantity,
       },
     ];
     await addToServerCart(formData);

@@ -266,6 +266,7 @@ export default function OrderManagement() {
         {
           attributeID: item.varientID,
           qty: item.qty,
+          aQty: item.qty,
         },
       ];
       addToServerCart(formData);

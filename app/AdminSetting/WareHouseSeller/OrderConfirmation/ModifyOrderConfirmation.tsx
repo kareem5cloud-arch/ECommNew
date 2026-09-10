@@ -28,6 +28,8 @@ import { useEffect, useState } from "react";
 
 interface propsForAddRegion {
   //update: boolean;
+  setOriginalQty: (data: string) => void;
+  rejectQty: String;
   StoreID: string;
   onShowMessage: (message: string, type: "success" | "error") => void;
   showMenu: (data: boolean) => void;
@@ -47,10 +49,12 @@ export default function ModifyOrderConfirmation({
   StoreID,
   onShowMessage,
   showMenu,
+  rejectQty,
   setLoading,
   description,
   setCallFunction,
   setDescription,
+  setOriginalQty,
   activeTab,
 }: propsForAddRegion) {
   const [OrderName, setOrderName] = useState("");
@@ -97,7 +101,7 @@ export default function ModifyOrderConfirmation({
   useEffect(() => {
     getOrder(StoreID);
   }, [StoreID]);
-  const RejetcItem = async (bagID: string, detailID: string, qty: number) => {
+  const RejetcItem = async (bagID: string, detailID: string) => {
     try {
       setLoading(true);
 
@@ -105,11 +109,10 @@ export default function ModifyOrderConfirmation({
 
       const formData = {
         bagsID: bagID,
-        qty: qty,
+        qty: Number(rejectQty),
         detailID: detailID,
         description: description,
       };
-
       const response = await WareHouseRejectItem(formData, String(token));
 
       if (response.status === 200) {
@@ -149,7 +152,6 @@ export default function ModifyOrderConfirmation({
           qty: product.qty,
         })),
       };
-
       const response = await WareHouseRejectBag(formData, String(token));
 
       if (response.status === 200) {
@@ -253,7 +255,7 @@ export default function ModifyOrderConfirmation({
       showMenu(false);
     }
     if (setCallFunction > 0 && rejectItem) {
-      RejetcItem(rejectItem.bagID, rejectItem.detailID, rejectItem.qty);
+      RejetcItem(rejectItem.bagID, rejectItem.detailID);
       showMenu(false);
       setRejectOrder(null);
       setRejectItem(null);
@@ -316,70 +318,93 @@ export default function ModifyOrderConfirmation({
                               colSpan={7}
                               className="border-y border-blue-100 px-4 py-3"
                             >
-                              <div className="flex items-center justify-between">
-                                <div className="flex gap-2">
-                                  {order.bags.length !== 1 && (
-                                    <button className=" cursor-pointer transition">
-                                      <>
-                                        {subOpen === bag.bagsID ? (
-                                          <Minus size={15} />
-                                        ) : (
-                                          <Plus size={15} />
-                                        )}
-                                      </>
-                                    </button>
-                                  )}
+                              <div className="w-full flex flex-col">
+                                <div className="flex items-center justify-between">
                                   <div className="flex gap-2">
-                                    <span className="text-sm mt-1 font-semibold text-gray-800">
-                                      Bag No:
-                                    </span>
+                                    {order.bags.length !== 1 && (
+                                      <button className=" cursor-pointer transition">
+                                        <>
+                                          {subOpen === bag.bagsID ? (
+                                            <Minus size={15} />
+                                          ) : (
+                                            <Plus size={15} />
+                                          )}
+                                        </>
+                                      </button>
+                                    )}
+                                    <div className="flex gap-2">
+                                      <span className="text-sm mt-1 font-semibold text-gray-800">
+                                        Bag No:
+                                      </span>
 
-                                    <span className="rounded-md bg-blue-100 px-2.5 py-1 text-sm font-bold text-blue-700">
-                                      {bag.bagNo.split("-").pop()}
-                                    </span>
-                                    <span className="rounded-md bg-blue-100 px-2.5 py-1 text-sm font-bold text-blue-700 text-xs">
-                                      Items:{bag.product.length}
+                                      <span className="rounded-md bg-blue-100 px-2.5 py-1 text-sm font-bold text-blue-700">
+                                        {bag.bagNo.split("-").pop()}
+                                      </span>
+                                      <span className="rounded-md bg-blue-100 px-2.5 py-1 text-sm font-bold text-blue-700 text-xs">
+                                        Items:{bag.product.length}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium capitalize text-green-700">
+                                      {bag.status}
                                     </span>
                                   </div>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        if (isLoading) {
+                                          return;
+                                        } else {
+                                          ApproveBag(bag.bagNo, order.orderNo);
+                                        }
+                                      }}
+                                      className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 hover:text-green-800"
+                                      title="Approve Order"
+                                    >
+                                      {isLoading && bag.bagNo ? (
+                                        <Ellipsis className="mx-auto h-5 w-5" />
+                                      ) : (
+                                        <CheckCheck className="mx-auto h-5 w-5" />
+                                      )}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setRejectOrder({
+                                          bagID: bag.bagsID,
+                                          orderNo: order.orderNo,
+                                        });
+                                        setOriginalQty("");
+                                        showMenu(true);
+                                      }}
+                                      type="button"
+                                      className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 hover:text-red-800"
+                                      title="Reject Order"
+                                    >
+                                      <Trash className="mx-auto h-5 w-5" />
+                                    </button>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium capitalize text-green-700">
-                                    {bag.status}
-                                  </span>
-                                </div>
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => {
-                                      if (isLoading) {
-                                        return;
-                                      } else {
-                                        ApproveBag(bag.bagNo, order.orderNo);
-                                      }
-                                    }}
-                                    className="rounded-lg p-2 text-green-600 transition hover:bg-green-50 hover:text-green-800"
-                                    title="Approve Order"
-                                  >
-                                    {isLoading && bag.bagNo ? (
-                                      <Ellipsis className="mx-auto h-5 w-5" />
-                                    ) : (
-                                      <CheckCheck className="mx-auto h-5 w-5" />
-                                    )}
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      setRejectOrder({
-                                        bagID: bag.bagsID,
-                                        orderNo: order.orderNo,
-                                      });
+                                <div>
+                                  {bag.description && (
+                                    <div className="mt-3 relative">
+                                      {/* Sticky Note */}
+                                      <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-r-lg shadow-sm">
+                                        <div className="flex items-start gap-2">
+                                          <div className="flex-1">
+                                            <span className="text-xs font-semibold text-yellow-700 uppercase tracking-wide">
+                                              📌 Note
+                                            </span>
+                                            <p className="text-sm text-gray-700 mt-0.5 leading-relaxed">
+                                              {bag.description}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
 
-                                      showMenu(true);
-                                    }}
-                                    type="button"
-                                    className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 hover:text-red-800"
-                                    title="Reject Order"
-                                  >
-                                    <Trash className="mx-auto h-5 w-5" />
-                                  </button>
+                                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-yellow-100 rounded-tr-lg rounded-bl-lg opacity-50"></div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </td>
@@ -412,7 +437,7 @@ export default function ModifyOrderConfirmation({
 
                                       <div className="min-w-0">
                                         <p className="max-w-[450px] truncate text-sm font-semibold uppercase text-gray-900">
-                                          {product.productName} -{" "}
+                                          {product.productName} - -{" "}
                                           {product.varintValue
                                             .map((item) => item.value)
                                             .join(" - ")}
@@ -436,45 +461,9 @@ export default function ModifyOrderConfirmation({
 
                                   {/* Quantity */}
                                   <td className="px-4 py-4 text-center align-middle">
-                                    <input
-                                      className="w-40 px-4 py-2 rounded-lg border border-neutral-200 shadow-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none transition"
-                                      type="number"
-                                      value={product.qty}
-                                      onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        if (value > (product?.qty || 0))
-                                          return alert(
-                                            `You Have Reached Max Qty Limit`,
-                                          );
-                                        setOrderList((prev) =>
-                                          prev.map((orderItem) => ({
-                                            ...orderItem,
-                                            bags: orderItem.bags.map(
-                                              (bagItem) => ({
-                                                ...bagItem,
-                                                product: bagItem.product.map(
-                                                  (productItem) =>
-                                                    productItem.detailID ===
-                                                      product.detailID &&
-                                                    bagItem.bagsID ===
-                                                      bag.bagsID &&
-                                                    orderItem.orderNo ===
-                                                      order.orderNo
-                                                      ? {
-                                                          ...productItem,
-                                                          qty: value,
-                                                        }
-                                                      : productItem,
-                                                ),
-                                              }),
-                                            ),
-                                          })),
-                                        );
-                                      }}
-                                    />
-                                    {/* <span className="inline-flex min-w-10 items-center justify-center rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
+                                    <span className="inline-flex min-w-10 items-center justify-center rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-700">
                                       {product.qty}
-                                    </span> */}
+                                    </span>
                                   </td>
 
                                   {/* Video */}
@@ -543,7 +532,7 @@ export default function ModifyOrderConfirmation({
                                           detailID: product.detailID,
                                           qty: product.qty,
                                         });
-
+                                        setOriginalQty(String(product.qty));
                                         showMenu(true);
                                       }}
                                       type="button"

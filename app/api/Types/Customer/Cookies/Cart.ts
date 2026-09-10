@@ -4,4 +4,5 @@ export interface cartList {
 export interface CartData {
   attributeID: string;
   qty: number;
+  aQty?: number;
 }

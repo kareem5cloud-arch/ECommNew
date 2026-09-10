@@ -1,7 +1,7 @@
 // app/admin/page.tsx (Dashboard)
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -17,98 +17,97 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  PackageX,
+  PackageSearch,
 } from "lucide-react";
+import CustoemrDashboardStatsApi from "@/app/api/Controller/Customer/Dashboard/Dashboard";
+
+interface ResponseData {
+  message: string;
+  error: string;
+  stats: {
+    totalOrder: number;
+    totalBag: number;
+    rejectedBag: number;
+    pendingOrder: number;
+  };
+  productList: productList[];
+}
+interface productList {
+  bagNo: string;
+  postingDate: string;
+  productName: string;
+  qty: number;
+  status: string;
+}
 
 export default function AdminDashboard() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [TotalOrder, setTotalOrder] = useState("");
+  const [TotalBag, setTotalBag] = useState("");
+  const [RejetcedBag, setRejetcedBag] = useState("");
+  const [PendingOrder, setPendingOrder] = useState("");
+  const [productData, setProductData] = useState<productList[]>([]);
 
+  const getStats = async () => {
+    try {
+      const token = localStorage.getItem("customerToken");
+      const response = await CustoemrDashboardStatsApi(String(token));
+      if (response.status === 200) {
+        const data = response.data as ResponseData;
+        setTotalOrder(String(data.stats.totalOrder));
+        setTotalBag(String(data.stats.totalBag));
+        setRejetcedBag(String(data.stats.rejectedBag));
+        setPendingOrder(String(data.stats.pendingOrder));
+        setProductData(data.productList);
+      }
+    } finally {
+    }
+  };
+  useEffect(() => {
+    getStats();
+  }, []);
   const stats = [
     {
-      title: "Total Revenue",
-      value: "$54,239",
-      change: "+12.5%",
-      trend: "up",
-      icon: DollarSign,
+      title: "Total Order",
+      value: TotalOrder,
+
+      icon: ShoppingBag,
       color: "bg-blue-500",
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      title: "Total Users",
-      value: "12,345",
-      change: "+8.2%",
-      trend: "up",
-      icon: Users,
+      title: "Rejected Bags",
+      value: RejetcedBag,
+
+      icon: PackageX,
       color: "bg-green-500",
       bgColor: "bg-green-50 dark:bg-green-900/20",
     },
     {
-      title: "Total Orders",
-      value: "1,234",
-      change: "+23.1%",
-      trend: "up",
-      icon: ShoppingBag,
+      title: "Pending Bags",
+      value: PendingOrder,
+
+      icon: PackageSearch,
       color: "bg-purple-500",
       bgColor: "bg-purple-50 dark:bg-purple-900/20",
-    },
-    {
-      title: "Average Rating",
-      value: "4.8",
-      change: "-0.2%",
-      trend: "down",
-      icon: Star,
-      color: "bg-yellow-500",
-      bgColor: "bg-yellow-50 dark:bg-yellow-900/20",
-    },
-  ];
-
-  const recentOrders = [
-    {
-      id: "#12345",
-      customer: "John Smith",
-      amount: "$234.50",
-      status: "Completed",
-      date: "2024-01-15",
-    },
-    {
-      id: "#12346",
-      customer: "Sarah Johnson",
-      amount: "$567.80",
-      status: "Processing",
-      date: "2024-01-14",
-    },
-    {
-      id: "#12347",
-      customer: "Mike Chen",
-      amount: "$123.45",
-      status: "Pending",
-      date: "2024-01-14",
-    },
-    {
-      id: "#12348",
-      customer: "Emma Wilson",
-      amount: "$890.00",
-      status: "Completed",
-      date: "2024-01-13",
-    },
-    {
-      id: "#12349",
-      customer: "Alex Rivera",
-      amount: "$345.67",
-      status: "Shipped",
-      date: "2024-01-13",
     },
   ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "Completed":
+      case "delieverd":
         return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
-      case "Processing":
+      case "approved":
         return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
-      case "Pending":
+      case "pending":
         return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
-      case "Shipped":
+      case "Reclaimed":
+        return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case "shipped":
         return "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400";
+      case "rejected":
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400";
     }
@@ -126,7 +125,7 @@ export default function AdminDashboard() {
             Welcome back! Here's what's happening with your store today.
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+        {/*<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <button className="flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             <Calendar className="w-4 h-4" />
             <span className="hidden sm:inline">Last 30 days</span>
@@ -137,7 +136,7 @@ export default function AdminDashboard() {
             <span className="hidden sm:inline">Export Data</span>
             <span className="sm:hidden">Export</span>
           </button>
-        </div>
+        </div>*/}
       </div>
 
       {/* Stats Grid - Responsive cards */}
@@ -163,18 +162,6 @@ export default function AdminDashboard() {
                 <p className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
                   {stat.value}
                 </p>
-                <div
-                  className={`flex items-center gap-1 text-xs sm:text-sm font-medium ${
-                    stat.trend === "up" ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {stat.trend === "up" ? (
-                    <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                  ) : (
-                    <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4" />
-                  )}
-                  {stat.change}
-                </div>
               </div>
             </div>
           </div>
@@ -182,8 +169,8 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Section - Responsive grid */}
-      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
-        {/* Revenue Chart */}
+      {/* <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+        
         <div className="lg:col-span-2 rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 p-4 sm:p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
@@ -206,7 +193,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Top Products */}
         <div className="rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 p-4 sm:p-6 shadow-sm">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">
             Top Products
@@ -237,7 +223,7 @@ export default function AdminDashboard() {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Recent Orders Table - Responsive with horizontal scroll on mobile */}
       <div className="rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
@@ -245,9 +231,9 @@ export default function AdminDashboard() {
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
             Recent Orders
           </h3>
-          <button className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 self-start sm:self-auto">
+          {/* <button className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 self-start sm:self-auto">
             View all orders →
-          </button>
+          </button> */}
         </div>
 
         {/* Desktop Table */}
@@ -259,10 +245,10 @@ export default function AdminDashboard() {
                   Order ID
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Customer
+                  Product Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Amount
+                  Qty
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Status
@@ -273,19 +259,19 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {recentOrders.map((order) => (
+              {productData.map((order) => (
                 <tr
-                  key={order.id}
+                  key={order.bagNo}
                   className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {order.id}
+                    {order.bagNo}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
-                    {order.customer}
+                    {order.productName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                    {order.amount}
+                    {order.qty}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -295,7 +281,7 @@ export default function AdminDashboard() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                    {order.date}
+                    {new Date(order.postingDate).toDateString()}
                   </td>
                 </tr>
               ))}
@@ -305,18 +291,18 @@ export default function AdminDashboard() {
 
         {/* Mobile Card View */}
         <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
-          {recentOrders.map((order) => (
+          {productData.map((order) => (
             <div
-              key={order.id}
+              key={order.bagNo}
               className="p-4 space-y-2 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
             >
               <div className="flex justify-between items-start">
                 <div>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                    {order.id}
+                    {order.bagNo}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {order.customer}
+                    {order.productName}
                   </p>
                 </div>
                 <span
@@ -327,10 +313,10 @@ export default function AdminDashboard() {
               </div>
               <div className="flex justify-between items-center pt-2">
                 <p className="text-lg font-bold text-gray-900 dark:text-white">
-                  {order.amount}
+                  {order.qty}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {order.date}
+                  {new Date(order.postingDate).toDateString()}
                 </p>
               </div>
             </div>

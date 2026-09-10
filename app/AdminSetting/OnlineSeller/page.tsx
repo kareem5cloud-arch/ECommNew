@@ -51,6 +51,7 @@ import {
   Bike,
   UserSearch,
   Wallet,
+  PackageX,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -94,6 +95,20 @@ export default function OnlineSellerSidebar() {
           href: "/AdminSetting/OnlineSeller/OrderManagement/OrderTracking",
         },
       ],
+    },
+    {
+      id: "DamagedProduct",
+      label: "Damaged Product",
+      icon: PackageX,
+      href: "/AdminSetting/OnlineSeller/DamageProduct",
+      type: "link",
+    },
+    {
+      id: "GeneralExpense",
+      label: "General Expense",
+      icon: Coins,
+      href: "/AdminSetting/OnlineSeller/GeneralExpense",
+      type: "link",
     },
   ];
 

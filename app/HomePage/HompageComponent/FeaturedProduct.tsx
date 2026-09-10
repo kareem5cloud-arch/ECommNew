@@ -81,28 +81,36 @@ export default function FeaturedProduct({
   const handleAddToCart = async (product: ProductSectionHomePage) => {
     const attrId = product.variants[0].varientID;
     if (attrId) {
-      const data: CartData[] = [
-        {
-          attributeID: attrId,
-          qty: 1,
-        },
-      ];
-      await addToServerCart(data);
-      functionCalling();
+      const data2 = product.variants.find((item) => (item.varientID = attrId));
+      if (data2) {
+        const data: CartData[] = [
+          {
+            attributeID: attrId,
+            qty: 1,
+            aQty: data2.qty,
+          },
+        ];
+        await addToServerCart(data);
+        functionCalling();
+      }
     }
   };
 
   const handleAddToWishlist = async (product: ProductSectionHomePage) => {
     const attrId = product.variants[0].varientID;
     if (attrId) {
-      const data: CartData[] = [
-        {
-          attributeID: attrId,
-          qty: 1,
-        },
-      ];
-      await addToServerWishList(data);
-      functionCallingWishList();
+      const data2 = product.variants.find((item) => (item.varientID = attrId));
+      if (data2) {
+        const data: CartData[] = [
+          {
+            attributeID: attrId,
+            qty: 1,
+            aQty: data2.qty,
+          },
+        ];
+        await addToServerWishList(data);
+        functionCallingWishList();
+      }
     }
   };
   if (!ProductData || ProductData.length === 0) {
