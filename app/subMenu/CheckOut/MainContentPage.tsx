@@ -1329,7 +1329,15 @@ export default function MainContentPage({
                   <div className="border-t border-gray-100 pt-2 mt-2">
                     <div className="flex justify-between font-semibold text-gray-900">
                       <span>Total</span>
-                      <span className="text-lg">{total.toLocaleString()}</span>
+                      {dicountType === "Decimal" ? (
+                        <span className="text-lg">
+                          {(total - Number(promoDiscount)).toLocaleString()}
+                        </span>
+                      ) : (
+                        <span className="text-lg">
+                          {total.toLocaleString()}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

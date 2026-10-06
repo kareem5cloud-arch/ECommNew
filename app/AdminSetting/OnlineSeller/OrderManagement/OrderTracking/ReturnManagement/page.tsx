@@ -160,7 +160,7 @@ export default function ReturnManagement({
         orderDetail: {
           varientID: varientID,
           qty: Number(Qty),
-          rate: 0,
+          rate: Number(Amount),
         },
       };
       //console.log(formData);

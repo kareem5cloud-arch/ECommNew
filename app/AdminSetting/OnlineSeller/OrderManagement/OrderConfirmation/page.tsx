@@ -125,11 +125,11 @@ export default function OrderConfirmation() {
   const statusStyle = (status: string) => {
     switch (status) {
       case "approved":
-        return "bg-green-100 text-green-800 border-green-200";
+        return "bg-green-100 capitalize text-green-800 border-green-200";
       case "rejected":
-        return "bg-red-100 text-red-800 border-red-200";
+        return "bg-red-100 capitalize text-red-800 border-red-200";
       default:
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-yellow-100 capitalize text-yellow-800 border-yellow-200";
     }
   };
 
@@ -479,7 +479,8 @@ export default function OrderConfirmation() {
 
                         {/* Quantity */}
                         <td className="p-3 text-center text-gray-600 font-medium">
-                          Qty: {item.qty}
+                          Qty:{" "}
+                          {item.orderType === "Sale" ? item.qty : -item.qty}
                         </td>
 
                         {/* Item Price */}
@@ -490,7 +491,7 @@ export default function OrderConfirmation() {
                         {/* Status */}
                         <td className="p-3 text-center">
                           <span
-                            className={`px-3 py-1 text-sm font-medium rounded-full border inline-block ${statusStyle(
+                            className={`px-3 py-1 text-sm font-medium rounded-full border  inline-block ${statusStyle(
                               item.status,
                             )}`}
                           >

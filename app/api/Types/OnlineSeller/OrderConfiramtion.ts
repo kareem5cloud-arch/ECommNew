@@ -22,6 +22,7 @@ export interface orderOnlineSeller {
 export interface orderDetailOnlineSeller {
   detailID: string;
   productName: string;
+  orderType: string;
   varientID: string;
   rate: number;
   bags: number;
